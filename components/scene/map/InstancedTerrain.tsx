@@ -30,7 +30,7 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
 
     return (
         <instancedMesh ref={ref} args={[boxGeometry, undefined, bufferSize]} raycast={() => null}>
-            <meshStandardMaterial map={texture} />
+            <meshLambertMaterial map={texture} />
         </instancedMesh>
     )
 }
@@ -56,7 +56,7 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices, grassTexture, di
         <>
             <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.55, 0]} raycast={() => null}>
                 <planeGeometry args={[10000, 10000]} />
-                <meshStandardMaterial map={repeatingGrassTexture} />
+                <meshLambertMaterial map={repeatingGrassTexture} />
             </mesh>
             <InstancedBlocks texture={grassTexture} matrices={grassMatrices} />
             <InstancedBlocks texture={dirtTexture} matrices={dirtMatrices} />

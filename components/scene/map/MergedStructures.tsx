@@ -21,37 +21,37 @@ export const MergedStructures = ({ villageGeometries, textures }: MergedStructur
                 <group key={village.id}>
                     {village.geometries.cobble && (
                         <mesh geometry={village.geometries.cobble} raycast={() => null}>
-                            <meshStandardMaterial map={textures.cobble} />
+                            <meshLambertMaterial map={textures.cobble} />
                         </mesh>
                     )}
                     {village.geometries.plank && (
                         <mesh geometry={village.geometries.plank} raycast={() => null}>
-                            <meshStandardMaterial map={textures.plank} />
+                            <meshLambertMaterial map={textures.plank} />
                         </mesh>
                     )}
                     {village.geometries.glass && (
                         <mesh geometry={village.geometries.glass} raycast={() => null}>
-                            <meshStandardMaterial map={textures.glass} transparent opacity={0.6} />
+                            <meshLambertMaterial map={textures.glass} transparent opacity={0.6} />
                         </mesh>
                     )}
                     {village.geometries.brick && (
                         <mesh geometry={village.geometries.brick} raycast={() => null}>
-                            <meshStandardMaterial map={textures.brick} />
+                            <meshLambertMaterial map={textures.brick} />
                         </mesh>
                     )}
                     {village.geometries.stoneBrick && (
                         <mesh geometry={village.geometries.stoneBrick} raycast={() => null}>
-                            <meshStandardMaterial map={textures.stoneBrick} />
+                            <meshLambertMaterial map={textures.stoneBrick} />
                         </mesh>
                     )}
                     {village.treeGeometries.trunk && (
                         <mesh geometry={village.treeGeometries.trunk} raycast={() => null}>
-                            <meshStandardMaterial map={textures.tree} />
+                            <meshLambertMaterial map={textures.tree} />
                         </mesh>
                     )}
                     {village.treeGeometries.leaves && (
                         <mesh geometry={village.treeGeometries.leaves} raycast={() => null}>
-                            <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} />
+                            <meshLambertMaterial map={textures.leaves} transparent opacity={0.8} />
                         </mesh>
                     )}
                 </group>

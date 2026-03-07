@@ -16,7 +16,11 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     return (
         <>
             {!isReady && <LoadingScreen />}
-            <Canvas gl={{ logarithmicDepthBuffer: true }} style={{ height: '100vh', width: '100vw' }}>
+            <Canvas
+                dpr={[1, 1.5]}
+                gl={{ antialias: false, logarithmicDepthBuffer: true }}
+                style={{ height: '100vh', width: '100vw' }}
+            >
                 <ambientLight intensity={0.5} />
                 <VoxelWorld villages={villages} onReady={() => setIsReady(true)} />
             </Canvas>
