@@ -14,10 +14,17 @@ import { MAP_SETTINGS } from '@/config/settings'
 type VoxelWorldProps = {
     villages: Village[]
     onReady?: () => void
+    onCountChange?: (count: number) => void
 }
 
 const CameraTracker = ({ loadMore, hasMore, isLoading, offset }: { loadMore: () => void, hasMore: boolean, isLoading: boolean, offset: number }) => {
     useFrame((state) => {
+        const coordsEl = document.getElementById('coords-display')
+        if (coordsEl && (state.controls as any)) {
+            const target = (state.controls as any).getTarget(new THREE.Vector3())
+            coordsEl.innerText = `X: ${Math.round(target.x)} Z: ${Math.round(target.z)}`
+        }
+
         if (!hasMore || isLoading) return
 
         const cameraDistance = Math.sqrt(state.camera.position.x ** 2 + state.camera.position.z ** 2)
@@ -40,7 +47,7 @@ const VegetationGroup = ({ children }: { children: React.ReactNode }) => {
     return <group ref={groupRef}>{children}</group>
 }
 
-export const VoxelWorld = ({ villages, onReady }: VoxelWorldProps) => {
+export const VoxelWorld = ({ villages, onReady, onCountChange }: VoxelWorldProps) => {
     const cameraControlsRef = useRef<CameraControls>(null)
     const { 
         villageGeometries,
@@ -57,8 +64,9 @@ export const VoxelWorld = ({ villages, onReady }: VoxelWorldProps) => {
     useEffect(() => {
         if (villageGeometries && villageGeometries.length > 0) {
             onReady?.()
+            onCountChange?.(villageGeometries.length)
         }
-    }, [villageGeometries, onReady])
+    }, [villageGeometries, onReady, onCountChange])
 
     const [
         dirtTexture,

@@ -9,3 +9,9 @@ body {
     overflow: hidden;
     background-color: #202020;
 }
+
+.rs-base {
+    top: auto !important;
+    bottom: 55px !important;
+    left: 0 !important;
+}
