@@ -1,15 +1,10 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import type { Metadata } from "next"
+import { Pixelify_Sans } from "next/font/google"
+import "./globals.css"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
+const pixelifySans = Pixelify_Sans({
     subsets: ["latin"],
+    weight: ["400"]
 })
 
 const siteConfig = {
@@ -53,11 +48,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${pixelifySans.className} antialiased`}>
         {children}
       </body>
     </html>
-  );
+  )
 }
