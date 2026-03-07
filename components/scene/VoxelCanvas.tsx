@@ -3,16 +3,23 @@
 import { Canvas } from '@react-three/fiber'
 import { Village } from '@/lib/types'
 import { VoxelWorld } from './map/VoxelWorld'
+import { useState } from 'react'
+import LoadingScreen from '../ui/LoadingScreen'
 
 type VoxelCanvasProps = {
     villages: Village[]
 }
 
 export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
+    const [isReady, setIsReady] = useState(false)
+
     return (
-        <Canvas shadows style={{ height: '100vh', width: '100vw' }}>
-            <ambientLight intensity={0.5} />
-            <VoxelWorld villages={villages} />
-        </Canvas>
+        <>
+            {!isReady && <LoadingScreen />}
+            <Canvas gl={{ logarithmicDepthBuffer: true }} style={{ height: '100vh', width: '100vw' }}>
+                <ambientLight intensity={0.5} />
+                <VoxelWorld villages={villages} onReady={() => setIsReady(true)} />
+            </Canvas>
+        </>
     )
 }

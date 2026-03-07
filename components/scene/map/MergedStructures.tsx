@@ -1,8 +1,8 @@
 import * as THREE from 'three'
+import { VillageData } from '@/lib/types'
 
 type MergedStructuresProps = {
-    geometries: Record<string, THREE.BufferGeometry | null> | null
-    treeGeometries: { trunk: THREE.BufferGeometry | null, leaves: THREE.BufferGeometry | null } | null
+    villageGeometries: VillageData[]
     textures: {
         cobble: THREE.Texture
         plank: THREE.Texture
@@ -14,45 +14,48 @@ type MergedStructuresProps = {
     }
 }
 
-export const MergedStructures = ({ geometries, treeGeometries, textures }: MergedStructuresProps) => {
+export const MergedStructures = ({ villageGeometries, textures }: MergedStructuresProps) => {
     return (
         <>
-            {geometries?.cobble && (
-                <mesh geometry={geometries.cobble} castShadow>
-                    <meshStandardMaterial map={textures.cobble} />
-                </mesh>
-            )}
-            {geometries?.plank && (
-                <mesh geometry={geometries.plank} castShadow>
-                    <meshStandardMaterial map={textures.plank} />
-                </mesh>
-            )}
-            {geometries?.glass && (
-                <mesh geometry={geometries.glass} castShadow>
-                    <meshStandardMaterial map={textures.glass} transparent opacity={0.6} />
-                </mesh>
-            )}
-            {geometries?.brick && (
-                <mesh geometry={geometries.brick} castShadow>
-                    <meshStandardMaterial map={textures.brick} />
-                </mesh>
-            )}
-            {geometries?.stoneBrick && (
-                <mesh geometry={geometries.stoneBrick} castShadow>
-                    <meshStandardMaterial map={textures.stoneBrick} />
-                </mesh>
-            )}
-            
-            {treeGeometries?.trunk && (
-                <mesh geometry={treeGeometries.trunk} castShadow>
-                    <meshStandardMaterial map={textures.tree} />
-                </mesh>
-            )}
-            {treeGeometries?.leaves && (
-                <mesh geometry={treeGeometries.leaves} castShadow>
-                    <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} />
-                </mesh>
-            )}
+            {villageGeometries.map(village => (
+                <group key={village.id}>
+                    {village.geometries.cobble && (
+                        <mesh geometry={village.geometries.cobble} raycast={() => null}>
+                            <meshStandardMaterial map={textures.cobble} />
+                        </mesh>
+                    )}
+                    {village.geometries.plank && (
+                        <mesh geometry={village.geometries.plank} raycast={() => null}>
+                            <meshStandardMaterial map={textures.plank} />
+                        </mesh>
+                    )}
+                    {village.geometries.glass && (
+                        <mesh geometry={village.geometries.glass} raycast={() => null}>
+                            <meshStandardMaterial map={textures.glass} transparent opacity={0.6} />
+                        </mesh>
+                    )}
+                    {village.geometries.brick && (
+                        <mesh geometry={village.geometries.brick} raycast={() => null}>
+                            <meshStandardMaterial map={textures.brick} />
+                        </mesh>
+                    )}
+                    {village.geometries.stoneBrick && (
+                        <mesh geometry={village.geometries.stoneBrick} raycast={() => null}>
+                            <meshStandardMaterial map={textures.stoneBrick} />
+                        </mesh>
+                    )}
+                    {village.treeGeometries.trunk && (
+                        <mesh geometry={village.treeGeometries.trunk} raycast={() => null}>
+                            <meshStandardMaterial map={textures.tree} />
+                        </mesh>
+                    )}
+                    {village.treeGeometries.leaves && (
+                        <mesh geometry={village.treeGeometries.leaves} raycast={() => null}>
+                            <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} />
+                        </mesh>
+                    )}
+                </group>
+            ))}
         </>
     )
 }

@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { MAP_SETTINGS } from '@/config/settings'
 
 export type HouseType = 'singleStory' | 'twoStory' | 'tenement'
 
@@ -21,14 +22,14 @@ export const generateHousePositions = (
     
     const houseCount = types.length
     const generatedHouses: HouseData[] = []
-    const maxTotalAttempts = houseCount * 100
+    const maxTotalAttempts = houseCount * MAP_SETTINGS.MAX_PLACEMENT_ATTEMPTS_MULTIPLIER
     let attempts = 0
-    const baseRadius = 5 + (houseCount * 0.5)
+    const baseRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (houseCount * MAP_SETTINGS.HOUSE_PLACEMENT_RADIUS_MULTIPLIER)
 
     while (generatedHouses.length < houseCount && attempts < maxTotalAttempts) {
         attempts++
         const randomAngle = Math.random() * 2 * Math.PI
-        const randomRadius = baseRadius + Math.random() * 15
+        const randomRadius = baseRadius + Math.random() * MAP_SETTINGS.HOUSE_PLACEMENT_RANDOM_RADIUS
         const houseX = villageRootPosition[0] + Math.cos(randomAngle) * randomRadius
         const houseZ = villageRootPosition[2] + Math.sin(randomAngle) * randomRadius
         const newPos = new THREE.Vector3(houseX, 0, houseZ)
@@ -54,4 +55,34 @@ export const generateHousePositions = (
     }
     
     return generatedHouses
+}
+
+export interface PlacedVillage { 
+    position: THREE.Vector3, 
+    radius: number 
+}
+
+export const calculateSpiralPosition = (index: number, villageRadius: number, placedVillages: PlacedVillage[], padding: number = MAP_SETTINGS.VILLAGE_PADDING): THREE.Vector3 => {
+    if (index === 0) {
+        return new THREE.Vector3(0, 0, 0)
+    }
+
+    let attempt = index
+    const scale = MAP_SETTINGS.SPIRAL_SCALE
+
+    while (true) {
+        const angle = attempt * MAP_SETTINGS.SPIRAL_ANGLE_CONSTANT
+        const r = scale * Math.sqrt(attempt)
+        const x = r * Math.cos(angle)
+        const z = r * Math.sin(angle)
+        const testPos = new THREE.Vector3(x, 0, z)
+
+        const hasCollision = placedVillages.some(v => v.position.distanceTo(testPos) < (villageRadius + v.radius + padding))
+        
+        if (hasCollision) {
+            attempt += MAP_SETTINGS.SPIRAL_COLLISION_STEP
+        } else {
+            return testPos
+        }
+    }
 }
