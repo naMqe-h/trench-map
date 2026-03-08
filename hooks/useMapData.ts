@@ -17,6 +17,16 @@ export const useMapData = (initialVillages: Village[]) => {
     const [hasMore, setHasMore] = useState(true)
     const [villageGeometries, setVillageGeometries] = useState<VillageData[]>([])
 
+    const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
+        setRawVillages(prev => {
+            if (prev.some(v => v.ca === newVillage.ca)) return prev
+            return [...prev, newVillage]
+        })
+        if (isNew) {
+            setOffset(prev => prev + 1)
+        }
+    }, [])
+
     const loadMoreVillages = useCallback(async () => {
         if (isLoading || !hasMore) return
 
@@ -27,7 +37,10 @@ export const useMapData = (initialVillages: Village[]) => {
             setHasMore(false)
         }
 
-        setRawVillages(prev => [...prev, ...newVillages])
+        setRawVillages(prev => {
+            const added = newVillages.filter(nv => !prev.some(pv => pv.ca === nv.ca))
+            return [...prev, ...added]
+        })
         setOffset(prev => prev + newVillages.length)
         setIsLoading(false)
     }, [isLoading, hasMore, offset])
@@ -61,7 +74,7 @@ export const useMapData = (initialVillages: Village[]) => {
             })
             const radius = maxDist + MAP_SETTINGS.VILLAGE_RADIUS_PADDING
 
-            const spiralIndex = lastProcessedIndex.current + index
+            const spiralIndex = (village as any).forcedIndex !== undefined ? (village as any).forcedIndex : lastProcessedIndex.current + index
             const position = calculateSpiralPosition(spiralIndex, radius, placedVillagesCache.current, MAP_SETTINGS.VILLAGE_PADDING)
 
             placedVillagesCache.current.push({ position, radius })
@@ -218,6 +231,7 @@ export const useMapData = (initialVillages: Village[]) => {
         loadMoreVillages,
         isLoading,
         hasMore,
-        offset
+        offset,
+        addLiveToken
     }
 }

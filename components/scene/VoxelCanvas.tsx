@@ -1,11 +1,13 @@
 "use client"
 
+import { useState, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { Village } from '@/lib/types'
 import { VoxelWorld } from './map/VoxelWorld'
-import { useState } from 'react'
-import LoadingScreen from '../ui/LoadingScreen'
+import { Village } from '@/lib/types'
 import { BottomBar } from '../ui/BottomBar'
+import { TopBar } from '../ui/TopBar'
+import { CameraControls } from '@react-three/drei'
+import LoadingScreen from '../ui/LoadingScreen'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -14,9 +16,18 @@ type VoxelCanvasProps = {
 export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const [isReady, setIsReady] = useState(false)
     const [villageCount, setVillageCount] = useState(0)
+    const cameraControlsRef = useRef<CameraControls>(null)
+    const [newVillageData, setNewVillageData] = useState<{ village: Village, trigger: number, isNew: boolean } | null>(null)
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    const handleTokenProcessed = (village: Village, index: number, isNew: boolean = true) => {
+        setIsGenerating(true)
+        setNewVillageData({ village, trigger: Date.now(), isNew })
+    }
 
     return (
         <>
+            <TopBar onTokenProcessed={handleTokenProcessed} isGenerating={isGenerating} />
             {!isReady && <LoadingScreen />}
             <Canvas
                 dpr={[1, 1.5]}
@@ -24,10 +35,13 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 style={{ height: '100vh', width: '100vw' }}
             >
                 <ambientLight intensity={0.5} />
-                <VoxelWorld 
-                    villages={villages} 
-                    onReady={() => setIsReady(true)} 
+                <VoxelWorld
+                    villages={villages}
+                    onReady={() => setIsReady(true)}
                     onCountChange={setVillageCount}
+                    controlsRef={cameraControlsRef}
+                    newVillage={newVillageData}
+                    onFlyToStart={() => setIsGenerating(false)}
                 />
             </Canvas>
             <BottomBar villageCount={villageCount} />

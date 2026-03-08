@@ -8,13 +8,16 @@ import { InstancedTerrain } from './InstancedTerrain'
 import { MergedStructures } from './MergedStructures'
 import { useMapData } from '@/hooks/useMapData'
 import { Sprite } from '../decorations/Sprite'
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
 
 type VoxelWorldProps = {
     villages: Village[]
     onReady?: () => void
     onCountChange?: (count: number) => void
+    controlsRef?: React.RefObject<any>
+    newVillage?: { village: Village, trigger: number, isNew: boolean } | null
+    onFlyToStart?: () => void
 }
 
 const CameraTracker = ({ loadMore, hasMore, isLoading, offset }: { loadMore: () => void, hasMore: boolean, isLoading: boolean, offset: number }) => {
@@ -47,8 +50,10 @@ const VegetationGroup = ({ children }: { children: React.ReactNode }) => {
     return <group ref={groupRef}>{children}</group>
 }
 
-export const VoxelWorld = ({ villages, onReady, onCountChange }: VoxelWorldProps) => {
-    const cameraControlsRef = useRef<CameraControls>(null)
+export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, onFlyToStart }: VoxelWorldProps) => {
+    const defaultCameraControlsRef = useRef<any>(null)
+    const activeControlsRef = controlsRef || defaultCameraControlsRef
+
     const { 
         villageGeometries,
         instancedTerrain, 
@@ -58,8 +63,46 @@ export const VoxelWorld = ({ villages, onReady, onCountChange }: VoxelWorldProps
         loadMoreVillages,
         isLoading,
         hasMore,
-        offset
+        offset,
+        addLiveToken
     } = useMapData(villages)
+
+    const lastTrigger = useRef<number>(0)
+    const [pendingFlyToCa, setPendingFlyToCa] = useState<string | null>(null)
+
+    useEffect(() => {
+        if (newVillage && newVillage.trigger !== lastTrigger.current) {
+            lastTrigger.current = newVillage.trigger
+
+            const existingVillage = villageGeometries.find(v => v.ca === newVillage.village.ca)
+
+            if (existingVillage) {
+                setPendingFlyToCa(newVillage.village.ca)
+            } else {
+                setPendingFlyToCa(newVillage.village.ca)
+                addLiveToken(newVillage.village, newVillage.isNew)
+            }
+        }
+    }, [newVillage, villageGeometries, addLiveToken])
+
+    useEffect(() => {
+        if (pendingFlyToCa) {
+            const targetVillage = villageGeometries.find(v => v.ca === pendingFlyToCa)
+            if (targetVillage) {
+                const pos = targetVillage.position
+                
+                activeControlsRef.current?.setLookAt(
+                    pos.x + 60, 50, pos.z + 60,
+                    pos.x, 0, pos.z,
+                    true
+                )
+                
+                onFlyToStart?.()
+                
+                setPendingFlyToCa(null)
+            }
+        }
+    }, [villageGeometries, pendingFlyToCa, activeControlsRef, onFlyToStart])
 
     useEffect(() => {
         if (villageGeometries && villageGeometries.length > 0) {
@@ -107,7 +150,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange }: VoxelWorldProps
             <CameraTracker loadMore={loadMoreVillages} hasMore={hasMore} isLoading={isLoading} offset={offset} />
             <PerspectiveCamera makeDefault position={[center.x + 10, 40, center.z + 60]} fov={45} />
             <CameraControls 
-                ref={cameraControlsRef} 
+                ref={activeControlsRef} 
                 makeDefault 
                 maxPolarAngle={MAP_SETTINGS.CAMERA_MAX_POLAR_ANGLE} 
                 minDistance={MAP_SETTINGS.CAMERA_MIN_DISTANCE} 

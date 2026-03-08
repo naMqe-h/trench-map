@@ -43,8 +43,8 @@ export async function addToken(mint: string): Promise<Village> {
 
 
     const price = asset.token_info?.price_info?.price_per_token ?? 0
-    const supply = asset.token_info?.supply ?? 1_000_000_000
-    const marketCap = price * supply
+    const supply = (asset.token_info?.supply && +(asset.token_info?.supply / 1000000).toFixed(0)) ?? 1_000_000_000
+    const marketCap = +(price * supply).toFixed(0)
 
     const houses = {
         tenement: 0,
@@ -68,7 +68,7 @@ export async function addToken(mint: string): Promise<Village> {
         name,
         ticker,
         image,
-        market_cap: marketCap,
+        market_cap: Number(marketCap.toFixed(0)),
         houses,
         socials,
         last_updated: new Date().toISOString(),

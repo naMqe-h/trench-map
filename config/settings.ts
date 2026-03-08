@@ -20,11 +20,11 @@ export const MAP_SETTINGS = {
     // Multiplier for camera distance chunk loading
     CAMERA_LOAD_THRESHOLD_MULTIPLIER: 10,
     // Padding for floor generation around villages
-    BOUNDS_PADDING: 20,
+    BOUNDS_PADDING: 100,
     // Minimum distance between houses
     MIN_HOUSE_DISTANCE: 12,
     // Additional padding for village radius calculation
-    VILLAGE_RADIUS_PADDING: 8,
+    VILLAGE_RADIUS_PADDING: 12,
     // Footprint size for tenement houses
     TENEMENT_FOOTPRINT: 7,
     // Footprint size for other houses
