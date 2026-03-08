@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { MAP_SETTINGS } from '@/config/settings'
 
 export const DynamicSunLight = () => {
     const lightRef = useRef<THREE.DirectionalLight>(null!)
@@ -29,7 +30,7 @@ export const DynamicSunLight = () => {
     return (
         <directionalLight
             ref={lightRef}
-            intensity={1.5}
+            intensity={MAP_SETTINGS.SUN_LIGHT_INTENSITY}
         />
     )
 }

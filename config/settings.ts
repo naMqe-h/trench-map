@@ -2,7 +2,7 @@ export const MAP_SETTINGS = {
     // Toggle to enable or disable the generation and rendering of small vegetation like grass and flowers
     ENABLE_VEGETATION: false,
     // Minimum zoom distance
-    CAMERA_MIN_DISTANCE: 10,
+    CAMERA_MIN_DISTANCE: 50,
     // Maximum zoom distance
     CAMERA_MAX_DISTANCE: 800,
     // Prevents camera from going under the floor
@@ -14,7 +14,7 @@ export const MAP_SETTINGS = {
     // Minimum empty space between village boundaries
     VILLAGE_PADDING: 4,
     // Higher number = fewer trees (1 / TREE_DENSITY_DIVISOR)
-    TREE_DENSITY_DIVISOR: 600,
+    TREE_DENSITY_DIVISOR: 300,
     // Base scale for Fermat's Spiral
     SPIRAL_SCALE: 15,
     // Multiplier for camera distance chunk loading
@@ -24,7 +24,7 @@ export const MAP_SETTINGS = {
     // Minimum distance between houses
     MIN_HOUSE_DISTANCE: 12,
     // Additional padding for village radius calculation
-    VILLAGE_RADIUS_PADDING: 10,
+    VILLAGE_RADIUS_PADDING: 8,
     // Footprint size for tenement houses
     TENEMENT_FOOTPRINT: 7,
     // Footprint size for other houses
@@ -47,4 +47,6 @@ export const MAP_SETTINGS = {
     SPIRAL_ANGLE_CONSTANT: 2.39996,
     // Step for spiral collision check
     SPIRAL_COLLISION_STEP: 0.5,
+    // Sun light intensity
+    SUN_LIGHT_INTENSITY: 1.2
 }
