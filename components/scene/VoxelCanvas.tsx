@@ -18,16 +18,16 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const [villageCount, setVillageCount] = useState(0)
     const cameraControlsRef = useRef<CameraControls>(null)
     const [newVillageData, setNewVillageData] = useState<{ village: Village, trigger: number, isNew: boolean } | null>(null)
-    const [isGenerating, setIsGenerating] = useState(false)
+    const [generationStep, setGenerationStep] = useState<string | null>(null)
 
     const handleTokenProcessed = (village: Village, index: number, isNew: boolean = true) => {
-        setIsGenerating(true)
+        setGenerationStep('fetching')
         setNewVillageData({ village, trigger: Date.now(), isNew })
     }
 
     return (
         <>
-            <TopBar onTokenProcessed={handleTokenProcessed} isGenerating={isGenerating} />
+            <TopBar onTokenProcessed={handleTokenProcessed} generationStep={generationStep} />
             {!isReady && <LoadingScreen />}
             <Canvas
                 dpr={[1, 1.5]}
@@ -41,7 +41,8 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     onCountChange={setVillageCount}
                     controlsRef={cameraControlsRef}
                     newVillage={newVillageData}
-                    onFlyToStart={() => setIsGenerating(false)}
+                    setGenerationStep={setGenerationStep}
+                    onFlyToStart={() => setGenerationStep(null)}
                 />
             </Canvas>
             <BottomBar villageCount={villageCount} />

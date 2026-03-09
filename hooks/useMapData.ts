@@ -9,7 +9,7 @@ import { createTreeGeometries } from '@/components/scene/decorations/Tree'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 
-export const useMapData = (initialVillages: Village[]) => {
+export const useMapData = (initialVillages: Village[], setGenerationStep?: (step: string | null) => void) => {
     const [rawVillages, setRawVillages] = useState<Village[]>(initialVillages)
     const [offset, setOffset] = useState(initialVillages.length)
     const [isLoading, setIsLoading] = useState(false)
@@ -65,92 +65,98 @@ export const useMapData = (initialVillages: Village[]) => {
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
 
         workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
-            const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, center: centerArr } = event.data
+            setGenerationStep?.('building')
+            const data = event.data
 
-            const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
-                const village = vData.village
-                const position = new THREE.Vector3().fromArray(vData.position)
-                const radius = vData.radius
+            setTimeout(() => {
+                const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, center: centerArr } = data
 
-                const villageHouses = vData.villageHouses.map((h) => ({
-                    position: new THREE.Vector3().fromArray(h.position),
-                    type: h.type
-                }))
+                const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
+                    const village = vData.village
+                    const position = new THREE.Vector3().fromArray(vData.position)
+                    const radius = vData.radius
 
-                housesCache.current.push(...villageHouses)
+                    const villageHouses = vData.villageHouses.map((h) => ({
+                        position: new THREE.Vector3().fromArray(h.position),
+                        type: h.type
+                    }))
 
-                const localHouseGeometries: Record<string, THREE.BufferGeometry[]> = {
-                    cobble: [], plank: [], glass: [], brick: [], stoneBrick: []
-                }
-                const localTreeGeometries: { trunk: THREE.BufferGeometry[], leaves: THREE.BufferGeometry[] } = {
-                    trunk: [], leaves: []
-                }
+                    housesCache.current.push(...villageHouses)
 
-                villageHouses.forEach((house) => {
-                    let houseGeos
-                    const pos = house.position.toArray() as THREE.Vector3Tuple
-                    if (house.type === 'tenement') {
-                        houseGeos = createTenementGeometries(pos)
-                    } else if (house.type === 'twoStory') {
-                        houseGeos = createTwoStoryHouseGeometries(pos)
-                    } else {
-                        houseGeos = createBasicHouseGeometries(pos)
+                    const localHouseGeometries: Record<string, THREE.BufferGeometry[]> = {
+                        cobble: [], plank: [], glass: [], brick: [], stoneBrick: []
+                    }
+                    const localTreeGeometries: { trunk: THREE.BufferGeometry[], leaves: THREE.BufferGeometry[] } = {
+                        trunk: [], leaves: []
                     }
 
-                    for (const [type, geos] of Object.entries(houseGeos)) {
-                        if (localHouseGeometries[type] && geos.length > 0) {
-                            localHouseGeometries[type].push(...geos)
+                    villageHouses.forEach((house) => {
+                        let houseGeos
+                        const pos = house.position.toArray() as THREE.Vector3Tuple
+                        if (house.type === 'tenement') {
+                            houseGeos = createTenementGeometries(pos)
+                        } else if (house.type === 'twoStory') {
+                            houseGeos = createTwoStoryHouseGeometries(pos)
+                        } else {
+                            houseGeos = createBasicHouseGeometries(pos)
                         }
+
+                        for (const [type, geos] of Object.entries(houseGeos)) {
+                            if (localHouseGeometries[type] && geos.length > 0) {
+                                localHouseGeometries[type].push(...geos)
+                            }
+                        }
+                    })
+
+                    vData.treeSpots.forEach((spot) => {
+                        const { trunk, leaves } = createTreeGeometries(spot as THREE.Vector3Tuple)
+                        localTreeGeometries.trunk.push(...trunk)
+                        localTreeGeometries.leaves.push(...leaves)
+                    })
+
+                    const mergedVillageGeometries: Record<string, THREE.BufferGeometry | null> = {}
+                    for (const type in localHouseGeometries) {
+                        const geos = localHouseGeometries[type]
+                        mergedVillageGeometries[type] = geos.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(geos) : null
+                        geos.forEach(geo => geo.dispose())
+                    }
+
+                    const mergedVillageTreeGeometries = {
+                        trunk: localTreeGeometries.trunk.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.trunk) : null,
+                        leaves: localTreeGeometries.leaves.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.leaves) : null,
+                    }
+                    localTreeGeometries.trunk.forEach(geo => geo.dispose())
+                    localTreeGeometries.leaves.forEach(geo => geo.dispose())
+
+                    return {
+                        ...village,
+                        position,
+                        radius,
+                        placedHouses: villageHouses,
+                        geometries: mergedVillageGeometries,
+                        treeGeometries: mergedVillageTreeGeometries
                     }
                 })
 
-                vData.treeSpots.forEach((spot) => {
-                    const { trunk, leaves } = createTreeGeometries(spot as THREE.Vector3Tuple)
-                    localTreeGeometries.trunk.push(...trunk)
-                    localTreeGeometries.leaves.push(...leaves)
+                newGrassMatrices.forEach((arr: number[]) => {
+                    grassMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
+                })
+                newDirtMatrices.forEach((arr: number[]) => {
+                    dirtMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
                 })
 
-                const mergedVillageGeometries: Record<string, THREE.BufferGeometry | null> = {}
-                for (const type in localHouseGeometries) {
-                    const geos = localHouseGeometries[type]
-                    mergedVillageGeometries[type] = geos.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(geos) : null
-                    geos.forEach(geo => geo.dispose())
-                }
+                vegetationSpotsCache.current.push(...newVegetationSpots)
 
-                const mergedVillageTreeGeometries = {
-                    trunk: localTreeGeometries.trunk.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.trunk) : null,
-                    leaves: localTreeGeometries.leaves.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.leaves) : null,
-                }
-                localTreeGeometries.trunk.forEach(geo => geo.dispose())
-                localTreeGeometries.leaves.forEach(geo => geo.dispose())
-
-                return {
-                    ...village,
-                    position,
-                    radius,
-                    placedHouses: villageHouses,
-                    geometries: mergedVillageGeometries,
-                    treeGeometries: mergedVillageTreeGeometries
-                }
-            })
-
-            newGrassMatrices.forEach((arr: number[]) => {
-                grassMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
-            })
-            newDirtMatrices.forEach((arr: number[]) => {
-                dirtMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
-            })
-
-            vegetationSpotsCache.current.push(...newVegetationSpots)
-
-            setCenter(new THREE.Vector3().fromArray(centerArr))
-            setVillageGeometries(prev => [...prev, ...newVillageGeometries])
+                setCenter(new THREE.Vector3().fromArray(centerArr))
+                setVillageGeometries(prev => [...prev, ...newVillageGeometries])
+                setGenerationStep?.(null)
+            }, 0)
         }
 
         return () => {
             workerRef.current?.terminate()
         }
-    }, [])
+    }, [setGenerationStep])
 
     useEffect(() => {
         if (rawVillages.length <= lastProcessedIndex.current) return
@@ -164,7 +170,7 @@ export const useMapData = (initialVillages: Village[]) => {
         workerRef.current?.postMessage(request)
 
         lastProcessedIndex.current = rawVillages.length
-    }, [rawVillages])
+    }, [rawVillages, setGenerationStep])
 
     return {
         villageGeometries,

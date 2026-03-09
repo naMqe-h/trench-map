@@ -6,10 +6,10 @@ import { processToken } from '@/actions/processToken'
 
 type TopBarProps = {
     onTokenProcessed: (village: Village, index: number, isNew: boolean) => void
-    isGenerating: boolean
+    generationStep: string | null
 }
 
-export function TopBar({ onTokenProcessed, isGenerating }: TopBarProps) {
+export function TopBar({ onTokenProcessed, generationStep }: TopBarProps) {
     const [contractAddress, setContractAddress] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -37,23 +37,31 @@ export function TopBar({ onTokenProcessed, isGenerating }: TopBarProps) {
         }
     }
 
+    const getButtonText = () => {
+        if (isLoading) return "Processing..."
+        if (generationStep === 'fetching') return "Fetching data..."
+        if (generationStep === 'calculating') return "Calculating terrain..."
+        if (generationStep === 'building') return "Building structures..."
+        return "Search"
+    }
+
     return (
         <div className="fixed top-0 left-0 w-full z-50 bg-black/70 backdrop-blur-md px-4 py-3 flex justify-center items-center font-minecraft">
-            <form onSubmit={handleSubmit} className="w-full flex justify-center items-center gap-2">
+            <form onSubmit={handleSubmit} className="w-full flex flex-col sm:flex-row justify-center items-center gap-2">
                 <input
                     type="text"
                     value={contractAddress}
                     onChange={(e) => setContractAddress(e.target.value)}
                     placeholder="Enter Contract Address"
-                    disabled={isLoading || isGenerating}
-                    className="bg-gray-900 text-white border border-gray-700 p-2 w-full max-w-md placeholder-gray-500 disabled:opacity-50"
+                    disabled={isLoading || !!generationStep}
+                    className="bg-gray-900 text-white border border-gray-700 p-2 w-full sm:max-w-md placeholder-gray-500 disabled:opacity-50"
                 />
                 <button
                     type="submit"
-                    disabled={isLoading || isGenerating || !contractAddress.trim()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                    disabled={isLoading || !!generationStep || !contractAddress.trim()}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 border border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto cursor-pointer"
                 >
-                    {isLoading ? "Processing..." : isGenerating ? "Generating..." : "Find / Build"}
+                    {getButtonText()}
                 </button>
             </form>
             {error && (
@@ -64,3 +72,4 @@ export function TopBar({ onTokenProcessed, isGenerating }: TopBarProps) {
         </div>
     )
 }
+

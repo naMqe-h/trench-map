@@ -17,6 +17,7 @@ type VoxelWorldProps = {
     onCountChange?: (count: number) => void
     controlsRef?: React.RefObject<any>
     newVillage?: { village: Village, trigger: number, isNew: boolean } | null
+    setGenerationStep?: (step: string | null) => void
     onFlyToStart?: () => void
 }
 
@@ -50,7 +51,7 @@ const VegetationGroup = ({ children }: { children: React.ReactNode }) => {
     return <group ref={groupRef}>{children}</group>
 }
 
-export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, onFlyToStart }: VoxelWorldProps) => {
+export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, setGenerationStep, onFlyToStart }: VoxelWorldProps) => {
     const defaultCameraControlsRef = useRef<any>(null)
     const activeControlsRef = controlsRef || defaultCameraControlsRef
 
@@ -65,7 +66,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
         hasMore,
         offset,
         addLiveToken
-    } = useMapData(villages)
+    } = useMapData(villages, setGenerationStep)
 
     const lastTrigger = useRef<number>(0)
     const [pendingFlyToCa, setPendingFlyToCa] = useState<string | null>(null)
@@ -90,15 +91,15 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
             const targetVillage = villageGeometries.find(v => v.ca === pendingFlyToCa)
             if (targetVillage) {
                 const pos = targetVillage.position
-                
+
                 activeControlsRef.current?.setLookAt(
                     pos.x + 60, 50, pos.z + 60,
                     pos.x, 0, pos.z,
                     true
                 )
-                
+
                 onFlyToStart?.()
-                
+
                 setPendingFlyToCa(null)
             }
         }
