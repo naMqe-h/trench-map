@@ -3,7 +3,12 @@ import { BufferGeometry } from 'three'
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 
-export const createTenementGeometries = (position: THREE.Vector3Tuple) => {
+export const createTenementGeometries = (position: THREE.Vector3Tuple): {
+    brick: BufferGeometry[],
+    stoneBrick: BufferGeometry[],
+    plank: BufferGeometry[],
+    glass: BufferGeometry[]
+} => {
     const [x, y, z] = position
 
     const brickGeometries: BufferGeometry[] = []

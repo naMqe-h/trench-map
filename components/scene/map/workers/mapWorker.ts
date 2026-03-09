@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
-import { generateHousePositions, calculateSpiralPosition, PlacedVillage } from '@/components/scene/map/utils/mapGeneration'
-import { Village } from '@/lib/types'
+import { generateHousePositions, calculateSpiralPosition } from '@/components/scene/map/utils/mapGeneration'
+import { Village, PlacedVillage, MapWorkerRequest, MapWorkerPayload, VegetationData, ProcessedVillageData, VegetationType } from '@/lib/types'
 
 const placedVillagesCache: PlacedVillage[] = []
 const boundsCache = new THREE.Box3()
@@ -9,13 +9,13 @@ const grassCoordsCache = new Set<string>()
 const dirtCoordsCache = new Set<string>()
 const occupiedCoordsCache = new Set<string>()
 
-self.addEventListener('message', (event: MessageEvent) => {
+self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
     const { newVillages, startIndex } = event.data
 
     const dummy = new THREE.Object3D()
     const tempBounds = new THREE.Box3()
     
-    const processedVillages: any[] = []
+    const processedVillages: ProcessedVillageData[] = []
 
     newVillages.forEach((village: Village, index: number) => {
         const villageHouses = generateHousePositions(village.houses, [0, 0, 0], [], MAP_SETTINGS.MIN_HOUSE_DISTANCE)
@@ -26,7 +26,7 @@ self.addEventListener('message', (event: MessageEvent) => {
         })
         const radius = maxDist + MAP_SETTINGS.VILLAGE_RADIUS_PADDING
 
-        const spiralIndex = (village as any).forcedIndex !== undefined ? (village as any).forcedIndex : startIndex + index
+        const spiralIndex = village.forcedIndex !== undefined ? village.forcedIndex : startIndex + index
         const position = calculateSpiralPosition(spiralIndex, radius, placedVillagesCache, MAP_SETTINGS.VILLAGE_PADDING)
 
         placedVillagesCache.push({ position, radius })
@@ -52,7 +52,7 @@ self.addEventListener('message', (event: MessageEvent) => {
         const villageMinZ = Math.floor(localBounds.min.z - MAP_SETTINGS.VILLAGE_PADDING);
         const villageMaxZ = Math.ceil(localBounds.max.z + MAP_SETTINGS.VILLAGE_PADDING);
 
-        const treeSpots: number[][] = []
+        const treeSpots: [number, number, number][] = []
 
         for (let x = villageMinX; x <= villageMaxX; x++) {
             for (let z = villageMinZ; z <= villageMaxZ; z++) {
@@ -81,7 +81,7 @@ self.addEventListener('message', (event: MessageEvent) => {
 
     const newGrassMatrices: number[][] = []
     const newDirtMatrices: number[][] = []
-    const newVegetationSpots: { position: [number, number, number], type: 'rose' | 'smallGrass' }[] = []
+    const newVegetationSpots: VegetationData[] = []
 
     if (!boundsCache.isEmpty()) {
         const maxRadius = Math.max(...processedVillages.map(v => v.radius), 0)
@@ -121,7 +121,7 @@ self.addEventListener('message', (event: MessageEvent) => {
                         if (occupiedCoordsCache.has(key)) continue
 
                         if (MAP_SETTINGS.ENABLE_VEGETATION && Math.random() < MAP_SETTINGS.VEGETATION_DENSITY) {
-                            const type = Math.random() > MAP_SETTINGS.ROSE_TO_GRASS_RATIO ? 'rose' : 'smallGrass'
+                            const type: VegetationType = Math.random() > MAP_SETTINGS.ROSE_TO_GRASS_RATIO ? 'rose' : 'smallGrass'
                             newVegetationSpots.push({ position: [x, -0.5, z], type })
                         }
                     }
@@ -133,11 +133,13 @@ self.addEventListener('message', (event: MessageEvent) => {
     const center = new THREE.Vector3()
     boundsCache.getCenter(center)
 
-    self.postMessage({
+    const payload: MapWorkerPayload = {
         processedVillages,
         newGrassMatrices,
         newDirtMatrices,
         newVegetationSpots,
         center: center.toArray()
-    })
+    }
+
+    self.postMessage(payload)
 })

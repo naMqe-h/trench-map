@@ -3,7 +3,10 @@ import { BufferGeometry } from 'three'
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 
-export const createTreeGeometries = (position: THREE.Vector3Tuple) => {
+export const createTreeGeometries = (position: THREE.Vector3Tuple): {
+    trunk: BufferGeometry[],
+    leaves: BufferGeometry[]
+} => {
     const [x, y, z] = position
 
     const trunkGeometries: BufferGeometry[] = []

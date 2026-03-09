@@ -1,12 +1,6 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
-
-export type HouseType = 'singleStory' | 'twoStory' | 'tenement'
-
-export type HouseData = {
-    position: THREE.Vector3
-    type: HouseType
-}
+import { HouseData, HouseType, PlacedVillage } from '@/lib/types'
 
 export const generateHousePositions = (
     houseCounts: { singleStory: number, twoStory: number, tenement: number },
@@ -66,10 +60,7 @@ export const generateHousePositions = (
     return generatedHouses
 }
 
-export interface PlacedVillage { 
-    position: THREE.Vector3, 
-    radius: number 
-}
+
 
 export const calculateSpiralPosition = (index: number, villageRadius: number, placedVillages: PlacedVillage[], padding: number = MAP_SETTINGS.VILLAGE_PADDING): THREE.Vector3 => {
     if (index === 0) {

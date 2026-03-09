@@ -1,8 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
-import { Village, VillageData } from '@/lib/types'
-import { HouseData } from '@/components/scene/map/utils/mapGeneration'
+import { Village, VillageData, HouseData, MapWorkerPayload, ProcessedVillageData, VegetationData, MapWorkerRequest } from '@/lib/types'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
 import { createTwoStoryHouseGeometries } from '@/components/scene/houses/TwoStoryHouse'
 import { createBasicHouseGeometries } from '@/components/scene/houses/BasicHouse'
@@ -49,8 +48,8 @@ export const useMapData = (initialVillages: Village[]) => {
     const housesCache = useRef<HouseData[]>([])
     const grassMatricesCache = useRef<THREE.Matrix4[]>([])
     const dirtMatricesCache = useRef<THREE.Matrix4[]>([])
-    const vegetationSpotsCache = useRef<{ position: THREE.Vector3Tuple, type: 'rose' | 'smallGrass' }[]>([])
-    
+    const vegetationSpotsCache = useRef<VegetationData[]>([])
+
     const workerRef = useRef<Worker | null>(null)
     const [center, setCenter] = useState<THREE.Vector3>(new THREE.Vector3())
 
@@ -60,22 +59,22 @@ export const useMapData = (initialVillages: Village[]) => {
         grassMatricesCache.current = []
         dirtMatricesCache.current = []
         vegetationSpotsCache.current = []
-        
+
         setVillageGeometries([])
 
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
-        
-        workerRef.current.onmessage = (event) => {
+
+        workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
             const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, center: centerArr } = event.data
 
-            const newVillageGeometries: VillageData[] = processedVillages.map((vData: any) => {
+            const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                 const village = vData.village
                 const position = new THREE.Vector3().fromArray(vData.position)
                 const radius = vData.radius
-                
-                const villageHouses = vData.villageHouses.map((h: any) => ({
+
+                const villageHouses = vData.villageHouses.map((h) => ({
                     position: new THREE.Vector3().fromArray(h.position),
-                    type: h.type as any
+                    type: h.type
                 }))
 
                 housesCache.current.push(...villageHouses)
@@ -87,7 +86,7 @@ export const useMapData = (initialVillages: Village[]) => {
                     trunk: [], leaves: []
                 }
 
-                villageHouses.forEach((house: any) => {
+                villageHouses.forEach((house) => {
                     let houseGeos
                     const pos = house.position.toArray() as THREE.Vector3Tuple
                     if (house.type === 'tenement') {
@@ -99,13 +98,13 @@ export const useMapData = (initialVillages: Village[]) => {
                     }
 
                     for (const [type, geos] of Object.entries(houseGeos)) {
-                        if (localHouseGeometries[type] && (geos as any[]).length > 0) {
-                            localHouseGeometries[type].push(...(geos as THREE.BufferGeometry[]))
+                        if (localHouseGeometries[type] && geos.length > 0) {
+                            localHouseGeometries[type].push(...geos)
                         }
                     }
                 })
 
-                vData.treeSpots.forEach((spot: number[]) => {
+                vData.treeSpots.forEach((spot) => {
                     const { trunk, leaves } = createTreeGeometries(spot as THREE.Vector3Tuple)
                     localTreeGeometries.trunk.push(...trunk)
                     localTreeGeometries.leaves.push(...leaves)
@@ -117,7 +116,7 @@ export const useMapData = (initialVillages: Village[]) => {
                     mergedVillageGeometries[type] = geos.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(geos) : null
                     geos.forEach(geo => geo.dispose())
                 }
-                
+
                 const mergedVillageTreeGeometries = {
                     trunk: localTreeGeometries.trunk.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.trunk) : null,
                     leaves: localTreeGeometries.leaves.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.leaves) : null,
@@ -141,9 +140,9 @@ export const useMapData = (initialVillages: Village[]) => {
             newDirtMatrices.forEach((arr: number[]) => {
                 dirtMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
             })
-            
+
             vegetationSpotsCache.current.push(...newVegetationSpots)
-            
+
             setCenter(new THREE.Vector3().fromArray(centerArr))
             setVillageGeometries(prev => [...prev, ...newVillageGeometries])
         }
@@ -157,11 +156,12 @@ export const useMapData = (initialVillages: Village[]) => {
         if (rawVillages.length <= lastProcessedIndex.current) return
 
         const newVillages = rawVillages.slice(lastProcessedIndex.current)
-        
-        workerRef.current?.postMessage({
+
+        const request: MapWorkerRequest = {
             newVillages,
             startIndex: lastProcessedIndex.current
-        })
+        }
+        workerRef.current?.postMessage(request)
 
         lastProcessedIndex.current = rawVillages.length
     }, [rawVillages])

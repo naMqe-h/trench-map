@@ -3,7 +3,11 @@ import { BufferGeometry } from 'three'
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 
-export const createTwoStoryHouseGeometries = (position: THREE.Vector3Tuple) => {
+export const createTwoStoryHouseGeometries = (position: THREE.Vector3Tuple): {
+    cobble: BufferGeometry[],
+    plank: BufferGeometry[],
+    glass: BufferGeometry[]
+} => {
     const [x, y, z] = position
 
     const cobbleGeometries: BufferGeometry[] = []
