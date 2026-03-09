@@ -10,6 +10,7 @@ type InstancedBlocksProps = {
 
 const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
+    const lastUpdatedIndex = useRef(0)
     const [bufferSize, setBufferSize] = useState(200000)
 
     useEffect(() => {
@@ -21,9 +22,10 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
     useEffect(() => {
         if (ref.current) {
             ref.current.count = matrices.length;
-            matrices.forEach((matrix, i) => {
-                ref.current.setMatrixAt(i, matrix)
-            })
+            for (let i = lastUpdatedIndex.current; i < matrices.length; i++) {
+                ref.current.setMatrixAt(i, matrices[i])
+            }
+            lastUpdatedIndex.current = matrices.length
             ref.current.instanceMatrix.needsUpdate = true
         }
     }, [matrices, matrices.length])
