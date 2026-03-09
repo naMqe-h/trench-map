@@ -35,10 +35,19 @@ export const generateHousePositions = (
         const newPos = new THREE.Vector3(houseX, 0, houseZ)
 
         let hasCollision = false
-        for (const house of [...existingHouses, ...generatedHouses]) {
+        for (const house of existingHouses) {
             if (newPos.distanceTo(house.position) < minDistance) {
                 hasCollision = true
                 break
+            }
+        }
+
+        if (!hasCollision) {
+            for (const house of generatedHouses) {
+                if (newPos.distanceTo(house.position) < minDistance) {
+                    hasCollision = true
+                    break
+                }
             }
         }
 
