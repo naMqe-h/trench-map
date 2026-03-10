@@ -30,6 +30,7 @@ export const DynamicSunLight = () => {
     return (
         <directionalLight
             ref={lightRef}
+            color="#FFFAE8"
             intensity={MAP_SETTINGS.SUN_LIGHT_INTENSITY}
         />
     )

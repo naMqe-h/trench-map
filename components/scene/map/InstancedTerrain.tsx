@@ -32,7 +32,11 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
     }, [matrices, matrices.length])
 
     return (
-        <instancedMesh ref={ref} args={[boxGeometry, undefined, bufferSize]} raycast={() => null}>
+        <instancedMesh
+            ref={ref}
+            args={[boxGeometry, undefined, bufferSize]}
+            raycast={() => null}
+        >
             <meshLambertMaterial map={texture} />
         </instancedMesh>
     )
@@ -57,7 +61,11 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerra
 
     return (
         <>
-            <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.55, 0]} raycast={() => null}>
+            <mesh
+                rotation={[-Math.PI / 2, 0, 0]}
+                position={[0, -0.55, 0]}
+                raycast={() => null}
+            >
                 <planeGeometry args={[10000, 10000]} />
                 <meshLambertMaterial map={repeatingGrassTexture} />
             </mesh>

@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
+import * as THREE from 'three'
 import { VoxelWorld } from './map/VoxelWorld'
 import { Village } from '@/lib/types'
 import { BottomBar } from '../ui/BottomBar'
@@ -34,7 +35,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 gl={{ antialias: false, logarithmicDepthBuffer: true }}
                 style={{ height: '100vh', width: '100vw' }}
             >
-                <ambientLight intensity={0.5} />
+                <color attach="background" args={['#ADD8E6']} />
                 <VoxelWorld
                     villages={villages}
                     onReady={() => setIsReady(true)}

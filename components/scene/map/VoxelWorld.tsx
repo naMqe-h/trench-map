@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { Village } from '@/lib/types'
 // import { VillageMarker } from './VillageMarker'
 import { DynamicSunLight } from './DynamicSunLight'
+import { Clouds } from '../decorations/Clouds'
 import { InstancedTerrain } from './InstancedTerrain'
 import { MergedStructures } from './MergedStructures'
 import { useMapData } from '@/hooks/useMapData'
@@ -129,7 +130,13 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 <VillageMarker key={village.ca} village={village} />
             ))} */}
 
+            <hemisphereLight 
+                color="#aaddff"
+                groundColor="#775533"
+                intensity={0.4}
+            />
             <DynamicSunLight />
+            <Clouds />
 
             {instancedTerrain && (
                 <InstancedTerrain 
