@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
 import * as THREE from 'three'
+import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 
@@ -40,19 +41,19 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
 type InstancedTerrainProps = {
     grassMatrices: THREE.Matrix4[]
     dirtMatrices: THREE.Matrix4[]
-    grassTexture: THREE.Texture
-    dirtTexture: THREE.Texture
 }
 
-export const InstancedTerrain = ({ grassMatrices, dirtMatrices, grassTexture, dirtTexture }: InstancedTerrainProps) => {
+export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerrainProps) => {
+    const textures = useTextureAtlas()
+
     const repeatingGrassTexture = useMemo(() => {
-        const tex = grassTexture.clone()
+        const tex = textures.grass.clone()
         tex.wrapS = THREE.RepeatWrapping
         tex.wrapT = THREE.RepeatWrapping
         tex.repeat.set(5000, 5000)
         tex.needsUpdate = true
         return tex
-    }, [grassTexture])
+    }, [textures.grass])
 
     return (
         <>
@@ -60,8 +61,8 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices, grassTexture, di
                 <planeGeometry args={[10000, 10000]} />
                 <meshLambertMaterial map={repeatingGrassTexture} />
             </mesh>
-            <InstancedBlocks texture={grassTexture} matrices={grassMatrices} />
-            <InstancedBlocks texture={dirtTexture} matrices={dirtMatrices} />
+            <InstancedBlocks texture={textures.grass} matrices={grassMatrices} />
+            <InstancedBlocks texture={textures.dirt} matrices={dirtMatrices} />
         </>
     )
 }

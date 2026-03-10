@@ -1,20 +1,13 @@
-import * as THREE from 'three'
 import { VillageData } from '@/lib/types'
+import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 
 type MergedStructuresProps = {
     villageGeometries: VillageData[]
-    textures: {
-        cobble: THREE.Texture
-        plank: THREE.Texture
-        glass: THREE.Texture
-        brick: THREE.Texture
-        stoneBrick: THREE.Texture
-        tree: THREE.Texture
-        leaves: THREE.Texture
-    }
 }
 
-export const MergedStructures = ({ villageGeometries, textures }: MergedStructuresProps) => {
+export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) => {
+    const textures = useTextureAtlas()
+
     return (
         <>
             {villageGeometries.map(village => (
@@ -46,7 +39,7 @@ export const MergedStructures = ({ villageGeometries, textures }: MergedStructur
                     )}
                     {village.treeGeometries.trunk && (
                         <mesh geometry={village.treeGeometries.trunk} raycast={() => null}>
-                            <meshLambertMaterial map={textures.tree} />
+                            <meshLambertMaterial map={textures.trunk} />
                         </mesh>
                     )}
                     {village.treeGeometries.leaves && (

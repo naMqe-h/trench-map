@@ -112,39 +112,6 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
         }
     }, [villageGeometries, onReady, onCountChange])
 
-    const [
-        dirtTexture,
-        grassTexture,
-        cobbleTexture,
-        plankTexture,
-        doorTexture,
-        glassTexture,
-        roseTexture,
-        smallGrassTexture,
-        treeTexture,
-        leavesTexture,
-        brickTexture,
-        stoneBrickTexture
-    ] = useTexture([
-        '/textures/dirt.png',
-        '/textures/grass.png',
-        '/textures/cobble.png',
-        '/textures/wooden_plank.png',
-        '/textures/wooden_doors.png',
-        '/textures/glass.png',
-        '/textures/flowers_rose.png',
-        '/textures/small_grass.png',
-        '/textures/tree.png',
-        '/textures/leaves.png',
-        '/textures/brick.png',
-        '/textures/stone_brick.png'
-    ])
-
-    const textures = [dirtTexture, grassTexture, cobbleTexture, plankTexture, doorTexture, glassTexture, roseTexture, smallGrassTexture, treeTexture, leavesTexture, brickTexture, stoneBrickTexture]
-    textures.forEach(texture => {
-        texture.magFilter = THREE.NearestFilter
-    })
-
     return (
         <>
             <Stats />
@@ -168,22 +135,11 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 <InstancedTerrain 
                     grassMatrices={instancedTerrain.grassMatrices} 
                     dirtMatrices={instancedTerrain.dirtMatrices}
-                    grassTexture={grassTexture}
-                    dirtTexture={dirtTexture}
                 />
             )}
 
             <MergedStructures 
                 villageGeometries={villageGeometries}
-                textures={{
-                    cobble: cobbleTexture,
-                    plank: plankTexture,
-                    glass: glassTexture,
-                    brick: brickTexture,
-                    stoneBrick: stoneBrickTexture,
-                    tree: treeTexture,
-                    leaves: leavesTexture
-                }}
             />
 
             {MAP_SETTINGS.ENABLE_VEGETATION && (
@@ -192,7 +148,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                         <Sprite 
                             key={`veg-${i}`} 
                             position={spot.position} 
-                            texture={spot.type === 'rose' ? roseTexture : smallGrassTexture} 
+                            type={spot.type} 
                         />
                     ))}
                 </VegetationGroup>
