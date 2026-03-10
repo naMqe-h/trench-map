@@ -8,6 +8,7 @@ import { createBasicHouseGeometries } from '@/components/scene/houses/BasicHouse
 import { createTreeGeometries } from '@/components/scene/decorations/Tree'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
+import { useMapStore } from '@/lib/store/useMapStore'
 
 export const useMapData = (initialVillages: Village[], setGenerationStep?: (step: string | null) => void) => {
     const [rawVillages, setRawVillages] = useState<Village[]>(initialVillages)
@@ -15,6 +16,13 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
     const [villageGeometries, setVillageGeometries] = useState<VillageData[]>([])
+
+    const { appendChunkData, setLastProcessedIndex, resetMap } = useMapStore.getState()
+    const lastProcessedIndex = useMapStore(state => state.lastProcessedIndex)
+    const grassMatrices = useMapStore(state => state.grassMatricesCache)
+    const dirtMatrices = useMapStore(state => state.dirtMatricesCache)
+    const vegetationSpots = useMapStore(state => state.vegetationSpotsCache)
+    const housesCache = useMapStore(state => state.housesCache)
 
     const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
         setRawVillages(prev => {
@@ -44,22 +52,11 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
         setIsLoading(false)
     }, [isLoading, hasMore, offset])
 
-    const lastProcessedIndex = useRef(0)
-    const housesCache = useRef<HouseData[]>([])
-    const grassMatricesCache = useRef<THREE.Matrix4[]>([])
-    const dirtMatricesCache = useRef<THREE.Matrix4[]>([])
-    const vegetationSpotsCache = useRef<VegetationData[]>([])
-
     const workerRef = useRef<Worker | null>(null)
     const [center, setCenter] = useState<THREE.Vector3>(new THREE.Vector3())
 
     useEffect(() => {
-        lastProcessedIndex.current = 0
-        housesCache.current = []
-        grassMatricesCache.current = []
-        dirtMatricesCache.current = []
-        vegetationSpotsCache.current = []
-
+        resetMap()
         setVillageGeometries([])
 
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
@@ -71,6 +68,8 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
             setTimeout(() => {
                 const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, center: centerArr } = data
 
+                const allNewHouses: HouseData[] = []
+
                 const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                     const village = vData.village
                     const position = new THREE.Vector3().fromArray(vData.position)
@@ -81,7 +80,7 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
                         type: h.type
                     }))
 
-                    housesCache.current.push(...villageHouses)
+                    allNewHouses.push(...villageHouses)
 
                     const localHouseGeometries: Record<string, THREE.BufferGeometry[]> = {
                         cobble: [], plank: [], glass: [], brick: [], stoneBrick: []
@@ -138,15 +137,13 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
                     }
                 })
 
-                newGrassMatrices.forEach((arr: number[]) => {
-                    grassMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
+                appendChunkData({
+                    houses: allNewHouses,
+                    grassMatrices: newGrassMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
+                    dirtMatrices: newDirtMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
+                    vegetation: newVegetationSpots,
                 })
-                newDirtMatrices.forEach((arr: number[]) => {
-                    dirtMatricesCache.current.push(new THREE.Matrix4().fromArray(arr))
-                })
-
-                vegetationSpotsCache.current.push(...newVegetationSpots)
-
+                
                 setCenter(new THREE.Vector3().fromArray(centerArr))
                 setVillageGeometries(prev => [...prev, ...newVillageGeometries])
                 setGenerationStep?.(null)
@@ -156,31 +153,31 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
         return () => {
             workerRef.current?.terminate()
         }
-    }, [setGenerationStep])
+    }, [setGenerationStep, resetMap, appendChunkData])
 
     useEffect(() => {
-        if (rawVillages.length <= lastProcessedIndex.current) return
+        if (rawVillages.length <= lastProcessedIndex) return
 
-        const newVillages = rawVillages.slice(lastProcessedIndex.current)
+        const newVillages = rawVillages.slice(lastProcessedIndex)
 
         const request: MapWorkerRequest = {
             newVillages,
-            startIndex: lastProcessedIndex.current
+            startIndex: lastProcessedIndex
         }
         workerRef.current?.postMessage(request)
+        setLastProcessedIndex(rawVillages.length)
 
-        lastProcessedIndex.current = rawVillages.length
-    }, [rawVillages, setGenerationStep])
+    }, [rawVillages, lastProcessedIndex, setLastProcessedIndex, setGenerationStep])
 
     return {
         villageGeometries,
         instancedTerrain: {
-            grassMatrices: grassMatricesCache.current,
-            dirtMatrices: dirtMatricesCache.current,
+            grassMatrices: grassMatrices,
+            dirtMatrices: dirtMatrices,
         },
-        vegetationSpots: vegetationSpotsCache.current,
+        vegetationSpots: vegetationSpots,
         center,
-        hasData: housesCache.current.length > 0,
+        hasData: housesCache.length > 0,
         loadMoreVillages,
         isLoading,
         hasMore,
