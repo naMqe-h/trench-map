@@ -2,7 +2,6 @@
 
 import { useState, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
-import * as THREE from 'three'
 import { VoxelWorld } from './map/VoxelWorld'
 import { Village } from '@/lib/types'
 import { BottomBar } from '../ui/BottomBar'
