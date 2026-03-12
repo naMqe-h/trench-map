@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { HouseData, VegetationData } from '@/lib/types'
+import { HouseData, VegetationData, Village } from '@/lib/types'
 import { create } from 'zustand'
 
 type ChunkData = {
@@ -15,12 +15,16 @@ interface MapState {
     grassMatricesCache: THREE.Matrix4[]
     dirtMatricesCache: THREE.Matrix4[]
     vegetationSpotsCache: VegetationData[]
+    hoveredToken: Village | null
+    selectedToken: Village | null
 }
 
 interface MapActions {
     appendChunkData: (data: ChunkData) => void
     setLastProcessedIndex: (index: number) => void
     resetMap: () => void
+    setHoveredToken: (token: Village | null) => void
+    setSelectedToken: (token: Village | null) => void
 }
 
 const initialState: MapState = {
@@ -29,6 +33,8 @@ const initialState: MapState = {
     grassMatricesCache: [],
     dirtMatricesCache: [],
     vegetationSpotsCache: [],
+    hoveredToken: null,
+    selectedToken: null,
 }
 
 export const useMapStore = create<MapState & MapActions>((set) => ({
@@ -45,4 +51,10 @@ export const useMapStore = create<MapState & MapActions>((set) => ({
     setLastProcessedIndex: (index) => set({ lastProcessedIndex: index }),
 
     resetMap: () => set(initialState),
+
+    setHoveredToken: (token) =>
+        set({ hoveredToken: token }),
+
+    setSelectedToken: (token) =>
+        set({ selectedToken: token }),
 }))

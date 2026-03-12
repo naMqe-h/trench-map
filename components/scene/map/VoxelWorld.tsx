@@ -1,8 +1,7 @@
 import * as THREE from 'three'
-import { CameraControls, PerspectiveCamera, useTexture, Stats } from '@react-three/drei'
+import { CameraControls, PerspectiveCamera, Stats } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { Village } from '@/lib/types'
-// import { VillageMarker } from './VillageMarker'
 import { DynamicSunLight } from './DynamicSunLight'
 import { Clouds } from '../decorations/Clouds'
 import { InstancedTerrain } from './InstancedTerrain'
@@ -125,10 +124,6 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 minDistance={MAP_SETTINGS.CAMERA_MIN_DISTANCE} 
                 maxDistance={MAP_SETTINGS.CAMERA_MAX_DISTANCE} 
             />
-
-            {/* {villageData.map((village) => (
-                <VillageMarker key={village.ca} village={village} />
-            ))} */}
 
             <hemisphereLight 
                 color="#aaddff"
