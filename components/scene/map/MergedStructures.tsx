@@ -36,12 +36,12 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                 >
                     {village.geometries.cobble && (
                         <mesh geometry={village.geometries.cobble}>
-                            <meshLambertMaterial map={textures.cobble} />
+                            <meshStandardMaterial map={textures.cobble} roughness={1} metalness={0} />
                         </mesh>
                     )}
                     {village.geometries.plank && (
                         <mesh geometry={village.geometries.plank}>
-                            <meshLambertMaterial map={textures.plank} />
+                            <meshStandardMaterial map={textures.plank} roughness={1} metalness={0} />
                         </mesh>
                     )}
                     {village.geometries.glass && (
@@ -57,22 +57,22 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                     )}
                     {village.geometries.brick && (
                         <mesh geometry={village.geometries.brick}>
-                            <meshLambertMaterial map={textures.brick} />
+                            <meshStandardMaterial map={textures.brick} roughness={1} metalness={0} />
                         </mesh>
                     )}
                     {village.geometries.stoneBrick && (
                         <mesh geometry={village.geometries.stoneBrick}>
-                            <meshLambertMaterial map={textures.stoneBrick} />
+                            <meshStandardMaterial map={textures.stoneBrick} roughness={1} metalness={0} />
                         </mesh>
                     )}
                     {village.treeGeometries.trunk && (
                         <mesh geometry={village.treeGeometries.trunk}>
-                            <meshLambertMaterial map={textures.trunk} />
+                            <meshStandardMaterial map={textures.trunk} roughness={1} metalness={0} />
                         </mesh>
                     )}
                     {village.treeGeometries.leaves && (
                         <mesh geometry={village.treeGeometries.leaves}>
-                            <meshLambertMaterial map={textures.leaves} transparent opacity={0.8} />
+                            <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} roughness={1} metalness={0} />
                         </mesh>
                     )}
                 </group>

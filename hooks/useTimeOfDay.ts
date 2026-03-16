@@ -40,7 +40,7 @@ function calculateTimeState() {
     ambientColor = '#ffc0cb'
     ambientIntensity = 0.4
     directionalColor = '#354055'
-    directionalIntensity = 0.7
+    directionalIntensity = 0.8
     backgroundColor = '#ff7f50'
   }
 

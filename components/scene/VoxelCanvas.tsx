@@ -9,6 +9,7 @@ import { TopBar } from '../ui/TopBar'
 import { CameraControls } from '@react-three/drei'
 import LoadingScreen from '../ui/LoadingScreen'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
+import { EffectComposer, N8AO } from '@react-three/postprocessing'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -37,15 +38,23 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 style={{ height: '100vh', width: '100vw' }}
             >
                 <color attach="background" args={[timeOfDay.backgroundColor]} />
-                <VoxelWorld
-                    villages={villages}
-                    onReady={() => setIsReady(true)}
-                    onCountChange={setVillageCount}
-                    controlsRef={cameraControlsRef}
-                    newVillage={newVillageData}
-                    setGenerationStep={setGenerationStep}
-                    onFlyToStart={() => setGenerationStep(null)}
-                />
+                <EffectComposer multisampling={0}>
+                    <N8AO
+                        halfRes
+                        aoRadius={20}
+                        intensity={2}
+                        aoSamples={5}
+                    />
+                    <VoxelWorld
+                        villages={villages}
+                        onReady={() => setIsReady(true)}
+                        onCountChange={setVillageCount}
+                        controlsRef={cameraControlsRef}
+                        newVillage={newVillageData}
+                        setGenerationStep={setGenerationStep}
+                        onFlyToStart={() => setGenerationStep(null)}
+                    />
+                </EffectComposer>
             </Canvas>
             <BottomBar villageCount={villageCount} />
         </>

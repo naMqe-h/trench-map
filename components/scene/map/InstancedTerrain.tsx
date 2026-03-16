@@ -37,7 +37,7 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
             args={[boxGeometry, undefined, bufferSize]}
             raycast={() => null}
         >
-            <meshLambertMaterial map={texture} />
+            <meshStandardMaterial map={texture} roughness={1} metalness={0} />
         </instancedMesh>
     )
 }
@@ -67,7 +67,7 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerra
                 raycast={() => null}
             >
                 <planeGeometry args={[10000, 10000]} />
-                <meshLambertMaterial map={repeatingGrassTexture} />
+                <meshStandardMaterial map={repeatingGrassTexture} roughness={1} metalness={0} />
             </mesh>
             <InstancedBlocks texture={textures.grass} matrices={grassMatrices} />
             <InstancedBlocks texture={textures.dirt} matrices={dirtMatrices} />
