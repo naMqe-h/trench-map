@@ -9,7 +9,7 @@ import { TopBar } from '../ui/TopBar'
 import { CameraControls } from '@react-three/drei'
 import LoadingScreen from '../ui/LoadingScreen'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
-import { EffectComposer, N8AO } from '@react-three/postprocessing'
+import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -39,6 +39,11 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
             >
                 <color attach="background" args={[timeOfDay.backgroundColor]} />
                 <EffectComposer multisampling={0}>
+                    <Bloom 
+                        luminanceThreshold={1.2}
+                        mipmapBlur={true}
+                        intensity={1.5}
+                    />
                     <N8AO
                         halfRes
                         aoRadius={20}

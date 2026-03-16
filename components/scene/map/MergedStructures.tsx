@@ -51,7 +51,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                                 transparent 
                                 opacity={0.6}
                                 emissive="#ffd27f"
-                                emissiveIntensity={timeOfDay.isNight ? 0.8 : 0}
+                                emissiveIntensity={timeOfDay.isNight ? 2.5 : 0}
                             />
                         </mesh>
                     )}
