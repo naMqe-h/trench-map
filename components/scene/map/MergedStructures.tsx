@@ -1,6 +1,7 @@
 import { VillageData } from '@/lib/types'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { useMapStore } from '@/lib/store/useMapStore'
+import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 
 type MergedStructuresProps = {
     villageGeometries: VillageData[]
@@ -10,6 +11,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
     const textures = useTextureAtlas()
     const setHoveredToken = useMapStore((state) => state.setHoveredToken)
     const setSelectedToken = useMapStore((state) => state.setSelectedToken)
+    const timeOfDay = useTimeOfDay()
 
     return (
         <>
@@ -44,7 +46,13 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                     )}
                     {village.geometries.glass && (
                         <mesh geometry={village.geometries.glass}>
-                            <meshLambertMaterial map={textures.glass} transparent opacity={0.6} />
+                            <meshStandardMaterial 
+                                map={textures.glass} 
+                                transparent 
+                                opacity={0.6}
+                                emissive="#ffd27f"
+                                emissiveIntensity={timeOfDay.isNight ? 0.8 : 0}
+                            />
                         </mesh>
                     )}
                     {village.geometries.brick && (

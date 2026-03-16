@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { CameraControls, PerspectiveCamera, Stats } from '@react-three/drei'
+import { CameraControls, PerspectiveCamera, Stats, Stars } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { Village } from '@/lib/types'
 import { DynamicSunLight } from './DynamicSunLight'
@@ -10,6 +10,7 @@ import { useMapData } from '@/hooks/useMapData'
 import { Sprite } from '../decorations/Sprite'
 import { useRef, useEffect, useState } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
+import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 
 type VoxelWorldProps = {
     villages: Village[]
@@ -70,6 +71,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
 
     const lastTrigger = useRef<number>(0)
     const [pendingFlyToCa, setPendingFlyToCa] = useState<string | null>(null)
+    const timeOfDay = useTimeOfDay()
 
     useEffect(() => {
         if (newVillage && newVillage.trigger !== lastTrigger.current) {
@@ -125,12 +127,15 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 maxDistance={MAP_SETTINGS.CAMERA_MAX_DISTANCE} 
             />
 
-            <hemisphereLight 
-                color="#aaddff"
-                groundColor="#775533"
-                intensity={0.4}
+            <ambientLight 
+                color={timeOfDay.ambientColor}
+                intensity={timeOfDay.ambientIntensity}
             />
-            <DynamicSunLight />
+            <DynamicSunLight 
+                color={timeOfDay.directionalColor}
+                intensity={timeOfDay.directionalIntensity}
+            />
+            {timeOfDay.isNight && <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />}
             <Clouds />
 
             {instancedTerrain && (

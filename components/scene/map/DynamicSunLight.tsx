@@ -3,7 +3,12 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
 
-export const DynamicSunLight = () => {
+type DynamicSunLightProps = {
+    color?: string
+    intensity?: number
+}
+
+export const DynamicSunLight = ({ color = "#FFFAE8", intensity = MAP_SETTINGS.SUN_LIGHT_INTENSITY }: DynamicSunLightProps) => {
     const lightRef = useRef<THREE.DirectionalLight>(null!)
     const targetRef = useRef<THREE.Object3D>(new THREE.Object3D())
     const targetVector = useRef(new THREE.Vector3())
@@ -30,8 +35,8 @@ export const DynamicSunLight = () => {
     return (
         <directionalLight
             ref={lightRef}
-            color="#FFFAE8"
-            intensity={MAP_SETTINGS.SUN_LIGHT_INTENSITY}
+            color={color}
+            intensity={intensity}
         />
     )
 }

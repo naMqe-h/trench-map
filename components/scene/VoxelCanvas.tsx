@@ -8,6 +8,7 @@ import { BottomBar } from '../ui/BottomBar'
 import { TopBar } from '../ui/TopBar'
 import { CameraControls } from '@react-three/drei'
 import LoadingScreen from '../ui/LoadingScreen'
+import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -19,6 +20,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const cameraControlsRef = useRef<CameraControls>(null)
     const [newVillageData, setNewVillageData] = useState<{ village: Village, trigger: number, isNew: boolean } | null>(null)
     const [generationStep, setGenerationStep] = useState<string | null>(null)
+    const timeOfDay = useTimeOfDay()
 
     const handleTokenProcessed = (village: Village, index: number, isNew: boolean = true) => {
         setGenerationStep('fetching')
@@ -34,7 +36,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 gl={{ antialias: false, logarithmicDepthBuffer: true }}
                 style={{ height: '100vh', width: '100vw' }}
             >
-                <color attach="background" args={['#ADD8E6']} />
+                <color attach="background" args={[timeOfDay.backgroundColor]} />
                 <VoxelWorld
                     villages={villages}
                     onReady={() => setIsReady(true)}
