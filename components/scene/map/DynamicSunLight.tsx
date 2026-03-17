@@ -15,8 +15,6 @@ export const DynamicSunLight = ({ color = "#FFFAE8", intensity = MAP_SETTINGS.SU
     const targetVector = useRef(new THREE.Vector3())
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
 
-    const shadowMapSize = shadowQuality === 'high' ? 2048 : shadowQuality === 'medium' ? 1024 : 512
-
     useFrame((state) => {
         if (lightRef.current) {
             const controls = state.controls as any
@@ -42,8 +40,8 @@ export const DynamicSunLight = ({ color = "#FFFAE8", intensity = MAP_SETTINGS.SU
             color={color}
             intensity={intensity}
             castShadow={shadowQuality !== 'off'}
-            shadow-mapSize-width={shadowMapSize}
-            shadow-mapSize-height={shadowMapSize}
+            shadow-mapSize-width={512}
+            shadow-mapSize-height={512}
             shadow-camera-left={-100}
             shadow-camera-right={100}
             shadow-camera-top={100}

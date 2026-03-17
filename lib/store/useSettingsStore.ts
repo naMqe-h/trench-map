@@ -3,7 +3,7 @@ import { create } from 'zustand'
 export type VegetationDensity = 'high' | 'medium' | 'low'
 export type AOQuality = 'quality' | 'performance' | 'off'
 export type TimeOfDayMode = 'system' | 'day' | 'night'
-export type ShadowQuality = 'high' | 'medium' | 'low' | 'off'
+export type ShadowQuality = 'on' | 'off'
 
 interface SettingsState {
     postProcessingEnabled: boolean
@@ -34,7 +34,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     aoQuality: 'performance',
     renderGrassAndFlowers: false,
     timeOfDayMode: 'system',
-    shadowQuality: 'low',
+    shadowQuality: 'on',
     loadDistance: 10,
     cameraDamping: 0.15,
 

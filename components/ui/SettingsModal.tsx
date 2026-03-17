@@ -75,9 +75,10 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                                 value={dpr}
                                 onChange={(e) => setDpr(parseFloat(e.target.value))}
                             >
-                                <option value={1.5}>Native (1.5)</option>
-                                <option value={1.0}>Balanced (1.0)</option>
-                                <option value={0.5}>Performance (0.5)</option>
+                                <option value={5.0}>Best Quality</option>
+                                <option value={1.5}>High Quality</option>
+                                <option value={0.8}>Balanced</option>
+                                <option value={0.4}>Performance</option>
                             </Select>
                         </SettingRow>
                         <SettingRow label="Ambient Occlusion">
@@ -95,10 +96,8 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                                 value={shadowQuality}
                                 onChange={(e) => setShadowQuality(e.target.value as ShadowQuality)}
                             >
+                                <option value="on">On</option>
                                 <option value="off">Off</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
                             </Select>
                         </SettingRow>
                     </div>
@@ -118,9 +117,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                                 value={vegetationDensity}
                                 onChange={(e) => setVegetationDensity(e.target.value as VegetationDensity)}
                             >
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
                                 <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
                             </Select>
                         </SettingRow>
                     </div>
