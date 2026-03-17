@@ -36,6 +36,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
             <TopBar onTokenProcessed={handleTokenProcessed} generationStep={generationStep} />
             {!isReady && <LoadingScreen />}
             <Canvas
+                shadows
                 dpr={[1, dpr]}
                 gl={{ antialias: false, logarithmicDepthBuffer: true }}
                 style={{ height: '100vh', width: '100vw' }}

@@ -24,6 +24,8 @@ type VoxelWorldProps = {
 }
 
 const CameraTracker = ({ loadMore, hasMore, isLoading, offset }: { loadMore: () => void, hasMore: boolean, isLoading: boolean, offset: number }) => {
+    const loadDistance = useSettingsStore((state) => state.loadDistance)
+    
     useFrame((state) => {
         const coordsEl = document.getElementById('coords-display')
         if (coordsEl && (state.controls as any)) {
@@ -34,7 +36,7 @@ const CameraTracker = ({ loadMore, hasMore, isLoading, offset }: { loadMore: () 
         if (!hasMore || isLoading) return
 
         const cameraDistance = Math.sqrt(state.camera.position.x ** 2 + state.camera.position.z ** 2)
-        const threshold = Math.sqrt(offset) * MAP_SETTINGS.CAMERA_LOAD_THRESHOLD_MULTIPLIER
+        const threshold = Math.sqrt(offset) * loadDistance
 
         if (cameraDistance > threshold) {
             loadMore()
@@ -58,6 +60,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
     const activeControlsRef = controlsRef || defaultCameraControlsRef
     const vegetationDensity = useSettingsStore((state) => state.vegetationDensity)
     const renderGrassAndFlowers = useSettingsStore((state) => state.renderGrassAndFlowers)
+    const cameraDamping = useSettingsStore((state) => state.cameraDamping)
 
     const { 
         villageGeometries,
@@ -139,6 +142,8 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 maxPolarAngle={MAP_SETTINGS.CAMERA_MAX_POLAR_ANGLE} 
                 minDistance={MAP_SETTINGS.CAMERA_MIN_DISTANCE} 
                 maxDistance={MAP_SETTINGS.CAMERA_MAX_DISTANCE} 
+                smoothTime={cameraDamping}
+                draggingSmoothTime={cameraDamping}
             />
 
             <ambientLight 
