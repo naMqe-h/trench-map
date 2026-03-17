@@ -61,7 +61,7 @@ export function Sidebar() {
                     animate={{ x: 0 }}
                     exit={{ x: '100%' }}
                     transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                    className="fixed top-0 right-0 h-full w-80 pointer-events-auto z-50 bg-gray-900/95 backdrop-blur-xl border-l border-white/10 shadow-2xl p-6 flex flex-col gap-6 text-white overflow-y-auto"
+                    className="fixed top-0 right-0 h-full w-80 pointer-events-auto z-60 bg-gray-900/95 backdrop-blur-xl border-l border-white/10 shadow-2xl p-6 flex flex-col gap-6 text-white overflow-y-auto"
                 >
                     <div className="flex justify-between items-start">
                         <div className="flex gap-3 items-center">

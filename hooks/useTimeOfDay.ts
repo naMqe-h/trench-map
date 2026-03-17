@@ -1,55 +1,67 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
+import { useSettingsStore } from '@/lib/store/useSettingsStore'
 
 export function useTimeOfDay() {
-  const [timeState, setTimeState] = useState(() => calculateTimeState())
+    const timeOfDayMode = useSettingsStore((state) => state.timeOfDayMode)
+    const [systemTimeState, setSystemTimeState] = useState(() => calculateTimeState())
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimeState(calculateTimeState())
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [])
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setSystemTimeState(calculateTimeState())
+        }, 60000)
+        return () => clearInterval(interval)
+    }, [])
 
-  return timeState
+    const timeState = useMemo(() => {
+        if (timeOfDayMode === 'day') {
+            return calculateTimeState(12)
+        }
+        if (timeOfDayMode === 'night') {
+            return calculateTimeState(0)
+        }
+        return systemTimeState
+    }, [timeOfDayMode, systemTimeState])
+
+    return timeState
 }
 
-function calculateTimeState() {
-  const now = new Date()
-  const hour = now.getHours()
-  const isNight = hour < 6 || hour >= 19
+function calculateTimeState(forcedHour?: number) {
+    const now = new Date()
+    const hour = forcedHour !== undefined ? forcedHour : now.getHours()
+    const isNight = hour < 6 || hour >= 19
 
-  let ambientColor = '#ffffff'
-  let ambientIntensity = 0.3
-  let directionalColor = '#ffffff'
-  let directionalIntensity = 0.7
-  let backgroundColor = '#87ceeb'
+    let ambientColor = '#ffffff'
+    let ambientIntensity = 0.3
+    let directionalColor = '#ffffff'
+    let directionalIntensity = 0.7
+    let backgroundColor = '#87ceeb'
 
-  if (isNight) {
-    ambientColor = '#ffc0cb'
-    ambientIntensity = 0.12
-    directionalColor = '#354055'
-    directionalIntensity = 0.2
-    backgroundColor = '#040810'
-  } else if (hour >= 6 && hour < 9) {
-    ambientColor = '#ffc0cb'
-    ambientIntensity = 0.3
-    directionalColor = '#ffd700'
-    directionalIntensity = 0.8
-    backgroundColor = '#ffb6c1'
-  } else if (hour >= 17 && hour < 19) {
-    ambientColor = '#ffc0cb'
-    ambientIntensity = 0.4
-    directionalColor = '#354055'
-    directionalIntensity = 0.8
-    backgroundColor = '#ff7f50'
-  }
+    if (isNight) {
+        ambientColor = '#ffc0cb'
+        ambientIntensity = 0.12
+        directionalColor = '#354055'
+        directionalIntensity = 0.2
+        backgroundColor = '#040810'
+    } else if (hour >= 6 && hour < 9) {
+        ambientColor = '#ffc0cb'
+        ambientIntensity = 0.3
+        directionalColor = '#ffd700'
+        directionalIntensity = 0.8
+        backgroundColor = '#ffb6c1'
+    } else if (hour >= 17 && hour < 19) {
+        ambientColor = '#ffc0cb'
+        ambientIntensity = 0.4
+        directionalColor = '#354055'
+        directionalIntensity = 0.8
+        backgroundColor = '#ff7f50'
+    }
 
-  return {
-    isNight,
-    ambientColor,
-    ambientIntensity,
-    directionalColor,
-    directionalIntensity,
-    backgroundColor
-  }
+    return {
+        isNight,
+        ambientColor,
+        ambientIntensity,
+        directionalColor,
+        directionalIntensity,
+        backgroundColor
+    }
 }

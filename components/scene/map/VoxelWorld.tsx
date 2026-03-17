@@ -8,9 +8,10 @@ import { InstancedTerrain } from './InstancedTerrain'
 import { MergedStructures } from './MergedStructures'
 import { useMapData } from '@/hooks/useMapData'
 import { Sprite } from '../decorations/Sprite'
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect, useState, useMemo } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
+import { useSettingsStore } from '@/lib/store/useSettingsStore'
 
 type VoxelWorldProps = {
     villages: Village[]
@@ -55,6 +56,8 @@ const VegetationGroup = ({ children }: { children: React.ReactNode }) => {
 export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, setGenerationStep, onFlyToStart }: VoxelWorldProps) => {
     const defaultCameraControlsRef = useRef<any>(null)
     const activeControlsRef = controlsRef || defaultCameraControlsRef
+    const vegetationDensity = useSettingsStore((state) => state.vegetationDensity)
+    const renderGrassAndFlowers = useSettingsStore((state) => state.renderGrassAndFlowers)
 
     const { 
         villageGeometries,
@@ -68,6 +71,17 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
         offset,
         addLiveToken
     } = useMapData(villages, setGenerationStep)
+
+    const displayedVegetation = useMemo(() => {
+        if (vegetationDensity === 'low') {
+            return vegetationSpots.slice(0, Math.floor(vegetationSpots.length / 10))
+        }
+        if (vegetationDensity === 'medium') {
+            return vegetationSpots.slice(0, Math.floor(vegetationSpots.length / 5))
+        }
+        return vegetationSpots
+    }, [vegetationSpots, vegetationDensity])
+
 
     const lastTrigger = useRef<number>(0)
     const [pendingFlyToCa, setPendingFlyToCa] = useState<string | null>(null)
@@ -149,9 +163,9 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 villageGeometries={villageGeometries}
             />
 
-            {MAP_SETTINGS.ENABLE_VEGETATION && (
+            {renderGrassAndFlowers && (
                 <VegetationGroup>
-                    {vegetationSpots.map((spot, i) => (
+                    {displayedVegetation.map((spot, i) => (
                         <Sprite 
                             key={`veg-${i}`} 
                             position={spot.position} 

@@ -1,6 +1,6 @@
 export const MAP_SETTINGS = {
     // Toggle to enable or disable the generation and rendering of small vegetation like grass and flowers
-    ENABLE_VEGETATION: false,
+    ENABLE_VEGETATION: true,
     // Minimum zoom distance
     CAMERA_MIN_DISTANCE: 50,
     // Maximum zoom distance

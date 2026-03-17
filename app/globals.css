@@ -15,3 +15,31 @@ body {
     bottom: 55px !important;
     left: 0 !important;
 }
+
+.toggle-checkbox {
+    appearance: none;
+    width: 3.5rem;
+    height: 1.75rem;
+    border-radius: 9999px;
+    background-color: #4b5563;
+    position: relative;
+    transition: background-color 0.2s ease-in-out;
+    cursor: pointer;
+  }
+  .toggle-checkbox::before {
+    content: '';
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border-radius: 9999px;
+    background-color: white;
+    transition: transform 0.2s ease-in-out;
+  }
+  .toggle-checkbox:checked {
+    background-color: #3b82f6;
+  }
+  .toggle-checkbox:checked::before {
+    transform: translateX(1.75rem);
+  }
