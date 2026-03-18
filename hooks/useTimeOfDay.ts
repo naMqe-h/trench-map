@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { useSettingsStore } from '@/lib/store/useSettingsStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 
 export function useTimeOfDay() {
     const timeOfDayMode = useSettingsStore((state) => state.timeOfDayMode)

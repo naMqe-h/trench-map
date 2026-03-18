@@ -1,14 +1,15 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
-import { Village, VillageData, HouseData, MapWorkerPayload, ProcessedVillageData, VegetationData, MapWorkerRequest } from '@/lib/types'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
 import { createTwoStoryHouseGeometries } from '@/components/scene/houses/TwoStoryHouse'
 import { createBasicHouseGeometries } from '@/components/scene/houses/BasicHouse'
 import { createTreeGeometries } from '@/components/scene/decorations/Tree'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
-import { useMapStore } from '@/lib/store/useMapStore'
+import { useMapStore } from '@/store/useMapStore'
+import { Village } from '@/types/token'
+import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
 
 export const useMapData = (initialVillages: Village[], setGenerationStep?: (step: string | null) => void) => {
     const [rawVillages, setRawVillages] = useState<Village[]>(initialVillages)

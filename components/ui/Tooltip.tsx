@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef, useEffect } from "react"
-import { useMapStore } from "@/lib/store/useMapStore"
+import { useMapStore } from "@/store/useMapStore"
 import { Twitter, Send, Globe, Link as LinkIcon } from "lucide-react"
 
 const SocialIcon = ({ type }: { type: string }) => {

@@ -3,14 +3,14 @@
 import { useState, useRef } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { VoxelWorld } from './map/VoxelWorld'
-import { Village } from '@/lib/types'
 import { BottomBar } from '../ui/BottomBar'
 import { TopBar } from '../ui/TopBar'
 import { CameraControls } from '@react-three/drei'
 import LoadingScreen from '../ui/LoadingScreen'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
-import { useSettingsStore } from '@/lib/store/useSettingsStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
+import { Village } from '@/types/token'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -42,39 +42,31 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 style={{ height: '100vh', width: '100vw' }}
             >
                 <color attach="background" args={[timeOfDay.backgroundColor]} />
-                {postProcessingEnabled ? (
+                <VoxelWorld
+                    villages={villages}
+                    onReady={() => setIsReady(true)}
+                    onCountChange={setVillageCount}
+                    controlsRef={cameraControlsRef}
+                    newVillage={newVillageData}
+                    setGenerationStep={setGenerationStep}
+                    onFlyToStart={() => setGenerationStep(null)}
+                />
+                {postProcessingEnabled && (
                     <EffectComposer multisampling={0} enableNormalPass={true}>
-                        <Bloom 
+                        <Bloom
                             luminanceThreshold={1.2}
                             mipmapBlur={true}
                             intensity={1.5}
-                        />
+                            width={256}
+                            height={256}
+                        />                        
                         {aoQuality === 'quality' ? (
                             <N8AO halfRes={false} aoRadius={20} intensity={2} aoSamples={5} denoiseSamples={2} />
                         ) : <></>}
                         {aoQuality === 'performance' ? (
                             <N8AO halfRes={true} aoRadius={10} intensity={3} aoSamples={3} denoiseSamples={2} />
-                        ) : <></>}
-                        <VoxelWorld
-                            villages={villages}
-                            onReady={() => setIsReady(true)}
-                            onCountChange={setVillageCount}
-                            controlsRef={cameraControlsRef}
-                            newVillage={newVillageData}
-                            setGenerationStep={setGenerationStep}
-                            onFlyToStart={() => setGenerationStep(null)}
-                        />
+                        ): <></>}
                     </EffectComposer>
-                ) : (
-                    <VoxelWorld
-                        villages={villages}
-                        onReady={() => setIsReady(true)}
-                        onCountChange={setVillageCount}
-                        controlsRef={cameraControlsRef}
-                        newVillage={newVillageData}
-                        setGenerationStep={setGenerationStep}
-                        onFlyToStart={() => setGenerationStep(null)}
-                    />
                 )}
             </Canvas>
             <BottomBar villageCount={villageCount} />

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
-import { HouseData, HouseType, PlacedVillage } from '@/lib/types'
+import { HouseData, HouseType, PlacedVillage } from '@/types/scene'
 
 export const generateHousePositions = (
     houseCounts: { singleStory: number, twoStory: number, tenement: number },

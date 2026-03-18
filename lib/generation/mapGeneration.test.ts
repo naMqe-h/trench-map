@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import * as THREE from 'three'
 import { calculateSpiralPosition, generateHousePositions } from './mapGeneration'
-import { PlacedVillage, HouseData } from '@/lib/types'
 import { MAP_SETTINGS } from '@/config/settings'
+import { HouseData, PlacedVillage } from '@/types/scene'
 
 describe('calculateSpiralPosition', () => {
     it('should return a vector at [0, 0, 0] for index 0', () => {

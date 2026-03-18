@@ -1,8 +1,8 @@
 "use server"
 
+import { Village } from "@/types/token";
 import { supabaseAdmin } from "../database/client"
 import { addToken } from "./addToken"
-import { Village } from "../lib/types"
 
 export async function processToken(contractAddress: string): Promise<{ success: boolean; village: Village; index: number; isNew: boolean }> {
     const { data: existingToken, error: selectError } = await supabaseAdmin

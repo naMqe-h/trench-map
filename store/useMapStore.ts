@@ -1,5 +1,6 @@
+import { HouseData, VegetationData } from '@/types/scene'
+import { Village } from '@/types/token'
 import * as THREE from 'three'
-import { HouseData, VegetationData, Village } from '@/lib/types'
 import { create } from 'zustand'
 
 type ChunkData = {

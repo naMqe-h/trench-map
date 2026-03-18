@@ -1,8 +1,8 @@
-import { VillageData } from '@/lib/types'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
-import { useMapStore } from '@/lib/store/useMapStore'
+import { useMapStore } from '@/store/useMapStore'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
-import { useSettingsStore } from '@/lib/store/useSettingsStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
+import { VillageData } from '@/types/scene'
 
 type MergedStructuresProps = {
     villageGeometries: VillageData[]

@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
-import { useSettingsStore } from '@/lib/store/useSettingsStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 
 type DynamicSunLightProps = {
     color?: string

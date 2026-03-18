@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from 'react'
-import { Village } from '@/lib/types'
 import { processToken } from '@/actions/processToken'
+import { Village } from '@/types/token'
 
 type TopBarProps = {
     onTokenProcessed: (village: Village, index: number, isNew: boolean) => void

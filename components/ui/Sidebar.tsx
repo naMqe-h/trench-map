@@ -1,6 +1,6 @@
 "use client"
 
-import { useMapStore } from "@/lib/store/useMapStore"
+import { useMapStore } from "@/store/useMapStore"
 import { X, Copy, Twitter, Send, Globe, Link as LinkIcon, Building2, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"

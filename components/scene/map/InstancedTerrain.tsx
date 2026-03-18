@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
 import * as THREE from 'three'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
-import { useSettingsStore } from '@/lib/store/useSettingsStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
 

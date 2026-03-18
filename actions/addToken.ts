@@ -1,7 +1,7 @@
 "use server"
 
+import { Village } from "@/types/token"
 import { supabaseAdmin } from "../database/client"
-import { Village } from "../lib/types"
 
 export async function addToken(mint: string): Promise<Village> {
     const url = `https://mainnet.helius-rpc.com/?api-key=${process.env.HELIUS_API_KEY}`

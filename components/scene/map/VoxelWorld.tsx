@@ -1,7 +1,6 @@
 import * as THREE from 'three'
 import { CameraControls, PerspectiveCamera, Stats, Stars } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
-import { Village } from '@/lib/types'
 import { DynamicSunLight } from './DynamicSunLight'
 import { Clouds } from '../decorations/Clouds'
 import { InstancedTerrain } from './InstancedTerrain'
@@ -11,7 +10,8 @@ import { Sprite } from '../decorations/Sprite'
 import { useRef, useEffect, useState, useMemo } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
-import { useSettingsStore } from '@/lib/store/useSettingsStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
+import { Village } from '@/types/token'
 
 type VoxelWorldProps = {
     villages: Village[]

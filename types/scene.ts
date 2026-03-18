@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import type { Village } from './token'
 
 /**
  * Represents the different types of houses available in the village.
@@ -30,34 +31,8 @@ export type VegetationType = 'rose' | 'smallGrass'
  * Represents a single piece of vegetation, including its position and type.
  */
 export interface VegetationData {
-    position: THREE.Vector3Tuple,
+    position: THREE.Vector3Tuple
     type: VegetationType
-}
-
-/**
- * Represents the core data for a village fetched from the database.
- */
-export interface Village {
-    id?: string
-    ca: string
-    name: string
-    ticker: string
-    image: string
-    houses: Houses
-    marketCap: number
-    socials?: string[] | Record<string, string>
-    forcedIndex?: number
-    lastRefreshed?: string | Date
-    villageStats?: Record<string, number>
-}
-
-/**
- * Defines the number of each type of house in a village.
- */
-export interface Houses {
-    singleStory: number
-    twoStory: number
-    tenement: number
 }
 
 /**
@@ -70,8 +45,8 @@ export interface VillageData extends Village {
     placedHouses: HouseData[]
     geometries: Record<string, THREE.BufferGeometry | null>
     treeGeometries: {
-        trunk: THREE.BufferGeometry | null,
-        leaves: THREE.BufferGeometry | null,
+        trunk: THREE.BufferGeometry | null
+        leaves: THREE.BufferGeometry | null
     }
 }
 
@@ -83,7 +58,7 @@ export interface ProcessedVillageData {
     village: Village
     position: [number, number, number]
     radius: number
-    villageHouses: { position: [number, number, number]; type: HouseType }[]
+    villageHouses: { position: [number, number, number], type: HouseType }[]
     treeSpots: [number, number, number][]
 }
 

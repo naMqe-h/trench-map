@@ -1,7 +1,7 @@
 "use server"
 
+import { Houses, Village } from "@/types/token";
 import { supabaseAdmin } from "../database/client"
-import { Houses, Village } from "../lib/types"
 
 interface TokenRow {
     ca: string;

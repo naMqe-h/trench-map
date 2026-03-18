@@ -1,7 +1,8 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
-import { generateHousePositions, calculateSpiralPosition } from '@/components/scene/map/utils/mapGeneration'
-import { Village, PlacedVillage, MapWorkerRequest, MapWorkerPayload, VegetationData, ProcessedVillageData, VegetationType } from '@/lib/types'
+import { generateHousePositions, calculateSpiralPosition } from '@/lib/generation/mapGeneration'
+import { MapWorkerPayload, MapWorkerRequest, PlacedVillage, ProcessedVillageData, VegetationData, VegetationType } from '@/types/scene'
+import { Village } from '@/types/token'
 
 const placedVillagesCache: PlacedVillage[] = []
 const boundsCache = new THREE.Box3()

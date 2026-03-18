@@ -1,6 +1,6 @@
 
 import { X } from 'lucide-react'
-import { useSettingsStore, VegetationDensity, AOQuality, TimeOfDayMode, ShadowQuality } from '@/lib/store/useSettingsStore'
+import { useSettingsStore, VegetationDensity, AOQuality, TimeOfDayMode, ShadowQuality } from '@/store/useSettingsStore'
 
 interface SettingsModalProps {
     isOpen: boolean
