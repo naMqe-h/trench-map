@@ -24,8 +24,27 @@ const Select = ({ value, onChange, children }: { value: string | number, onChang
     </select>
 )
 
+type Preset = 'high' | 'medium' | 'low' | 'custom'
+
+const PresetButton = ({ label, activePreset, onClick }: { label: Preset, activePreset: Preset, onClick: () => void }) => {
+    const isActive = label === activePreset
+    return (
+        <button
+            onClick={onClick}
+            disabled={label === 'custom'}
+            className={`cursor-pointer w-full text-center px-3 py-1.5 text-sm font-semibold rounded-md transition-colors
+      ${isActive ? 'bg-blue-600 text-white' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'}
+      ${label === 'custom' && 'cursor-not-allowed opacity-70'}`}
+        >
+            {label.charAt(0).toUpperCase() + label.slice(1)}
+        </button>
+    )
+}
+
 export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
     const {
+        activePreset,
+        applyPreset,
         postProcessingEnabled,
         setPostProcessingEnabled,
         vegetationDensity,
@@ -61,6 +80,16 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 </div>
                 <div className="p-4 divide-y divide-zinc-700">
                     <div className="pb-2">
+                        <h3 className="text-xs font-bold uppercase text-zinc-500 mb-2">Performance Presets</h3>
+                        <div className="grid grid-cols-4 gap-2 py-3">
+                            <PresetButton label="low" activePreset={activePreset} onClick={() => applyPreset('low')} />
+                            <PresetButton label="medium" activePreset={activePreset} onClick={() => applyPreset('medium')} />
+                            <PresetButton label="high" activePreset={activePreset} onClick={() => applyPreset('high')} />
+                            <PresetButton label="custom" activePreset={activePreset} onClick={() => {}} />
+                        </div>
+                    </div>
+
+                    <div className="pt-4 pb-2">
                         <h3 className="text-xs font-bold uppercase text-zinc-500 mb-2">Performance & Visuals</h3>
                         <SettingRow label="Post-Processing">
                             <input
