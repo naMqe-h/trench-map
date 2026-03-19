@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist } from 'zustand/middleware'
 import { getPerformanceTier } from '../lib/hardwareDetection'
 
 export type VegetationDensity = 'high' | 'medium' | 'low'
@@ -36,6 +37,8 @@ const presets = {
 type Preset = 'high' | 'medium' | 'low' | 'custom'
 
 interface SettingsState {
+    _hasHydrated: boolean
+    hasRunDetection: boolean
     isHardwareDetected: boolean
     activePreset: Preset
     postProcessingEnabled: boolean
@@ -48,6 +51,7 @@ interface SettingsState {
     loadDistance: number
     cameraDamping: number
 
+    setHasHydrated: (hydrated: boolean) => void
     setPostProcessingEnabled: (enabled: boolean) => void
     setVegetationDensity: (density: VegetationDensity) => void
     setDpr: (dpr: number) => void
@@ -61,35 +65,59 @@ interface SettingsState {
     applyPreset: (tier: 'high' | 'medium' | 'low') => void
 }
 
-export const useSettingsStore = create<SettingsState>((set) => ({
-    isHardwareDetected: false,
-    activePreset: 'custom',
-    postProcessingEnabled: true,
-    vegetationDensity: 'low',
-    dpr: 1.5,
-    aoQuality: 'performance',
-    renderGrassAndFlowers: false,
-    timeOfDayMode: 'system',
-    shadowQuality: 'low',
-    loadDistance: 10,
-    cameraDamping: 0.15,
+export const useSettingsStore = create<SettingsState>()(
+    persist(
+        (set, get) => ({
+            _hasHydrated: false,
+            hasRunDetection: false,
+            isHardwareDetected: false,
+            activePreset: 'custom',
+            postProcessingEnabled: true,
+            vegetationDensity: 'low',
+            dpr: 1.5,
+            aoQuality: 'performance',
+            renderGrassAndFlowers: false,
+            timeOfDayMode: 'system',
+            shadowQuality: 'low',
+            loadDistance: 10,
+            cameraDamping: 0.15,
 
-    setPostProcessingEnabled: (enabled) => set({ postProcessingEnabled: enabled, activePreset: 'custom' }),
-    setVegetationDensity: (density) => set({ vegetationDensity: density, activePreset: 'custom' }),
-    setDpr: (dpr) => set({ dpr, activePreset: 'custom' }),
-    setAoQuality: (quality) => set({ aoQuality: quality, activePreset: 'custom' }),
-    setRenderGrassAndFlowers: (enabled) => set({ renderGrassAndFlowers: enabled, activePreset: 'custom' }),
-    setTimeOfDayMode: (mode) => set({ timeOfDayMode: mode, activePreset: 'custom' }),
-    setShadowQuality: (quality) => set({ shadowQuality: quality, activePreset: 'custom' }),
-    setLoadDistance: (distance) => set({ loadDistance: distance, activePreset: 'custom' }),
-    setCameraDamping: (damping) => set({ cameraDamping: damping, activePreset: 'custom' }),
-    autoDetectSettings: () => {
-        const tier = getPerformanceTier()
-        const settings = presets[tier]
-        set({ ...settings, isHardwareDetected: true, activePreset: tier })
-    },
-    applyPreset: (tier) => {
-        const settings = presets[tier]
-        set({ ...settings, activePreset: tier })
-    },
-}))
+            setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
+            setPostProcessingEnabled: (enabled) => set({ postProcessingEnabled: enabled, activePreset: 'custom' }),
+            setVegetationDensity: (density) => set({ vegetationDensity: density, activePreset: 'custom' }),
+            setDpr: (dpr) => set({ dpr, activePreset: 'custom' }),
+            setAoQuality: (quality) => set({ aoQuality: quality, activePreset: 'custom' }),
+            setRenderGrassAndFlowers: (enabled) =>
+                set({ renderGrassAndFlowers: enabled, activePreset: 'custom' }),
+            setTimeOfDayMode: (mode) => set({ timeOfDayMode: mode, activePreset: 'custom' }),
+            setShadowQuality: (quality) => set({ shadowQuality: quality, activePreset: 'custom' }),
+            setLoadDistance: (distance) => set({ loadDistance: distance, activePreset: 'custom' }),
+            setCameraDamping: (damping) => set({ cameraDamping: damping, activePreset: 'custom' }),
+            autoDetectSettings: () => {
+                if (get().hasRunDetection) {
+                    set({ isHardwareDetected: true })
+                    return
+                }
+                const tier = getPerformanceTier()
+                const settings = presets[tier]
+                set({ ...settings, isHardwareDetected: true, hasRunDetection: true, activePreset: tier })
+            },
+            applyPreset: (tier) => {
+                const settings = presets[tier]
+                set({ ...settings, activePreset: tier })
+            },
+        }),
+        {
+            name: 'trenchmap-settings-storage',
+            onRehydrateStorage: () => (state) => {
+                if (state) {
+                    state.setHasHydrated(true)
+                }
+            },
+            partialize: (state) => {
+                const { isHardwareDetected, _hasHydrated, ...rest } = state
+                return rest
+            },
+        },
+    ),
+)

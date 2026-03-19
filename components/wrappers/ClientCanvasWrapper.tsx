@@ -14,16 +14,19 @@ interface ClientCanvasWrapperProps {
 }
 
 export function ClientCanvasWrapper({ villages }: ClientCanvasWrapperProps) {
-    const isHardwareDetected = useSettingsStore((state) => state.isHardwareDetected)
-    const autoDetectSettings = useSettingsStore((state) => state.autoDetectSettings)
+    const { _hasHydrated, hasRunDetection, isHardwareDetected, autoDetectSettings } = useSettingsStore()
 
     useEffect(() => {
-        if (!isHardwareDetected) {
-            autoDetectSettings()
+        if (_hasHydrated) {
+            if (hasRunDetection) {
+                useSettingsStore.setState({ isHardwareDetected: true })
+            } else {
+                autoDetectSettings()
+            }
         }
-    }, [autoDetectSettings, isHardwareDetected])
+    }, [_hasHydrated, hasRunDetection, autoDetectSettings])
 
-    if (!isHardwareDetected) {
+    if (!_hasHydrated || !isHardwareDetected) {
         return <LoadingScreen />
     }
 
