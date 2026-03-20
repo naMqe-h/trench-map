@@ -3,12 +3,14 @@ import { MAP_SETTINGS } from '@/config/settings'
 import { generateHousePositions, calculateSpiralPosition } from '@/lib/generation/mapGeneration'
 import { MapWorkerPayload, MapWorkerRequest, PlacedVillage, ProcessedVillageData, VegetationData, VegetationType } from '@/types/scene'
 import { Village } from '@/types/token'
+import { createNoise2D } from 'simplex-noise'
 
 const placedVillagesCache: PlacedVillage[] = []
 const boundsCache = new THREE.Box3()
 const grassCoordsCache = new Set<string>()
 const dirtCoordsCache = new Set<string>()
 const occupiedCoordsCache = new Set<string>()
+const noise2D = createNoise2D()
 
 self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
     const { newVillages, startIndex } = event.data
@@ -92,6 +94,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
         const minZ = Math.floor(boundsCache.min.z - expansion)
         const maxZ = Math.ceil(boundsCache.max.z + expansion)
 
+        const flowerTypes: VegetationType[] = ['rose', 'tulip', 'dandelion']
+
         for (let x = minX; x <= maxX; x++) {
             for (let z = minZ; z <= maxZ; z++) {
                 const key = `${x},${z}`
@@ -121,8 +125,15 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
                         if (occupiedCoordsCache.has(key)) continue
 
-                        if (MAP_SETTINGS.ENABLE_VEGETATION && Math.random() < MAP_SETTINGS.VEGETATION_DENSITY) {
-                            const type: VegetationType = Math.random() > MAP_SETTINGS.ROSE_TO_GRASS_RATIO ? 'rose' : 'smallGrass'
+                        const noiseValue = noise2D(x / MAP_SETTINGS.VEGETATION_NOISE_SCALE, z / MAP_SETTINGS.VEGETATION_NOISE_SCALE)
+                        
+                        if (MAP_SETTINGS.ENABLE_VEGETATION && noiseValue > MAP_SETTINGS.VEGETATION_THRESHOLD) {
+                            let type: VegetationType
+                            if (Math.random() > MAP_SETTINGS.GRASS_TO_FLOWER_RATIO) {
+                                type = 'smallGrass'
+                            } else {
+                                type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)]
+                            }
                             newVegetationSpots.push({ position: [x, -0.5, z], type })
                         }
                     }

@@ -25,7 +25,7 @@ export interface PlacedVillage {
 /**
  * Represents the different types of vegetation that can be placed on the map.
  */
-export type VegetationType = 'rose' | 'smallGrass'
+export type VegetationType = 'rose' | 'smallGrass' | 'tulip' | 'dandelion'
 
 /**
  * Represents a single piece of vegetation, including its position and type.

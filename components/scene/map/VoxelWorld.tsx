@@ -6,7 +6,7 @@ import { Clouds } from '../decorations/Clouds'
 import { InstancedTerrain } from './InstancedTerrain'
 import { MergedStructures } from './MergedStructures'
 import { useMapData } from '@/hooks/useMapData'
-import { Sprite } from '../decorations/Sprite'
+import { InstancedVegetation } from '../decorations/InstancedVegetation'
 import { useRef, useEffect, useState, useMemo } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
@@ -170,13 +170,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
 
             {renderGrassAndFlowers && (
                 <VegetationGroup>
-                    {displayedVegetation.map((spot, i) => (
-                        <Sprite 
-                            key={`veg-${i}`} 
-                            position={spot.position} 
-                            type={spot.type} 
-                        />
-                    ))}
+                    <InstancedVegetation vegetationData={displayedVegetation} />
                 </VegetationGroup>
             )}
         </>

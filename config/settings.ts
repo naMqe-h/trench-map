@@ -8,7 +8,7 @@ export const MAP_SETTINGS = {
     // Prevents camera from going under the floor
     CAMERA_MAX_POLAR_ANGLE: Math.PI / 2.05,
     // Camera height at which small details disappear
-    LOD_VEGETATION_HIDE_HEIGHT: 50,
+    LOD_VEGETATION_HIDE_HEIGHT: 100,
     // Number of villages fetched per load
     CHUNK_SIZE: 20,
     // Minimum empty space between village boundaries
@@ -31,10 +31,12 @@ export const MAP_SETTINGS = {
     DEFAULT_HOUSE_FOOTPRINT: 5,
     // Width of paths around villages
     PATH_WIDTH: 1.5,
-    // Chance of vegetation spawning
-    VEGETATION_DENSITY: 0.04,
-    // Ratio of roses to small grass
-    ROSE_TO_GRASS_RATIO: 0.5,
+    // Scale of the noise function for vegetation clumping
+    VEGETATION_NOISE_SCALE: 50,
+    // Noise value threshold for placing vegetation
+    VEGETATION_THRESHOLD: 0.65,
+    // Ratio of grass to flowers
+    GRASS_TO_FLOWER_RATIO: 0.7,
     // Multiplier for max attempts to place houses
     MAX_PLACEMENT_ATTEMPTS_MULTIPLIER: 100,
     // Base radius for house placement

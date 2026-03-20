@@ -13,7 +13,9 @@ const texturePaths = [
     '/textures/tree.png',
     '/textures/leaves.png',
     '/textures/brick.png',
-    '/textures/stone_brick.png'
+    '/textures/stone_brick.png',
+    '/textures/flowers_tulip.png',
+    '/textures/flowers_dandelion.png'
 ]
 
 export const useTextureAtlas = () => {
@@ -31,7 +33,9 @@ export const useTextureAtlas = () => {
         trunk: loadedTextures[8],
         leaves: loadedTextures[9],
         brick: loadedTextures[10],
-        stoneBrick: loadedTextures[11]
+        stoneBrick: loadedTextures[11],
+        tulip: loadedTextures[12],
+        dandelion: loadedTextures[13]
     }
 
     Object.values(textureAtlas).forEach(texture => {
