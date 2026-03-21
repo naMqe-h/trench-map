@@ -21,16 +21,17 @@ type VoxelWorldProps = {
     newVillage?: { village: Village, trigger: number, isNew: boolean } | null
     setGenerationStep?: (step: string | null) => void
     onFlyToStart?: () => void
+    coordsRef: React.RefObject<HTMLSpanElement | null> | null
 }
 
-const CameraTracker = ({ loadMore, hasMore, isLoading, offset }: { loadMore: () => void, hasMore: boolean, isLoading: boolean, offset: number }) => {
+const CameraTracker = ({ loadMore, hasMore, isLoading, offset, coordsRef }: { loadMore: () => void, hasMore: boolean, isLoading: boolean, offset: number, coordsRef: React.RefObject<HTMLSpanElement | null> | null }) => {
+    if(!coordsRef) return null
     const loadDistance = useSettingsStore((state) => state.loadDistance)
-    
+
     useFrame((state) => {
-        const coordsEl = document.getElementById('coords-display')
-        if (coordsEl && (state.controls as any)) {
+        if (coordsRef.current && (state.controls as any)) {
             const target = (state.controls as any).getTarget(new THREE.Vector3())
-            coordsEl.innerText = `X: ${Math.round(target.x)} Z: ${Math.round(target.z)}`
+            coordsRef.current.innerText = `X: ${Math.round(target.x)} Z: ${Math.round(target.z)}`
         }
 
         if (!hasMore || isLoading) return
@@ -55,7 +56,7 @@ const VegetationGroup = ({ children }: { children: React.ReactNode }) => {
     return <group ref={groupRef}>{children}</group>
 }
 
-export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, setGenerationStep, onFlyToStart }: VoxelWorldProps) => {
+export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, setGenerationStep, onFlyToStart, coordsRef }: VoxelWorldProps) => {
     const defaultCameraControlsRef = useRef<any>(null)
     const activeControlsRef = controlsRef || defaultCameraControlsRef
     const vegetationDensity = useSettingsStore((state) => state.vegetationDensity)
@@ -134,7 +135,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
     return (
         <>
             <Stats />
-            <CameraTracker loadMore={loadMoreVillages} hasMore={hasMore} isLoading={isLoading} offset={offset} />
+            <CameraTracker loadMore={loadMoreVillages} hasMore={hasMore} isLoading={isLoading} offset={offset} coordsRef={coordsRef} />
             <PerspectiveCamera makeDefault position={[center.x + 10, 40, center.z + 60]} fov={45} />
             <CameraControls 
                 ref={activeControlsRef} 

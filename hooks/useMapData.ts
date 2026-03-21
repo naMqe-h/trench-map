@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
@@ -10,20 +10,26 @@ import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
 import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
+import { useShallow } from 'zustand/react/shallow'
 
 export const useMapData = (initialVillages: Village[], setGenerationStep?: (step: string | null) => void) => {
     const [rawVillages, setRawVillages] = useState<Village[]>(initialVillages)
     const [offset, setOffset] = useState(initialVillages.length)
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(true)
-    const [villageGeometries, setVillageGeometries] = useState<VillageData[]>([])
 
-    const { appendChunkData, setLastProcessedIndex, resetMap } = useMapStore.getState()
-    const lastProcessedIndex = useMapStore(state => state.lastProcessedIndex)
-    const grassMatrices = useMapStore(state => state.grassMatricesCache)
-    const dirtMatrices = useMapStore(state => state.dirtMatricesCache)
-    const vegetationSpots = useMapStore(state => state.vegetationSpotsCache)
-    const housesCache = useMapStore(state => state.housesCache)
+    const { appendChunkData, addVillageGeometries, setLastProcessedIndex, resetMap } = useMapStore.getState()
+
+    const { lastProcessedIndex, grassMatrices, dirtMatrices, vegetationSpots, housesCache, villageGeometries } = useMapStore(
+        useShallow(state => ({
+            lastProcessedIndex: state.lastProcessedIndex,
+            grassMatrices: state.grassMatricesCache,
+            dirtMatrices: state.dirtMatricesCache,
+            vegetationSpots: state.vegetationSpotsCache,
+            housesCache: state.housesCache,
+            villageGeometries: state.villageGeometries,
+        }))
+    )
 
     const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
         setRawVillages(prev => {
@@ -58,7 +64,6 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
 
     useEffect(() => {
         resetMap()
-        setVillageGeometries([])
 
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
 
@@ -145,8 +150,8 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
                     vegetation: newVegetationSpots,
                 })
                 
+                addVillageGeometries(newVillageGeometries)
                 setCenter(new THREE.Vector3().fromArray(centerArr))
-                setVillageGeometries(prev => [...prev, ...newVillageGeometries])
                 setGenerationStep?.(null)
             }, 0)
         }
@@ -154,7 +159,7 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
         return () => {
             workerRef.current?.terminate()
         }
-    }, [setGenerationStep, resetMap, appendChunkData])
+    }, [setGenerationStep, resetMap, appendChunkData, addVillageGeometries])
 
     useEffect(() => {
         if (rawVillages.length <= lastProcessedIndex) return
@@ -170,15 +175,23 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
 
     }, [rawVillages, lastProcessedIndex, setLastProcessedIndex, setGenerationStep])
 
+    const instancedTerrain = useMemo(() => ({
+        grassMatrices,
+        dirtMatrices,
+    }), [grassMatrices, dirtMatrices])
+
+    const memoizedVegetationSpots = useMemo(() => vegetationSpots, [vegetationSpots])
+
+    const hasData = useMemo(() => housesCache.length > 0, [housesCache])
+    
+    const memoizedVillageGeometries = useMemo(() => villageGeometries, [villageGeometries])
+
     return {
-        villageGeometries,
-        instancedTerrain: {
-            grassMatrices: grassMatrices,
-            dirtMatrices: dirtMatrices,
-        },
-        vegetationSpots: vegetationSpots,
+        villageGeometries: memoizedVillageGeometries,
+        instancedTerrain,
+        vegetationSpots: memoizedVegetationSpots,
         center,
-        hasData: housesCache.length > 0,
+        hasData,
         loadMoreVillages,
         isLoading,
         hasMore,
@@ -186,3 +199,4 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
         addLiveToken
     }
 }
+

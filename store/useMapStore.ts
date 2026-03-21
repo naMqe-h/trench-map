@@ -1,4 +1,4 @@
-import { HouseData, VegetationData } from '@/types/scene'
+import { HouseData, VegetationData, VillageData } from '@/types/scene'
 import { Village } from '@/types/token'
 import * as THREE from 'three'
 import { create } from 'zustand'
@@ -16,12 +16,14 @@ interface MapState {
     grassMatricesCache: THREE.Matrix4[]
     dirtMatricesCache: THREE.Matrix4[]
     vegetationSpotsCache: VegetationData[]
+    villageGeometries: VillageData[]
     hoveredToken: Village | null
     selectedToken: Village | null
 }
 
 interface MapActions {
     appendChunkData: (data: ChunkData) => void
+    addVillageGeometries: (geometries: VillageData[]) => void
     setLastProcessedIndex: (index: number) => void
     resetMap: () => void
     setHoveredToken: (token: Village | null) => void
@@ -34,6 +36,7 @@ const initialState: MapState = {
     grassMatricesCache: [],
     dirtMatricesCache: [],
     vegetationSpotsCache: [],
+    villageGeometries: [],
     hoveredToken: null,
     selectedToken: null,
 }
@@ -47,6 +50,11 @@ export const useMapStore = create<MapState & MapActions>((set) => ({
             grassMatricesCache: [...state.grassMatricesCache, ...data.grassMatrices],
             dirtMatricesCache: [...state.dirtMatricesCache, ...data.dirtMatrices],
             vegetationSpotsCache: [...state.vegetationSpotsCache, ...data.vegetation],
+        })),
+
+    addVillageGeometries: (geometries) =>
+        set((state) => ({
+            villageGeometries: [...state.villageGeometries, ...geometries],
         })),
 
     setLastProcessedIndex: (index) => set({ lastProcessedIndex: index }),

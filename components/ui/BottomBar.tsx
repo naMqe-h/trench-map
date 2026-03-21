@@ -4,15 +4,16 @@ import Link from 'next/link'
 
 type BottomBarProps = {
     villageCount: number
+    coordsRef: React.RefObject<HTMLSpanElement | null>
 }
 
-export const BottomBar = ({ villageCount }: BottomBarProps) => {
+export const BottomBar = ({ villageCount, coordsRef }: BottomBarProps) => {
     return (
         <div className="fixed bottom-0 left-0 w-full z-50 bg-black/70 backdrop-blur-md text-white text-xs sm:text-sm flex justify-between items-center px-4 sm:px-6 py-2 sm:py-3">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-1 sm:gap-4">
                 <span>Tokens: {villageCount}</span>
                 <span className="hidden sm:inline opacity-50">|</span>
-                <span id="coords-display">X: 0 Z: 0</span>
+                <span ref={coordsRef}>X: 0 Z: 0</span>
             </div>
 
             <div className="absolute left-1/2 -translate-x-1/2 text-gray-400">

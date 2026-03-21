@@ -31,6 +31,8 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
         setNewVillageData({ village, trigger: Date.now(), isNew })
     }
 
+    const coordsRef = useRef<HTMLSpanElement>(null)
+
     return (
         <>
             <TopBar onTokenProcessed={handleTokenProcessed} generationStep={generationStep} />
@@ -50,6 +52,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     newVillage={newVillageData}
                     setGenerationStep={setGenerationStep}
                     onFlyToStart={() => setGenerationStep(null)}
+                    coordsRef={coordsRef}
                 />
                 {postProcessingEnabled && (
                     <EffectComposer multisampling={0} enableNormalPass={true}>
@@ -69,7 +72,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     </EffectComposer>
                 )}
             </Canvas>
-            <BottomBar villageCount={villageCount} />
+            <BottomBar villageCount={villageCount} coordsRef={coordsRef} />
         </>
     )
 }
