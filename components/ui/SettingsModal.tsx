@@ -1,6 +1,7 @@
 
 import { X } from 'lucide-react'
 import { useSettingsStore, VegetationDensity, AOQuality, TimeOfDayMode, ShadowQuality } from '@/store/useSettingsStore'
+import { useShallow } from 'zustand/react/shallow'
 
 interface SettingsModalProps {
     isOpen: boolean
@@ -63,7 +64,28 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         setLoadDistance,
         cameraDamping,
         setCameraDamping
-    } = useSettingsStore()
+    } = useSettingsStore(useShallow((state) => ({
+        activePreset: state.activePreset,
+        applyPreset: state.applyPreset,
+        postProcessingEnabled: state.postProcessingEnabled,
+        setPostProcessingEnabled: state.setPostProcessingEnabled,
+        vegetationDensity: state.vegetationDensity,
+        setVegetationDensity: state.setVegetationDensity,
+        dpr: state.dpr,
+        setDpr: state.setDpr,
+        aoQuality: state.aoQuality,
+        setAoQuality: state.setAoQuality,
+        renderGrassAndFlowers: state.renderGrassAndFlowers,
+        setRenderGrassAndFlowers: state.setRenderGrassAndFlowers,
+        timeOfDayMode: state.timeOfDayMode,
+        setTimeOfDayMode: state.setTimeOfDayMode,
+        shadowQuality: state.shadowQuality,
+        setShadowQuality: state.setShadowQuality,
+        loadDistance: state.loadDistance,
+        setLoadDistance: state.setLoadDistance,
+        cameraDamping: state.cameraDamping,
+        setCameraDamping: state.setCameraDamping
+    })))
 
     if (!isOpen) {
         return null

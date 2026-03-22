@@ -8,13 +8,21 @@ import { Sidebar } from '@/components/ui/Sidebar'
 import { SettingsOverlay } from '@/components/ui/SettingsOverlay'
 import { Village } from '@/types/token'
 import LoadingScreen from '@/components/ui/LoadingScreen'
+import { useShallow } from 'zustand/react/shallow'
 
 interface ClientCanvasWrapperProps {
     villages: Village[]
 }
 
 export function ClientCanvasWrapper({ villages }: ClientCanvasWrapperProps) {
-    const { _hasHydrated, hasRunDetection, isHardwareDetected, autoDetectSettings } = useSettingsStore()
+    const { _hasHydrated, hasRunDetection, isHardwareDetected, autoDetectSettings } = useSettingsStore(
+        useShallow((state) => ({
+            _hasHydrated: state._hasHydrated,
+            hasRunDetection: state.hasRunDetection,
+            isHardwareDetected: state.isHardwareDetected,
+            autoDetectSettings: state.autoDetectSettings,
+        }))
+    )
 
     useEffect(() => {
         if (_hasHydrated) {

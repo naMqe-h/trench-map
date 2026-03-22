@@ -11,13 +11,20 @@ import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { Village } from '@/types/token'
+import { useShallow } from 'zustand/react/shallow'
 
 type VoxelCanvasProps = {
     villages: Village[]
 }
 
 export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
-    const { dpr, postProcessingEnabled, aoQuality } = useSettingsStore()
+    const { dpr, postProcessingEnabled, aoQuality } = useSettingsStore(
+        useShallow((state) => ({
+            dpr: state.dpr,
+            postProcessingEnabled: state.postProcessingEnabled,
+            aoQuality: state.aoQuality,
+        }))
+    )
 
     const [isReady, setIsReady] = useState(false)
     const [villageCount, setVillageCount] = useState(0)

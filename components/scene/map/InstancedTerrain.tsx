@@ -3,8 +3,6 @@ import * as THREE from 'three'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { useSettingsStore } from '@/store/useSettingsStore'
 
-const boxGeometry = new THREE.BoxGeometry(1, 1, 1)
-
 type InstancedBlocksProps = {
     matrices: THREE.Matrix4[]
     texture: THREE.Texture
@@ -15,6 +13,8 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
     const lastUpdatedIndex = useRef(0)
     const [bufferSize, setBufferSize] = useState(200000)
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
+
+    const boxGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
 
     useEffect(() => {
         if (matrices.length > bufferSize - 5000) {
