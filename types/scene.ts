@@ -2,9 +2,24 @@ import * as THREE from 'three'
 import type { Village } from './token'
 
 /**
+ * Represents a serialized THREE.Vector3 for efficient data transfer.
+ */
+export type SerializedVector3 = [number, number, number]
+
+/**
+ * Represents a serialized THREE.Matrix4 for efficient data transfer.
+ */
+export type SerializedMatrix4 = number[]
+
+/**
  * Represents the different types of houses available in the village.
  */
 export type HouseType = 'singleStory' | 'twoStory' | 'tenement'
+
+/**
+ * Defines the material types used for house geometries.
+ */
+export type HouseMaterial = 'cobble' | 'plank' | 'glass' | 'brick' | 'stoneBrick'
 
 /**
  * Represents the structure for house data, including its position and type.
@@ -31,7 +46,7 @@ export type VegetationType = 'rose' | 'smallGrass' | 'tulip' | 'dandelion'
  * Represents a single piece of vegetation, including its position and type.
  */
 export interface VegetationData {
-    position: THREE.Vector3Tuple
+    position: SerializedVector3
     type: VegetationType
 }
 
@@ -43,7 +58,7 @@ export interface VillageData extends Village {
     position: THREE.Vector3
     radius: number
     placedHouses: HouseData[]
-    geometries: Record<string, THREE.BufferGeometry | null>
+    geometries: Record<HouseMaterial, THREE.BufferGeometry | null>
     treeGeometries: {
         trunk: THREE.BufferGeometry | null
         leaves: THREE.BufferGeometry | null
@@ -56,27 +71,36 @@ export interface VillageData extends Village {
  */
 export interface ProcessedVillageData {
     village: Village
-    position: [number, number, number]
+    position: SerializedVector3
     radius: number
-    villageHouses: { position: [number, number, number], type: HouseType }[]
-    treeSpots: [number, number, number][]
+    villageHouses: { position: SerializedVector3, type: HouseType }[]
+    treeSpots: SerializedVector3[]
 }
 
-/**
- * Represents the payload sent from the map worker to the main thread.
- */
-export interface MapWorkerPayload {
+
+// Payloads from Worker to Main Thread
+export type ChunkProcessedPayload = {
+    type: 'CHUNK_PROCESSED'
     processedVillages: ProcessedVillageData[]
-    newGrassMatrices: number[][]
-    newDirtMatrices: number[][]
+    newGrassMatrices: SerializedMatrix4[]
+    newDirtMatrices: SerializedMatrix4[]
     newVegetationSpots: VegetationData[]
-    center: number[]
+    center: SerializedVector3
 }
 
 /**
- * Represents the data sent from the main thread to the map worker.
+ * Represents the discriminated union for all possible payloads sent FROM the map worker TO the main thread.
  */
-export interface MapWorkerRequest {
+export type MapWorkerPayload = ChunkProcessedPayload // | OtherPayloads
+
+// Requests from Main Thread to Worker
+export type ProcessChunkRequest = {
+    type: 'PROCESS_CHUNK'
     newVillages: Village[]
     startIndex: number
 }
+
+/**
+ * Represents the discriminated union for all possible requests sent FROM the main thread TO the map worker.
+ */
+export type MapWorkerRequest = ProcessChunkRequest // | OtherRequests

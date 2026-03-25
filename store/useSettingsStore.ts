@@ -7,28 +7,33 @@ export type AOQuality = 'quality' | 'performance' | 'off'
 export type TimeOfDayMode = 'system' | 'day' | 'night'
 export type ShadowQuality = 'high' | 'low' | 'off'
 
-const presets = {
+type PresetSettings = Pick<
+    SettingsState,
+    'postProcessingEnabled' | 'dpr' | 'aoQuality' | 'shadowQuality' | 'loadDistance' | 'renderGrassAndFlowers'
+>
+
+const presets: Record<'high' | 'medium' | 'low', PresetSettings> = {
     high: {
         postProcessingEnabled: true,
         dpr: 1.5,
-        aoQuality: 'quality' as AOQuality,
-        shadowQuality: 'high' as ShadowQuality,
+        aoQuality: 'quality',
+        shadowQuality: 'high',
         loadDistance: 20,
         renderGrassAndFlowers: true,
     },
     medium: {
         postProcessingEnabled: true,
         dpr: 1.0,
-        aoQuality: 'performance' as AOQuality,
-        shadowQuality: 'low' as ShadowQuality,
+        aoQuality: 'performance',
+        shadowQuality: 'low',
         loadDistance: 12,
         renderGrassAndFlowers: false,
     },
     low: {
         postProcessingEnabled: false,
         dpr: 1.0,
-        aoQuality: 'off' as AOQuality,
-        shadowQuality: 'off' as ShadowQuality,
+        aoQuality: 'off',
+        shadowQuality: 'off',
         loadDistance: 8,
         renderGrassAndFlowers: false,
     },
