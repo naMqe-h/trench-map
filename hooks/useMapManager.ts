@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useEffect, useMemo } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
@@ -9,73 +9,40 @@ import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
-import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
+import { HouseData, HouseMaterial, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
 import { useShallow } from 'zustand/react/shallow'
 
-export const useMapData = (initialVillages: Village[], setGenerationStep?: (step: string | null) => void) => {
-    const [rawVillages, setRawVillages] = useState<Village[]>(initialVillages)
-    const [offset, setOffset] = useState(initialVillages.length)
-    const [isLoading, setIsLoading] = useState(false)
-    const [hasMore, setHasMore] = useState(true)
-
-    const { appendChunkData, addVillageGeometries, setLastProcessedIndex, resetMap } = useMapStore.getState()
-
-    const { lastProcessedIndex, grassMatrices, dirtMatrices, vegetationSpots, housesCache, villageGeometries } = useMapStore(
-        useShallow(state => ({
-            lastProcessedIndex: state.lastProcessedIndex,
-            grassMatrices: state.grassMatricesCache,
-            dirtMatrices: state.dirtMatricesCache,
-            vegetationSpots: state.vegetationSpotsCache,
-            housesCache: state.housesCache,
-            villageGeometries: state.villageGeometries,
-        }))
-    )
-
-    const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
-        setRawVillages(prev => {
-            if (prev.some(v => v.ca === newVillage.ca)) return prev
-            return [...prev, newVillage]
-        })
-        if (isNew) {
-            setOffset(prev => prev + 1)
-        }
-    }, [])
-
-    const loadMoreVillages = useCallback(async () => {
-        if (isLoading || !hasMore) return
-
-        setIsLoading(true)
-        const newVillages = await getVillageChunks(MAP_SETTINGS.CHUNK_SIZE, offset)
-
-        if (newVillages.length < MAP_SETTINGS.CHUNK_SIZE) {
-            setHasMore(false)
-        }
-
-        setRawVillages(prev => {
-            const added = newVillages.filter(nv => !prev.some(pv => pv.ca === nv.ca))
-            return [...prev, ...added]
-        })
-        setOffset(prev => prev + newVillages.length)
-        setIsLoading(false)
-    }, [isLoading, hasMore, offset])
-
+export const useMapManager = (initialVillages: Village[]) => {
     const workerRef = useRef<Worker | null>(null)
-    const [center, setCenter] = useState<THREE.Vector3>(new THREE.Vector3())
+    const store = useMapStore.getState()
+
+    const {
+        villages,
+        lastProcessedIndex,
+        isLoading,
+        hasMore,
+        offset
+    } = useMapStore(useShallow(state => ({
+        villages: state.villages,
+        lastProcessedIndex: state.lastProcessedIndex,
+        isLoading: state.isLoading,
+        hasMore: state.hasMore,
+        offset: state.offset,
+    })))
 
     useEffect(() => {
-        resetMap()
+        useMapStore.getState().initializeVillages(initialVillages)
 
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
 
         workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
-            setGenerationStep?.('building')
+            useMapStore.getState().setGenerationStep('building')
             const data = event.data
 
             setTimeout(() => {
-                const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, center: centerArr } = data
+                const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots } = data
 
                 const allNewHouses: HouseData[] = []
-
                 const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                     const village = vData.village
                     const position = new THREE.Vector3().fromArray(vData.position)
@@ -88,7 +55,7 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
 
                     allNewHouses.push(...villageHouses)
 
-                    const localHouseGeometries: Record<string, THREE.BufferGeometry[]> = {
+                    const localHouseGeometries: Record<HouseMaterial, THREE.BufferGeometry[]> = {
                         cobble: [], plank: [], glass: [], brick: [], stoneBrick: []
                     }
                     const localTreeGeometries: { trunk: THREE.BufferGeometry[], leaves: THREE.BufferGeometry[] } = {
@@ -107,8 +74,9 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
                         }
 
                         for (const [type, geos] of Object.entries(houseGeos)) {
-                            if (localHouseGeometries[type] && geos.length > 0) {
-                                localHouseGeometries[type].push(...geos)
+                            const material = type as HouseMaterial
+                            if (localHouseGeometries[material] && geos.length > 0) {
+                                localHouseGeometries[material].push(...geos)
                             }
                         }
                     })
@@ -119,10 +87,11 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
                         localTreeGeometries.leaves.push(...leaves)
                     })
 
-                    const mergedVillageGeometries: Record<string, THREE.BufferGeometry | null> = {}
+                    const mergedVillageGeometries: Partial<Record<HouseMaterial, THREE.BufferGeometry | null>> = {}
                     for (const type in localHouseGeometries) {
-                        const geos = localHouseGeometries[type]
-                        mergedVillageGeometries[type] = geos.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(geos) : null
+                        const material = type as HouseMaterial
+                        const geos = localHouseGeometries[material]
+                        mergedVillageGeometries[material] = geos.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(geos) : null
                         geos.forEach(geo => geo.dispose())
                     }
 
@@ -138,65 +107,69 @@ export const useMapData = (initialVillages: Village[], setGenerationStep?: (step
                         position,
                         radius,
                         placedHouses: villageHouses,
-                        geometries: mergedVillageGeometries,
+                        geometries: mergedVillageGeometries as Record<HouseMaterial, THREE.BufferGeometry | null>,
                         treeGeometries: mergedVillageTreeGeometries
                     }
                 })
 
-                appendChunkData({
+                useMapStore.getState().appendChunkData({
                     houses: allNewHouses,
                     grassMatrices: newGrassMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
                     dirtMatrices: newDirtMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
                     vegetation: newVegetationSpots,
                 })
                 
-                addVillageGeometries(newVillageGeometries)
-                setCenter(new THREE.Vector3().fromArray(centerArr))
-                setGenerationStep?.(null)
+                useMapStore.getState().addVillageGeometries(newVillageGeometries)
+                useMapStore.getState().setGenerationStep(null)
+                useMapStore.getState().setGenerating(false)
             }, 0)
         }
 
         return () => {
             workerRef.current?.terminate()
+            useMapStore.getState().resetMap()
         }
-    }, [setGenerationStep, resetMap, appendChunkData, addVillageGeometries])
+    }, [])
 
     useEffect(() => {
-        if (rawVillages.length <= lastProcessedIndex) return
+        if (villages.length <= lastProcessedIndex) return
 
-        const newVillages = rawVillages.slice(lastProcessedIndex)
+        store.setGenerating(true)
+        store.setGenerationStep('processing')
+        const newVillages = villages.slice(lastProcessedIndex)
 
         const request: MapWorkerRequest = {
+            type: 'PROCESS_CHUNK',
             newVillages,
             startIndex: lastProcessedIndex
         }
         workerRef.current?.postMessage(request)
-        setLastProcessedIndex(rawVillages.length)
+        store.setLastProcessedIndex(villages.length)
 
-    }, [rawVillages, lastProcessedIndex, setLastProcessedIndex, setGenerationStep])
+    }, [villages, lastProcessedIndex, store])
 
-    const instancedTerrain = useMemo(() => ({
-        grassMatrices,
-        dirtMatrices,
-    }), [grassMatrices, dirtMatrices])
 
-    const memoizedVegetationSpots = useMemo(() => vegetationSpots, [vegetationSpots])
+    const loadMoreVillages = useCallback(async () => {
+        if (isLoading || !hasMore) return
 
-    const hasData = useMemo(() => housesCache.length > 0, [housesCache])
+        store.setLoading(true)
+        try {
+            const newVillages = await getVillageChunks(MAP_SETTINGS.CHUNK_SIZE, offset)
+            const hasNewMore = newVillages.length >= MAP_SETTINGS.CHUNK_SIZE
+            store.addVillages(newVillages, hasNewMore)
+        } catch (e) {
+            store.setError('Failed to fetch new villages.')
+        } finally {
+            store.setLoading(false)
+        }
+    }, [isLoading, hasMore, offset, store])
     
-    const memoizedVillageGeometries = useMemo(() => villageGeometries, [villageGeometries])
+    const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
+        store.addLiveVillage(newVillage, isNew)
+    }, [store])
 
     return {
-        villageGeometries: memoizedVillageGeometries,
-        instancedTerrain,
-        vegetationSpots: memoizedVegetationSpots,
-        center,
-        hasData,
         loadMoreVillages,
-        isLoading,
-        hasMore,
-        offset,
         addLiveToken
     }
 }
-

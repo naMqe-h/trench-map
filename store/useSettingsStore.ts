@@ -5,7 +5,7 @@ import { getPerformanceTier } from '../lib/hardwareDetection'
 export type VegetationDensity = 'high' | 'medium' | 'low'
 export type AOQuality = 'quality' | 'performance' | 'off'
 export type TimeOfDayMode = 'system' | 'day' | 'night'
-export type ShadowQuality = 'high' | 'low' | 'off'
+export type ShadowQuality = 'on' | 'off'
 
 type PresetSettings = Pick<
     SettingsState,
@@ -17,7 +17,7 @@ const presets: Record<'high' | 'medium' | 'low', PresetSettings> = {
         postProcessingEnabled: true,
         dpr: 1.5,
         aoQuality: 'quality',
-        shadowQuality: 'high',
+        shadowQuality: 'on',
         loadDistance: 20,
         renderGrassAndFlowers: true,
     },
@@ -25,7 +25,7 @@ const presets: Record<'high' | 'medium' | 'low', PresetSettings> = {
         postProcessingEnabled: true,
         dpr: 1.0,
         aoQuality: 'performance',
-        shadowQuality: 'low',
+        shadowQuality: 'on',
         loadDistance: 12,
         renderGrassAndFlowers: false,
     },
@@ -83,7 +83,7 @@ export const useSettingsStore = create<SettingsState>()(
             aoQuality: 'performance',
             renderGrassAndFlowers: false,
             timeOfDayMode: 'system',
-            shadowQuality: 'low',
+            shadowQuality: 'on',
             loadDistance: 10,
             cameraDamping: 0.15,
 

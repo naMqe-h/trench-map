@@ -5,13 +5,15 @@ import { DynamicSunLight } from './DynamicSunLight'
 import { Clouds } from '../decorations/Clouds'
 import { InstancedTerrain } from './InstancedTerrain'
 import { MergedStructures } from './MergedStructures'
-import { useMapData } from '@/hooks/useMapData'
+import { useMapManager } from '@/hooks/useMapManager'
 import { InstancedVegetation } from '../decorations/InstancedVegetation'
 import { useRef, useEffect, useState, useMemo } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { Village } from '@/types/token'
+import { useMapStore } from '@/store/useMapStore'
+import { useShallow } from 'zustand/react/shallow'
 
 type VoxelWorldProps = {
     villages: Village[]
@@ -19,7 +21,6 @@ type VoxelWorldProps = {
     onCountChange?: (count: number) => void
     controlsRef?: React.RefObject<any>
     newVillage?: { village: Village, trigger: number, isNew: boolean } | null
-    setGenerationStep?: (step: string | null) => void
     onFlyToStart?: () => void
     coordsRef: React.RefObject<HTMLSpanElement | null> | null
 }
@@ -56,25 +57,33 @@ const VegetationGroup = ({ children }: { children: React.ReactNode }) => {
     return <group ref={groupRef}>{children}</group>
 }
 
-export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, setGenerationStep, onFlyToStart, coordsRef }: VoxelWorldProps) => {
+export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newVillage, onFlyToStart, coordsRef }: VoxelWorldProps) => {
     const defaultCameraControlsRef = useRef<any>(null)
     const activeControlsRef = controlsRef || defaultCameraControlsRef
+
     const vegetationDensity = useSettingsStore((state) => state.vegetationDensity)
     const renderGrassAndFlowers = useSettingsStore((state) => state.renderGrassAndFlowers)
     const cameraDamping = useSettingsStore((state) => state.cameraDamping)
 
-    const { 
+    const {
         villageGeometries,
-        instancedTerrain, 
-        vegetationSpots, 
-        center, 
-        hasData,
-        loadMoreVillages,
+        vegetationSpots,
+        grassMatrices,
+        dirtMatrices,
         isLoading,
         hasMore,
         offset,
-        addLiveToken
-    } = useMapData(villages, setGenerationStep)
+    } = useMapStore(useShallow(state => ({
+        villageGeometries: state.villageGeometries,
+        vegetationSpots: state.vegetationSpotsCache,
+        grassMatrices: state.grassMatricesCache,
+        dirtMatrices: state.dirtMatricesCache,
+        isLoading: state.isLoading,
+        hasMore: state.hasMore,
+        offset: state.offset
+    })))
+
+    const { loadMoreVillages, addLiveToken } = useMapManager(villages)
 
     const displayedVegetation = useMemo(() => {
         if (vegetationDensity === 'low') {
@@ -131,6 +140,8 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
             onCountChange?.(villageGeometries.length)
         }
     }, [villageGeometries, onReady, onCountChange])
+    
+    const center = useMemo(() => new THREE.Vector3(), [])
 
     return (
         <>
@@ -158,12 +169,10 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
             {timeOfDay.isNight && <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />}
             <Clouds />
 
-            {instancedTerrain && (
-                <InstancedTerrain 
-                    grassMatrices={instancedTerrain.grassMatrices} 
-                    dirtMatrices={instancedTerrain.dirtMatrices}
-                />
-            )}
+            <InstancedTerrain 
+                grassMatrices={grassMatrices} 
+                dirtMatrices={dirtMatrices}
+            />
 
             <MergedStructures 
                 villageGeometries={villageGeometries}
