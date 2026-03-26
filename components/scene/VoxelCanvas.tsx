@@ -10,6 +10,7 @@ import LoadingScreen from '../ui/LoadingScreen'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
 import { useSettingsStore } from '@/store/useSettingsStore'
+import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
 import { useShallow } from 'zustand/react/shallow'
 import { AnimatePresence } from 'framer-motion'
@@ -34,20 +35,27 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const [villageCount, setVillageCount] = useState(0)
     const cameraControlsRef = useRef<CameraControls>(null)
     const [newVillageData, setNewVillageData] = useState<{ village: Village, trigger: number, isNew: boolean } | null>(null)
-    const [generationStep, setGenerationStep] = useState<string | null>(null)
+    
+    const { generationStep, setGenerationStepAction } = useMapStore(
+        useShallow((state) => ({
+            generationStep: state.generationStep,
+            setGenerationStepAction: state.setGenerationStep,
+        }))
+    )
+
     const timeOfDay = useTimeOfDay()
 
     const canvasDpr = useMemo(() => [1, dpr] as [number, number], [dpr])
 
     const handleTokenProcessed = (village: Village, index: number, isNew: boolean = true) => {
-        setGenerationStep('fetching')
+        setGenerationStepAction('fetching')
         setNewVillageData({ village, trigger: Date.now(), isNew })
     }
 
     const coordsRef = useRef<HTMLSpanElement>(null)
 
     const handleReady = useCallback(() => setIsReady(true), [setIsReady])
-    const handleFlyToStart = useCallback(() => setGenerationStep(null), [setGenerationStep])
+    const handleFlyToStart = useCallback(() => setGenerationStepAction(null), [setGenerationStepAction])
 
     return (
         <>
@@ -68,7 +76,6 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     onCountChange={setVillageCount}
                     controlsRef={cameraControlsRef}
                     newVillage={newVillageData}
-                    setGenerationStep={setGenerationStep}
                     onFlyToStart={handleFlyToStart}
                     coordsRef={coordsRef}
                 />
