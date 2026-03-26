@@ -94,9 +94,9 @@ export const useMapManager = (initialVillages: Village[]) => {
                         const geos = localHouseGeometries[material]
                         if (geos.length > 0) {
                             const merged = BufferGeometryUtils.mergeBufferGeometries(geos)
-                            const count = merged.attributes.position.count
-                            const spawnTimes = new Float32Array(count).fill(spawnTime)
-                            merged.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
+                            const count = merged?.attributes.position.count
+                            const spawnTimes = new Float32Array(count as number).fill(spawnTime)
+                            merged?.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
                             mergedVillageGeometries[material] = merged
                         } else {
                             mergedVillageGeometries[material] = null

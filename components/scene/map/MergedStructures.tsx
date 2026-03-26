@@ -1,5 +1,4 @@
 import { useMemo, useCallback } from 'react'
-import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { useMapStore } from '@/store/useMapStore'
@@ -27,7 +26,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
         uniforms.uTime.value = performance.now() / 1000
     })
 
-    const onBeforeCompile = useCallback((shader: THREE.Shader) => {
+    const onBeforeCompile = useCallback((shader: any) => {
         shader.uniforms.uTime = uniforms.uTime
         shader.vertexShader = `
             uniform float uTime;
@@ -38,11 +37,10 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
             `
             float progress = clamp((uTime - aSpawnTime) / 1.0, 0.0, 1.0);
             float easedProgress = progress * (2.0 - progress);
-            vec3 transformed = vec3( position.x, position.y * easedProgress, position.z );
+            vec3 transformed = vec3( position.x, position.y * easedProgress, position.z );      
             `
         )
     }, [uniforms])
-
     return (
         <>
             {villageGeometries.map(village => (
