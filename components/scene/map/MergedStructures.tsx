@@ -1,3 +1,6 @@
+import { useMemo, useCallback } from 'react'
+import * as THREE from 'three'
+import { useFrame } from '@react-three/fiber'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { useMapStore } from '@/store/useMapStore'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
@@ -15,6 +18,30 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
     const timeOfDay = useTimeOfDay()
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
     const isShadowEnabled = shadowQuality !== 'off'
+
+    const uniforms = useMemo(() => ({
+        uTime: { value: 0 }
+    }), [])
+
+    useFrame(() => {
+        uniforms.uTime.value = performance.now() / 1000
+    })
+
+    const onBeforeCompile = useCallback((shader: THREE.Shader) => {
+        shader.uniforms.uTime = uniforms.uTime
+        shader.vertexShader = `
+            uniform float uTime;
+            attribute float aSpawnTime;
+            ${shader.vertexShader}
+        `.replace(
+            '#include <begin_vertex>',
+            `
+            float progress = clamp((uTime - aSpawnTime) / 1.0, 0.0, 1.0);
+            float easedProgress = progress * (2.0 - progress);
+            vec3 transformed = vec3( position.x, position.y * easedProgress, position.z );
+            `
+        )
+    }, [uniforms])
 
     return (
         <>
@@ -43,7 +70,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
                         >
-                            <meshStandardMaterial map={textures.cobble} roughness={1} metalness={0} />
+                            <meshStandardMaterial map={textures.cobble} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
                     {village.geometries.plank && (
@@ -52,7 +79,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
                         >
-                            <meshStandardMaterial map={textures.plank} roughness={1} metalness={0} />
+                            <meshStandardMaterial map={textures.plank} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
                     {village.geometries.glass && (
@@ -67,6 +94,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                                 opacity={0.6}
                                 emissive="#ffd27f"
                                 emissiveIntensity={timeOfDay.isNight ? 2.5 : 0}
+                                onBeforeCompile={onBeforeCompile}
                             />
                         </mesh>
                     )}
@@ -76,7 +104,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
                         >
-                            <meshStandardMaterial map={textures.brick} roughness={1} metalness={0} />
+                            <meshStandardMaterial map={textures.brick} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
                     {village.geometries.stoneBrick && (
@@ -85,7 +113,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
                         >
-                            <meshStandardMaterial map={textures.stoneBrick} roughness={1} metalness={0} />
+                            <meshStandardMaterial map={textures.stoneBrick} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
                     {village.treeGeometries.trunk && (
@@ -94,7 +122,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
                         >
-                            <meshStandardMaterial map={textures.trunk} roughness={1} metalness={0} />
+                            <meshStandardMaterial map={textures.trunk} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
                     {village.treeGeometries.leaves && (
@@ -103,7 +131,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
                         >
-                            <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} roughness={1} metalness={0} />
+                            <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
                 </group>

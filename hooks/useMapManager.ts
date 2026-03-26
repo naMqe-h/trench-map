@@ -38,6 +38,7 @@ export const useMapManager = (initialVillages: Village[]) => {
         workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
             useMapStore.getState().setGenerationStep('building')
             const data = event.data
+            const spawnTime = performance.now() / 1000
 
             setTimeout(() => {
                 const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots } = data
@@ -91,13 +92,35 @@ export const useMapManager = (initialVillages: Village[]) => {
                     for (const type in localHouseGeometries) {
                         const material = type as HouseMaterial
                         const geos = localHouseGeometries[material]
-                        mergedVillageGeometries[material] = geos.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(geos) : null
+                        if (geos.length > 0) {
+                            const merged = BufferGeometryUtils.mergeBufferGeometries(geos)
+                            const count = merged.attributes.position.count
+                            const spawnTimes = new Float32Array(count).fill(spawnTime)
+                            merged.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
+                            mergedVillageGeometries[material] = merged
+                        } else {
+                            mergedVillageGeometries[material] = null
+                        }
                         geos.forEach(geo => geo.dispose())
                     }
 
+                    const trunkMerged = localTreeGeometries.trunk.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.trunk) : null
+                    if (trunkMerged) {
+                        const count = trunkMerged.attributes.position.count
+                        const spawnTimes = new Float32Array(count).fill(spawnTime)
+                        trunkMerged.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
+                    }
+
+                    const leavesMerged = localTreeGeometries.leaves.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.leaves) : null
+                    if (leavesMerged) {
+                        const count = leavesMerged.attributes.position.count
+                        const spawnTimes = new Float32Array(count).fill(spawnTime)
+                        leavesMerged.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
+                    }
+
                     const mergedVillageTreeGeometries = {
-                        trunk: localTreeGeometries.trunk.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.trunk) : null,
-                        leaves: localTreeGeometries.leaves.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.leaves) : null,
+                        trunk: trunkMerged,
+                        leaves: leavesMerged,
                     }
                     localTreeGeometries.trunk.forEach(geo => geo.dispose())
                     localTreeGeometries.leaves.forEach(geo => geo.dispose())
