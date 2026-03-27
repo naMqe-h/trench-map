@@ -43,6 +43,7 @@ export const useMapManager = (initialVillages: Village[]) => {
             setTimeout(() => {
                 const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots } = data
 
+                let houseCounter = useMapStore.getState().housesCache.length
                 const allNewHouses: HouseData[] = []
                 const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                     const village = vData.village
@@ -64,6 +65,7 @@ export const useMapManager = (initialVillages: Village[]) => {
                     }
 
                     villageHouses.forEach((house) => {
+                        const houseId = houseCounter++
                         let houseGeos
                         const pos = house.position.toArray() as THREE.Vector3Tuple
                         if (house.type === 'tenement') {
@@ -76,14 +78,30 @@ export const useMapManager = (initialVillages: Village[]) => {
 
                         for (const [type, geos] of Object.entries(houseGeos)) {
                             const material = type as HouseMaterial
-                            if (localHouseGeometries[material] && geos.length > 0) {
-                                localHouseGeometries[material].push(...geos)
+                            if (localHouseGeometries[material] && (geos as THREE.BufferGeometry[]).length > 0) {
+                                (geos as THREE.BufferGeometry[]).forEach(geo => {
+                                    const count = geo.attributes.position.count
+                                    const houseIds = new Float32Array(count).fill(houseId)
+                                    geo.setAttribute('aHouseId', new THREE.BufferAttribute(houseIds, 1))
+                                })
+                                localHouseGeometries[material].push(...(geos as THREE.BufferGeometry[]))
                             }
                         }
                     })
 
                     vData.treeSpots.forEach((spot) => {
+                        const treeId = houseCounter++
                         const { trunk, leaves } = createTreeGeometries(spot as THREE.Vector3Tuple)
+                        trunk.forEach(geo => {
+                            const count = geo.attributes.position.count
+                            const ids = new Float32Array(count).fill(treeId)
+                            geo.setAttribute('aHouseId', new THREE.BufferAttribute(ids, 1))
+                        })
+                        leaves.forEach(geo => {
+                            const count = geo.attributes.position.count
+                            const ids = new Float32Array(count).fill(treeId)
+                            geo.setAttribute('aHouseId', new THREE.BufferAttribute(ids, 1))
+                        })
                         localTreeGeometries.trunk.push(...trunk)
                         localTreeGeometries.leaves.push(...leaves)
                     })

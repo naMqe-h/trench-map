@@ -19,7 +19,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
     const isShadowEnabled = shadowQuality !== 'off'
 
     const uniforms = useMemo(() => ({
-        uTime: { value: 0 }
+        uTime: { value: 0 },
+        uHoveredId: { value: -1.0 }
     }), [])
 
     useFrame(() => {
@@ -28,19 +29,55 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
 
     const onBeforeCompile = useCallback((shader: any) => {
         shader.uniforms.uTime = uniforms.uTime
+        shader.uniforms.uHoveredId = uniforms.uHoveredId
         shader.vertexShader = `
             uniform float uTime;
+            uniform float uHoveredId;
             attribute float aSpawnTime;
+            attribute float aHouseId;
+            varying float vHouseId;
             ${shader.vertexShader}
         `.replace(
             '#include <begin_vertex>',
             `
+            vHouseId = aHouseId;
             float progress = clamp((uTime - aSpawnTime) / 1.0, 0.0, 1.0);
             float easedProgress = progress * (2.0 - progress);
             vec3 transformed = vec3( position.x, position.y * easedProgress, position.z );      
             `
         )
+
+        shader.fragmentShader = `
+            uniform float uHoveredId;
+            varying float vHouseId;
+            ${shader.fragmentShader}
+        `.replace(
+            '#include <dithering_fragment>',
+            `
+            #include <dithering_fragment>
+            if (abs(vHouseId - uHoveredId) < 0.5) {
+                gl_FragColor.rgb *= 1.5;
+            }
+            `
+        )
     }, [uniforms])
+
+    const handlePointerMove = useCallback((e: any) => {
+        const index = e.face?.a
+        if (index !== undefined) {
+            const houseId = e.object.geometry.attributes.aHouseId?.getX(index)
+            if (houseId !== undefined && uniforms.uHoveredId.value !== houseId) {
+                uniforms.uHoveredId.value = houseId
+                document.body.style.cursor = 'pointer'
+            }
+        }
+    }, [uniforms])
+
+    const handlePointerOut = useCallback((e: any) => {
+        uniforms.uHoveredId.value = -1.0
+        document.body.style.cursor = 'auto'
+    }, [uniforms])
+
     return (
         <>
             {villageGeometries.map(village => (
@@ -67,6 +104,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.geometries.cobble}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial map={textures.cobble} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
@@ -76,6 +115,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.geometries.plank}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial map={textures.plank} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
@@ -85,6 +126,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.geometries.glass}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial 
                                 map={textures.glass} 
@@ -101,6 +144,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.geometries.brick}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial map={textures.brick} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
@@ -110,6 +155,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.geometries.stoneBrick}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial map={textures.stoneBrick} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
@@ -119,6 +166,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.treeGeometries.trunk}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial map={textures.trunk} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
@@ -128,6 +177,8 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             geometry={village.treeGeometries.leaves}
                             castShadow={isShadowEnabled}
                             receiveShadow={isShadowEnabled}
+                            onPointerMove={handlePointerMove}
+                            onPointerOut={handlePointerOut}
                         >
                             <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
