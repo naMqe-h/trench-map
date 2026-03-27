@@ -14,6 +14,7 @@ import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
 import { useShallow } from 'zustand/react/shallow'
 import { AnimatePresence } from 'framer-motion'
+import { CameraTracker } from './CameraTracker'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -79,6 +80,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     onFlyToStart={handleFlyToStart}
                     coordsRef={coordsRef}
                 />
+                <CameraTracker />
                 {postProcessingEnabled && (
                     <EffectComposer multisampling={0} enableNormalPass={true}>
                         <Bloom

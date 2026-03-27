@@ -9,6 +9,7 @@ import { SettingsOverlay } from '@/components/ui/SettingsOverlay'
 import { Village } from '@/types/token'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 import { useShallow } from 'zustand/react/shallow'
+import { Minimap } from '../ui/Minimap'
 
 interface ClientCanvasWrapperProps {
     villages: Village[]
@@ -44,6 +45,7 @@ export function ClientCanvasWrapper({ villages }: ClientCanvasWrapperProps) {
             <Tooltip />
             <Sidebar />
             <SettingsOverlay />
+            <Minimap />
         </>
     )
 }

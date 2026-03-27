@@ -26,6 +26,8 @@ interface MapState {
     isGenerating: boolean
     generationStep: string | null
     error: string | null
+    cameraPosition: { x: number; z: number }
+    cameraRotation: number
 }
 
 interface MapActions {
@@ -42,6 +44,7 @@ interface MapActions {
     addLiveVillage: (newVillage: Village, isNew: boolean) => void
     initializeVillages: (villages: Village[]) => void
     resetMap: () => void
+    setCameraState: (position: { x: number; z: number }, rotation: number) => void
 }
 
 const initialState: MapState = {
@@ -60,6 +63,8 @@ const initialState: MapState = {
     isGenerating: false,
     generationStep: null,
     error: null,
+    cameraPosition: { x: 0, z: 0 },
+    cameraRotation: 0,
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -118,4 +123,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     }),
 
     resetMap: () => set(initialState),
+
+    setCameraState: (position, rotation) => set({ cameraPosition: position, cameraRotation: rotation }),
 }))
