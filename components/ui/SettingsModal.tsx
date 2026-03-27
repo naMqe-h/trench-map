@@ -63,7 +63,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         loadDistance,
         setLoadDistance,
         cameraDamping,
-        setCameraDamping
+        setCameraDamping,
+        showMinimap,
+        setShowMinimap
     } = useSettingsStore(useShallow((state) => ({
         activePreset: state.activePreset,
         applyPreset: state.applyPreset,
@@ -84,7 +86,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         loadDistance: state.loadDistance,
         setLoadDistance: state.setLoadDistance,
         cameraDamping: state.cameraDamping,
-        setCameraDamping: state.setCameraDamping
+        setCameraDamping: state.setCameraDamping,
+        showMinimap: state.showMinimap,
+        setShowMinimap: state.setShowMinimap
     })))
 
     if (!isOpen) {
@@ -174,13 +178,20 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             </Select>
                         </SettingRow>
                     </div>
-
                     <div className="py-2">
                         <h3 className="text-xs font-bold uppercase text-zinc-500 mb-2">World & Camera</h3>
+                        <SettingRow label="Show Minimap">
+                            <input
+                                type="checkbox"
+                                checked={showMinimap}
+                                onChange={(e) => setShowMinimap(e.target.checked)}
+                                className="toggle-checkbox"
+                            />
+                        </SettingRow>
                         <SettingRow label="Time of Day">
                             <Select
                                 value={timeOfDayMode}
-                                onChange={(e) => setTimeOfDayMode(e.target.value as TimeOfDayMode)}
+                                onChange={(e) => setTimeOfDayMode(e.target.value as TimeOfDayMode)}    
                             >
                                 <option value="system">System Time</option>
                                 <option value="day">Always Day</option>

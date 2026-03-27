@@ -1,6 +1,7 @@
 'use client'
 
 import { useMapStore } from '@/store/useMapStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 import { useShallow } from 'zustand/react/shallow'
 import { useMemo } from 'react'
 
@@ -9,6 +10,7 @@ const MAP_SCALE = 0.5
 const VIEW_RADIUS = MINIMAP_SIZE / 2
 
 export function Minimap() {
+    const showMinimap = useSettingsStore((state) => state.showMinimap)
     const { villages, cameraPosition, cameraRotation } = useMapStore(
         useShallow((state) => ({
             villages: state.villageGeometries,
@@ -73,6 +75,10 @@ export function Minimap() {
             )
         })
     }, [villages, cameraPosition])
+
+    if (!showMinimap) {
+        return null
+    }
 
     return (
         <div

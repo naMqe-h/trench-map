@@ -55,6 +55,7 @@ interface SettingsState {
     shadowQuality: ShadowQuality
     loadDistance: number
     cameraDamping: number
+    showMinimap: boolean
 
     setHasHydrated: (hydrated: boolean) => void
     setPostProcessingEnabled: (enabled: boolean) => void
@@ -66,6 +67,7 @@ interface SettingsState {
     setShadowQuality: (quality: ShadowQuality) => void
     setLoadDistance: (distance: number) => void
     setCameraDamping: (damping: number) => void
+    setShowMinimap: (show: boolean) => void
     autoDetectSettings: () => void
     applyPreset: (tier: 'high' | 'medium' | 'low') => void
 }
@@ -86,6 +88,7 @@ export const useSettingsStore = create<SettingsState>()(
             shadowQuality: 'on',
             loadDistance: 10,
             cameraDamping: 0.15,
+            showMinimap: true,
 
             setHasHydrated: (hydrated) => set({ _hasHydrated: hydrated }),
             setPostProcessingEnabled: (enabled) => set({ postProcessingEnabled: enabled, activePreset: 'custom' }),
@@ -98,6 +101,7 @@ export const useSettingsStore = create<SettingsState>()(
             setShadowQuality: (quality) => set({ shadowQuality: quality, activePreset: 'custom' }),
             setLoadDistance: (distance) => set({ loadDistance: distance, activePreset: 'custom' }),
             setCameraDamping: (damping) => set({ cameraDamping: damping, activePreset: 'custom' }),
+            setShowMinimap: (show) => set({ showMinimap: show }),
             autoDetectSettings: () => {
                 if (get().hasRunDetection) {
                     set({ isHardwareDetected: true })
