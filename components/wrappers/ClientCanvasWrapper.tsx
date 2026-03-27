@@ -2,6 +2,7 @@
 
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { useEffect } from 'react'
+import { PerformanceOverlay } from '@/components/ui/PerformanceOverlay'
 import { VoxelCanvas } from '@/components/scene/VoxelCanvas'
 import { Tooltip } from '@/components/ui/Tooltip'
 import { Sidebar } from '@/components/ui/Sidebar'
@@ -42,6 +43,7 @@ export function ClientCanvasWrapper({ villages }: ClientCanvasWrapperProps) {
     return (
         <>
             <VoxelCanvas villages={villages} />
+            <PerformanceOverlay />
             <Tooltip />
             <Sidebar />
             <SettingsOverlay />

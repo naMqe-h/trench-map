@@ -28,6 +28,8 @@ interface MapState {
     error: string | null
     cameraPosition: { x: number; z: number }
     cameraRotation: number
+    fps: number
+    fpsHistory: number[]
 }
 
 interface MapActions {
@@ -45,6 +47,7 @@ interface MapActions {
     initializeVillages: (villages: Village[]) => void
     resetMap: () => void
     setCameraState: (position: { x: number; z: number }, rotation: number) => void
+    updatePerformanceMetrics: (fps: number) => void
 }
 
 const initialState: MapState = {
@@ -65,6 +68,8 @@ const initialState: MapState = {
     error: null,
     cameraPosition: { x: 0, z: 0 },
     cameraRotation: 0,
+    fps: 0,
+    fpsHistory: [],
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -125,4 +130,10 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     resetMap: () => set(initialState),
 
     setCameraState: (position, rotation) => set({ cameraPosition: position, cameraRotation: rotation }),
+
+    updatePerformanceMetrics: (fps) =>
+        set((state) => ({
+            fps,
+            fpsHistory: [...state.fpsHistory.slice(-99), fps],
+        })),
 }))

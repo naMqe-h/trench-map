@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { CameraControls, PerspectiveCamera, Stats, Stars } from '@react-three/drei'
+import { CameraControls, PerspectiveCamera, Stars } from '@react-three/drei'
+import { PerformanceTracker } from '../PerformanceTracker'
 import { useFrame } from '@react-three/fiber'
 import { DynamicSunLight } from './DynamicSunLight'
 import { Clouds } from '../decorations/Clouds'
@@ -145,7 +146,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
 
     return (
         <>
-            <Stats />
+            <PerformanceTracker />
             <CameraTracker loadMore={loadMoreVillages} hasMore={hasMore} isLoading={isLoading} offset={offset} coordsRef={coordsRef} />
             <PerspectiveCamera makeDefault position={[center.x + 10, 40, center.z + 60]} fov={45} />
             <CameraControls 

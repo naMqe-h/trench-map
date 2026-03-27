@@ -65,7 +65,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         cameraDamping,
         setCameraDamping,
         showMinimap,
-        setShowMinimap
+        setShowMinimap,
+        showFpsCounter,
+        setShowFpsCounter
     } = useSettingsStore(useShallow((state) => ({
         activePreset: state.activePreset,
         applyPreset: state.applyPreset,
@@ -88,7 +90,9 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
         cameraDamping: state.cameraDamping,
         setCameraDamping: state.setCameraDamping,
         showMinimap: state.showMinimap,
-        setShowMinimap: state.setShowMinimap
+        setShowMinimap: state.setShowMinimap,
+        showFpsCounter: state.showFpsCounter,
+        setShowFpsCounter: state.setShowFpsCounter
     })))
 
     if (!isOpen) {
@@ -122,6 +126,14 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                                 type="checkbox"
                                 checked={postProcessingEnabled}
                                 onChange={(e) => setPostProcessingEnabled(e.target.checked)}
+                                className="toggle-checkbox"
+                            />
+                        </SettingRow>
+                        <SettingRow label="Show FPS Counter">
+                            <input
+                                type="checkbox"
+                                checked={showFpsCounter}
+                                onChange={(e) => setShowFpsCounter(e.target.checked)}
                                 className="toggle-checkbox"
                             />
                         </SettingRow>
