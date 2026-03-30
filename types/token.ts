@@ -2,9 +2,7 @@
  * Defines the number of each type of house in a village.
  */
 export interface Houses {
-    singleStory: number
-    twoStory: number
-    tenement: number
+    [key:string]: number
 }
 
 /**

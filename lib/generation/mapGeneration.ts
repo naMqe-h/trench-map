@@ -1,18 +1,24 @@
 import * as THREE from 'three'
-import { MAP_SETTINGS } from '@/config/settings'
-import { HouseData, HouseType, PlacedVillage } from '@/types/scene'
+import { MAP_SETTINGS } from '../../config/settings'
+import { HouseData, HouseType, PlacedVillage } from '../../types/scene'
+import { HOUSE_TIERS } from '../../src/constants/houses'
 
 export const generateHousePositions = (
-    houseCounts: { singleStory: number, twoStory: number, tenement: number },
+    houseCounts: Record<string, number>,
     villageRootPosition: number[],
     existingHouses: HouseData[],
     minDistance: number
 ) => {
-    const types: HouseType[] = [
-        ...Array(houseCounts.tenement).fill('tenement'),
-        ...Array(houseCounts.twoStory).fill('twoStory'),
-        ...Array(houseCounts.singleStory).fill('singleStory')
-    ]
+    const types: HouseType[] = []
+
+    Object.entries(houseCounts).forEach(([levelKey, count]) => {
+        const tier = HOUSE_TIERS[levelKey]
+        if (tier && tier.modelType) {
+            for (let i = 0; i < count; i++) {
+                types.push(tier.modelType as HouseType)
+            }
+        }
+    })
     
     const houseCount = types.length
     const generatedHouses: HouseData[] = []

@@ -15,6 +15,8 @@ const SocialIcon = ({ type }: { type: string }) => {
     }
 }
 
+import { HOUSE_TIERS } from "../../src/constants/houses"
+
 export function Sidebar() {
     const selectedToken = useMapStore((state) => state.selectedToken)
     const setSelectedToken = useMapStore((state) => state.setSelectedToken)
@@ -201,24 +203,16 @@ export function Sidebar() {
                         <div className="flex flex-col gap-2 mt-auto">
                             <span className="text-sm text-gray-400 border-b border-white/10 pb-2">Village Composition</span>
                             <div className="grid grid-cols-2 gap-3 pt-2">
-                                {selectedToken.houses.singleStory > 0 && (
-                                    <div className="flex flex-col bg-black/20 rounded-lg p-2 border border-white/5">
-                                        <span className="text-xs text-gray-500">Single Story</span>
-                                        <span className="text-sm font-semibold text-blue-400">{selectedToken.houses.singleStory}</span>
-                                    </div>
-                                )}
-                                {selectedToken.houses.twoStory > 0 && (
-                                    <div className="flex flex-col bg-black/20 rounded-lg p-2 border border-white/5">
-                                        <span className="text-xs text-gray-500">Two Story</span>
-                                        <span className="text-sm font-semibold text-blue-400">{selectedToken.houses.twoStory}</span>
-                                    </div>
-                                )}
-                                {selectedToken.houses.tenement > 0 && (
-                                    <div className="flex flex-col bg-black/20 rounded-lg p-2 border border-white/5">
-                                        <span className="text-xs text-gray-500">Tenement</span>
-                                        <span className="text-sm font-semibold text-blue-400">{selectedToken.houses.tenement}</span>
-                                    </div>
-                                )}
+                                {Object.entries(selectedToken.houses).map(([levelKey, count]) => {
+                                    if (count <= 0) return null
+                                    const label = HOUSE_TIERS[levelKey]?.label || levelKey
+                                    return (
+                                        <div key={levelKey} className="flex flex-col bg-black/20 rounded-lg p-2 border border-white/5">
+                                            <span className="text-xs text-gray-500">{label}</span>
+                                            <span className="text-sm font-semibold text-blue-400">{count}</span>
+                                        </div>
+                                    )
+                                })}
                             </div>
                         </div>
                     )}
