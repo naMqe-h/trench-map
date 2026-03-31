@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '../../config/settings'
 import { HouseData, HouseType, PlacedVillage } from '../../types/scene'
-import { HOUSE_TIERS } from '../../src/constants/houses'
+import { HOUSE_TIERS } from '../../constants/houses'
 
 export const generateHousePositions = (
     houseCounts: Record<string, number>,

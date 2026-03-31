@@ -15,7 +15,7 @@ const SocialIcon = ({ type }: { type: string }) => {
     }
 }
 
-import { HOUSE_TIERS } from "../../src/constants/houses"
+import { HOUSE_TIERS } from "../../constants/houses"
 
 export function Sidebar() {
     const selectedToken = useMapStore((state) => state.selectedToken)
