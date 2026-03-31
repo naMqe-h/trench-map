@@ -65,7 +65,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                         if (occupiedCoordsCache.has(key)) continue;
 
                         if (Math.random() < 1 / MAP_SETTINGS.TREE_DENSITY_DIVISOR) {
-                            treeSpots.push([x, 0, z])
+                            treeSpots.push([x, 0.5, z])
                         }
                     }
                 }
@@ -114,14 +114,14 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                         if (isPath) {
                             if (!dirtCoordsCache.has(key)) {
                                 dirtCoordsCache.add(key)
-                                dummy.position.set(x, -0.85, z)
+                                dummy.position.set(x, -0.5, z)
                                 dummy.updateMatrix()
                                 newDirtMatrices.push([...dummy.matrix.elements])
                             }
                         } else {
                             if (!grassCoordsCache.has(key)) {
                                 grassCoordsCache.add(key)
-                                dummy.position.set(x, -1, z)
+                                dummy.position.set(x, -0.5, z)
                                 dummy.updateMatrix()
                                 newGrassMatrices.push([...dummy.matrix.elements])
 
@@ -136,7 +136,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                                     } else {
                                         type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)]
                                     }
-                                    newVegetationSpots.push({ position: [x, -0.5, z], type })
+                                    newVegetationSpots.push({ position: [x, 0, z], type })
                                 }
                             }
                         }

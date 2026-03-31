@@ -124,7 +124,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
 
                 activeControlsRef.current?.setLookAt(
                     pos.x + 60, 50, pos.z + 60,
-                    pos.x, 0, pos.z,
+                    pos.x, 0.5, pos.z,
                     true
                 )
 

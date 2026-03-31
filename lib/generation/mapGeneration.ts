@@ -10,7 +10,6 @@ export const generateHousePositions = (
     minDistance: number
 ) => {
     const types: HouseType[] = []
-
     Object.entries(houseCounts).forEach(([levelKey, count]) => {
         const tier = HOUSE_TIERS[levelKey]
         if (tier && tier.modelType) {
@@ -19,44 +18,60 @@ export const generateHousePositions = (
             }
         }
     })
-    
-    const houseCount = types.length
-    const generatedHouses: HouseData[] = []
-    const maxTotalAttempts = houseCount * MAP_SETTINGS.MAX_PLACEMENT_ATTEMPTS_MULTIPLIER
-    let attempts = 0
-    const baseRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (houseCount * MAP_SETTINGS.HOUSE_PLACEMENT_RADIUS_MULTIPLIER)
 
-    while (generatedHouses.length < houseCount && attempts < maxTotalAttempts) {
-        attempts++
-        const randomAngle = Math.random() * 2 * Math.PI
-        const randomRadius = baseRadius + Math.random() * MAP_SETTINGS.HOUSE_PLACEMENT_RANDOM_RADIUS
-        const houseX = villageRootPosition[0] + Math.cos(randomAngle) * randomRadius
-        const houseZ = villageRootPosition[2] + Math.sin(randomAngle) * randomRadius
-        const newPos = new THREE.Vector3(houseX, 0, houseZ)
+    const houseCount = types.length
+    if (houseCount === 0) {
+        return []
+    }
+
+    const generatedHouses: HouseData[] = []
+    const rootVec = new THREE.Vector3(villageRootPosition[0], 0, villageRootPosition[2])
+
+    const potentialPositions: THREE.Vector3[] = []
+    const searchRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (houseCount * MAP_SETTINGS.HOUSE_PLACEMENT_RADIUS_MULTIPLIER)
+    const gridSize = Math.ceil(searchRadius / minDistance)
+
+    for (let i = -gridSize; i <= gridSize; i++) {
+        for (let j = -gridSize; j <= gridSize; j++) {
+            const x = rootVec.x + i * minDistance
+            const z = rootVec.z + j * minDistance
+            const point = new THREE.Vector3(x, 0, z)
+            
+            if (rootVec.distanceTo(point) <= searchRadius) {
+                potentialPositions.push(point)
+            }
+        }
+    }
+
+    potentialPositions.sort((a, b) => a.distanceTo(rootVec) - b.distanceTo(rootVec))
+
+    for (const pos of potentialPositions) {
+        if (generatedHouses.length >= houseCount) {
+            break
+        }
 
         let hasCollision = false
+
         for (const house of existingHouses) {
-            if (newPos.distanceTo(house.position) < minDistance) {
+            if (pos.distanceTo(house.position) < minDistance) {
                 hasCollision = true
                 break
             }
         }
+        if (hasCollision) continue
 
-        if (!hasCollision) {
-            for (const house of generatedHouses) {
-                if (newPos.distanceTo(house.position) < minDistance) {
-                    hasCollision = true
-                    break
-                }
+        for (const house of generatedHouses) {
+            if (pos.distanceTo(house.position) < minDistance) {
+                hasCollision = true
+                break
             }
         }
+        if (hasCollision) continue
 
-        if (!hasCollision) {
-            generatedHouses.push({
-                position: newPos,
-                type: types[generatedHouses.length]
-            })
-        }
+        generatedHouses.push({
+            position: pos,
+            type: types[generatedHouses.length],
+        })
     }
     
     if (generatedHouses.length < houseCount) {

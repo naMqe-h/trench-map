@@ -3,7 +3,6 @@ import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
 import { createTwoStoryHouseGeometries } from '@/components/scene/houses/TwoStoryHouse'
-import { createBasicHouseGeometries } from '@/components/scene/houses/BasicHouse'
 import { createTreeGeometries } from '@/components/scene/decorations/Tree'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
@@ -65,6 +64,8 @@ export const useMapManager = (initialVillages: Village[]) => {
                     }
 
                     villageHouses.forEach((house) => {
+                        if (house.type === 'basic-house') return
+
                         const houseId = houseCounter++
                         let houseGeos
                         const pos = house.position.toArray() as THREE.Vector3Tuple
@@ -72,9 +73,9 @@ export const useMapManager = (initialVillages: Village[]) => {
                             houseGeos = createTenementGeometries(pos)
                         } else if (house.type === 'twoStory') {
                             houseGeos = createTwoStoryHouseGeometries(pos)
-                        } else {
-                            houseGeos = createBasicHouseGeometries(pos)
-                        }
+                        } 
+
+                        if (!houseGeos) return
 
                         for (const [type, geos] of Object.entries(houseGeos)) {
                             const material = type as HouseMaterial

@@ -6,7 +6,7 @@ export const MAP_SETTINGS = {
     // Maximum zoom distance
     CAMERA_MAX_DISTANCE: 800,
     // Prevents camera from going under the floor
-    CAMERA_MAX_POLAR_ANGLE: Math.PI / 2.05,
+    CAMERA_MAX_POLAR_ANGLE: Math.PI / 2.1,
     // Camera height at which small details disappear
     LOD_VEGETATION_HIDE_HEIGHT: 100,
     // Number of villages fetched per load
