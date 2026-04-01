@@ -3,79 +3,110 @@ import { MAP_SETTINGS } from '../../config/settings'
 import { HouseData, HouseType, PlacedVillage } from '../../types/scene'
 import { HOUSE_TIERS } from '../../constants/houses'
 
+const HOUSE_PADDING = 5
+
 export const generateHousePositions = (
     houseCounts: Record<string, number>,
     villageRootPosition: number[],
     existingHouses: HouseData[],
-    minDistance: number
 ) => {
-    const types: HouseType[] = []
-    Object.entries(houseCounts).forEach(([levelKey, count]) => {
-        const tier = HOUSE_TIERS[levelKey]
-        if (tier && tier.modelType) {
-            for (let i = 0; i < count; i++) {
-                types.push(tier.modelType as HouseType)
+    const houseTiersToPlace = Object.entries(houseCounts)
+        .flatMap(([levelKey, count]) => {
+            const tier = HOUSE_TIERS[levelKey]
+            return tier ? Array(count).fill(tier) : []
+        })
+        .sort((a, b) => {
+            const footprintA = a.footprint.x * a.footprint.z
+            const footprintB = b.footprint.x * b.footprint.z
+            if (footprintB !== footprintA) {
+                return footprintB - footprintA
             }
-        }
-    })
+            return b.level - a.level
+        })
 
-    const houseCount = types.length
+    const houseCount = houseTiersToPlace.length
     if (houseCount === 0) {
         return []
     }
 
     const generatedHouses: HouseData[] = []
     const rootVec = new THREE.Vector3(villageRootPosition[0], 0, villageRootPosition[2])
-
-    const potentialPositions: THREE.Vector3[] = []
-    const searchRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (houseCount * MAP_SETTINGS.HOUSE_PLACEMENT_RADIUS_MULTIPLIER)
-    const gridSize = Math.ceil(searchRadius / minDistance)
-
-    for (let i = -gridSize; i <= gridSize; i++) {
-        for (let j = -gridSize; j <= gridSize; j++) {
-            const x = rootVec.x + i * minDistance
-            const z = rootVec.z + j * minDistance
-            const point = new THREE.Vector3(x, 0, z)
-            
-            if (rootVec.distanceTo(point) <= searchRadius) {
-                potentialPositions.push(point)
-            }
-        }
-    }
-
-    potentialPositions.sort((a, b) => a.distanceTo(rootVec) - b.distanceTo(rootVec))
-
-    for (const pos of potentialPositions) {
-        if (generatedHouses.length >= houseCount) {
-            break
-        }
-
-        let hasCollision = false
-
-        for (const house of existingHouses) {
-            if (pos.distanceTo(house.position) < minDistance) {
-                hasCollision = true
-                break
-            }
-        }
-        if (hasCollision) continue
-
-        for (const house of generatedHouses) {
-            if (pos.distanceTo(house.position) < minDistance) {
-                hasCollision = true
-                break
-            }
-        }
-        if (hasCollision) continue
-
-        generatedHouses.push({
-            position: pos,
-            type: types[generatedHouses.length],
-        })
-    }
     
-    if (generatedHouses.length < houseCount) {
-        console.warn(`Could not place all houses for a village. Placed ${generatedHouses.length}/${houseCount}`)
+    const SPACING_MULTIPLIER = 5
+    const initialSearchRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (Math.sqrt(houseCount) * SPACING_MULTIPLIER)
+
+    const checkCollision = (pos: THREE.Vector3, footprintToPlace: { x: number, z: number }, existingHouse: HouseData) => {
+        const existingTier = Object.values(HOUSE_TIERS).find(t => t.modelType === existingHouse.type)
+        if (!existingTier) return false
+
+        const existingFootprint = existingTier.footprint
+        
+        const minX1 = pos.x - Math.floor(footprintToPlace.x / 2)
+        const maxX1 = pos.x + Math.floor(footprintToPlace.x / 2)
+        const minZ1 = pos.z - Math.floor(footprintToPlace.z / 2)
+        const maxZ1 = pos.z + Math.floor(footprintToPlace.z / 2)
+
+        const minX2 = existingHouse.position.x - Math.floor(existingFootprint.x / 2)
+        const maxX2 = existingHouse.position.x + Math.floor(existingFootprint.x / 2)
+        const minZ2 = existingHouse.position.z - Math.floor(existingFootprint.z / 2)
+        const maxZ2 = existingHouse.position.z + Math.floor(existingFootprint.z / 2)
+
+        if (minX1 < maxX2 + HOUSE_PADDING && maxX1 > minX2 - HOUSE_PADDING &&
+            minZ1 < maxZ2 + HOUSE_PADDING && maxZ1 > minZ2 - HOUSE_PADDING) {
+            return true
+        }
+        return false
+    }
+
+    for (const tierToPlace of houseTiersToPlace) {
+        const footprintToPlace = tierToPlace.footprint
+        let housePlaced = false
+        let currentSearchRadius = initialSearchRadius
+
+        while (!housePlaced) {
+            const candidatePoints: THREE.Vector3[] = []
+            const step = 2
+            for (let x = -currentSearchRadius; x <= currentSearchRadius; x += step) {
+                for (let z = -currentSearchRadius; z <= currentSearchRadius; z += step) {
+                    const point = new THREE.Vector3(rootVec.x + x, 0, rootVec.z + z)
+                    if (point.distanceTo(rootVec) <= currentSearchRadius) {
+                        candidatePoints.push(point)
+                    }
+                }
+            }
+            
+            candidatePoints.sort((a, b) => a.distanceTo(rootVec) - b.distanceTo(rootVec))
+
+            for (const candidatePos of candidatePoints) {
+                let hasCollision = false
+                for (const house of existingHouses) {
+                    if (checkCollision(candidatePos, footprintToPlace, house)) {
+                        hasCollision = true
+                        break
+                    }
+                }
+                if (hasCollision) continue
+
+                for (const house of generatedHouses) {
+                    if (checkCollision(candidatePos, footprintToPlace, house)) {
+                        hasCollision = true
+                        break
+                    }
+                }
+                if (hasCollision) continue
+
+                generatedHouses.push({
+                    position: candidatePos,
+                    type: tierToPlace.modelType as HouseType,
+                })
+                housePlaced = true
+                break
+            }
+
+            if (!housePlaced) {
+                currentSearchRadius += 5
+            }
+        }
     }
     
     return generatedHouses
