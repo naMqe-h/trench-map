@@ -6,6 +6,7 @@ import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { VillageData } from '@/types/scene'
 import { BasicHouse } from '../houses/BasicHouse'
+import { StoneTallhouse } from '../houses/StoneTallhouse'
 
 type MergedStructuresProps = {
     villageGeometries: VillageData[]
@@ -100,14 +101,25 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                         setSelectedToken(village)
                     }}
                 >
-                    {village.placedHouses.map((house, index) => (
-                        house.type === 'basic-house' && (
-                            <BasicHouse 
-                                key={`${village.id}-${index}`} 
-                                position={house.position.toArray()} 
-                            />
-                        )
-                    ))}
+                    {village.placedHouses.map((house, index) => {
+                        if (house.type === 'basic-house') {
+                            return (
+                                <BasicHouse 
+                                    key={`${village.id}-${index}`} 
+                                    position={house.position.toArray()} 
+                                />
+                            )
+                        }
+                        if (house.type === 'stone-tall-house') {
+                            return (
+                                <StoneTallhouse 
+                                    key={`${village.id}-${index}`} 
+                                    position={house.position.toArray()} 
+                                />
+                            )
+                        }
+                        return null
+                    })}
                     {village.geometries.cobble && (
                         <mesh 
                             geometry={village.geometries.cobble}

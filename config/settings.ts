@@ -50,5 +50,7 @@ export const MAP_SETTINGS = {
     // Step for spiral collision check
     SPIRAL_COLLISION_STEP: 0.5,
     // Sun light intensity
-    SUN_LIGHT_INTENSITY: 1.2
+    SUN_LIGHT_INTENSITY: 1.2,
+    // Padding for houses
+    HOUSE_PADDING: 5,
 }

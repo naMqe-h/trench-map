@@ -23,7 +23,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
             const processedVillages: ProcessedVillageData[] = []
 
             newVillages.forEach((village: Village, index: number) => {
-                const villageHouses = generateHousePositions(village.houses, [0, 0, 0], [], MAP_SETTINGS.MIN_HOUSE_DISTANCE)
+                const villageHouses = generateHousePositions(village.houses, [0, 0, 0], [])
                 let maxDist = 0
                 villageHouses.forEach(h => {
                     const dist = h.position.length()

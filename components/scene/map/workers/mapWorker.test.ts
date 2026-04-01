@@ -24,7 +24,7 @@ describe('mapWorker logic', () => {
                 newVillages: [{
                     ca: '0x1',
                     name: 'Test Village',
-                    houses: { singleStory: 1, twoStory: 0, tenement: 0 }
+                    houses: { 'level-1': 1, 'level-2': 0, 'level-3': 0 }
                 }],
                 startIndex: 0
             }
@@ -67,7 +67,7 @@ describe('mapWorker logic', () => {
                 type: 'PROCESS_CHUNK',
                 newVillages: [{
                     ca: '0x1',
-                    houses: { singleStory: 1 }
+                    houses: { 'level-1': 1 }
                 }],
                 startIndex: 0
             }

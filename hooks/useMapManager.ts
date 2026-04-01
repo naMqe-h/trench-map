@@ -2,7 +2,6 @@ import { useCallback, useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
-import { createTwoStoryHouseGeometries } from '@/components/scene/houses/TwoStoryHouse'
 import { createTreeGeometries } from '@/components/scene/decorations/Tree'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
@@ -64,15 +63,13 @@ export const useMapManager = (initialVillages: Village[]) => {
                     }
 
                     villageHouses.forEach((house) => {
-                        if (house.type === 'basic-house') return
+                        if (house.type === 'basic-house' || house.type === 'stone-tall-house') return
 
                         const houseId = houseCounter++
                         let houseGeos
                         const pos = house.position.toArray() as THREE.Vector3Tuple
                         if (house.type === 'tenement') {
                             houseGeos = createTenementGeometries(pos)
-                        } else if (house.type === 'twoStory') {
-                            houseGeos = createTwoStoryHouseGeometries(pos)
                         } 
 
                         if (!houseGeos) return

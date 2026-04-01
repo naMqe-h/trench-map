@@ -3,8 +3,8 @@ import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 
-export function BasicHouse({ position }: { position: THREE.Vector3Tuple }) {
-    const { scene, materials } = useGLTF('/models/basic-house.glb')
+export function StoneTallhouse({ position }: { position: THREE.Vector3Tuple }) {
+    const { scene, materials } = useGLTF('/models/stone-tall-house.glb')
     const { isNight } = useTimeOfDay()
 
     useEffect(() => {
@@ -31,4 +31,4 @@ export function BasicHouse({ position }: { position: THREE.Vector3Tuple }) {
     return <primitive object={scene.clone()} position={position} />
 }
 
-useGLTF.preload('/models/basic-house.glb')
+useGLTF.preload('/models/stone-tall-house.glb')

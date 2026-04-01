@@ -18,7 +18,7 @@ describe('useMapStore', () => {
         const initialGrassCount = useMapStore.getState().grassMatricesCache.length
 
         const newChunkData = {
-            houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'singleStory' as const }],
+            houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'basic-house' as const }],
             grassMatrices: [new THREE.Matrix4().setPosition(1, 0, 1)],
             dirtMatrices: [],
             vegetation: []
@@ -42,7 +42,7 @@ describe('useMapStore', () => {
         const originalGrassCache = useMapStore.getState().grassMatricesCache
 
         const newChunkData = {
-            houses: [{ position: new THREE.Vector3(20, 0, 20), type: 'twoStory' as const }],
+            houses: [{ position: new THREE.Vector3(20, 0, 20), type: 'stone-tall-house' as const }],
             grassMatrices: [new THREE.Matrix4().setPosition(2, 0, 2)],
             dirtMatrices: [],
             vegetation: []
@@ -63,7 +63,7 @@ describe('useMapStore', () => {
 
     it('resetMap should reset the state to its initial values', () => {
         const newChunkData = {
-            houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'singleStory' as const }],
+            houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'basic-house' as const }],
             grassMatrices: [new THREE.Matrix4().setPosition(1, 0, 1)],
             dirtMatrices: [],
             vegetation: []

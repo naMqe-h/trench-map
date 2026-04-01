@@ -3,8 +3,6 @@ import { MAP_SETTINGS } from '../../config/settings'
 import { HouseData, HouseType, PlacedVillage } from '../../types/scene'
 import { HOUSE_TIERS } from '../../constants/houses'
 
-const HOUSE_PADDING = 5
-
 export const generateHousePositions = (
     houseCounts: Record<string, number>,
     villageRootPosition: number[],
@@ -51,8 +49,8 @@ export const generateHousePositions = (
         const minZ2 = existingHouse.position.z - Math.floor(existingFootprint.z / 2)
         const maxZ2 = existingHouse.position.z + Math.floor(existingFootprint.z / 2)
 
-        if (minX1 < maxX2 + HOUSE_PADDING && maxX1 > minX2 - HOUSE_PADDING &&
-            minZ1 < maxZ2 + HOUSE_PADDING && maxZ1 > minZ2 - HOUSE_PADDING) {
+        if (minX1 < maxX2 + MAP_SETTINGS.HOUSE_PADDING && maxX1 > minX2 - MAP_SETTINGS.HOUSE_PADDING &&
+            minZ1 < maxZ2 + MAP_SETTINGS.HOUSE_PADDING && maxZ1 > minZ2 - MAP_SETTINGS.HOUSE_PADDING) {
             return true
         }
         return false

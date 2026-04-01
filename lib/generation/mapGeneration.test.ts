@@ -49,12 +49,12 @@ describe('calculateSpiralPosition', () => {
 
 describe('generateHousePositions', () => {
     it('should respect the minDistance parameter between houses', () => {
-        const houseCounts = { singleStory: 5, twoStory: 0, tenement: 0 }
+        const houseCounts = { 'level-1': 5, 'level-2': 0, 'level-3': 0 }
         const villageRootPosition = [0, 0, 0]
         const existingHouses: HouseData[] = []
         const minDistance = 5
 
-        const houses = generateHousePositions(houseCounts, villageRootPosition, existingHouses, minDistance)
+        const houses = generateHousePositions(houseCounts, villageRootPosition, existingHouses)
 
         for (let i = 0; i < houses.length; i++) {
             for (let j = i + 1; j < houses.length; j++) {
@@ -65,14 +65,14 @@ describe('generateHousePositions', () => {
     })
 
     it('should handle maximum placement attempts gracefully', () => {
-        const houseCounts = { singleStory: 100, twoStory: 0, tenement: 0 }
+        const houseCounts = { 'level-1': 100, 'level-2': 0, 'level-3': 0 }
         const villageRootPosition = [0, 0, 0]
         const existingHouses: HouseData[] = []
         const minDistance = 50
 
         const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
         
-        const houses = generateHousePositions(houseCounts, villageRootPosition, existingHouses, minDistance)
+        const houses = generateHousePositions(houseCounts, villageRootPosition, existingHouses)
         
         expect(houses.length).toBeLessThan(100)
         expect(spy).toHaveBeenCalled()

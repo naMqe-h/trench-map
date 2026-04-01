@@ -48,7 +48,7 @@ export async function addToken(mint: string): Promise<Village> {
 
     const houses = {
         tenement: 0,
-        twoStory: 0,
+        stoneTallHouse: 0,
         singleStory: 0,
     }
 
@@ -56,10 +56,10 @@ export async function addToken(mint: string): Promise<Village> {
         houses.tenement = Math.max(1, Math.floor(marketCap / 100_000))
     } else if (marketCap < 10_000_000) {
         houses.tenement = 10
-        houses.twoStory = Math.max(1, Math.floor((marketCap - 1_000_000) / 1_000_000))
+        houses.stoneTallHouse = Math.max(1, Math.floor((marketCap - 1_000_000) / 1_000_000))
     } else {
         houses.tenement = 10
-        houses.twoStory = 10
+        houses.stoneTallHouse = 10
         houses.singleStory = Math.max(1, Math.floor((marketCap - 10_000_000) / 10_000_000))
     }
 
