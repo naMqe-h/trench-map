@@ -182,28 +182,6 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                             <meshStandardMaterial map={textures.stoneBrick} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
                         </mesh>
                     )}
-                    {village.treeGeometries.trunk && (
-                        <mesh 
-                            geometry={village.treeGeometries.trunk}
-                            castShadow={isShadowEnabled}
-                            receiveShadow={isShadowEnabled}
-                            onPointerMove={handlePointerMove}
-                            onPointerOut={handlePointerOut}
-                        >
-                            <meshStandardMaterial map={textures.trunk} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
-                        </mesh>
-                    )}
-                    {village.treeGeometries.leaves && (
-                        <mesh 
-                            geometry={village.treeGeometries.leaves}
-                            castShadow={isShadowEnabled}
-                            receiveShadow={isShadowEnabled}
-                            onPointerMove={handlePointerMove}
-                            onPointerOut={handlePointerOut}
-                        >
-                            <meshStandardMaterial map={textures.leaves} transparent opacity={0.8} roughness={1} metalness={0} onBeforeCompile={onBeforeCompile} />
-                        </mesh>
-                    )}
                 </group>
             ))}
         </>

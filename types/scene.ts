@@ -59,10 +59,6 @@ export interface VillageData extends Village {
     radius: number
     placedHouses: HouseData[]
     geometries: Record<HouseMaterial, THREE.BufferGeometry | null>
-    treeGeometries: {
-        trunk: THREE.BufferGeometry | null
-        leaves: THREE.BufferGeometry | null
-    }
 }
 
 /**

@@ -8,6 +8,7 @@ import { InstancedTerrain } from './InstancedTerrain'
 import { MergedStructures } from './MergedStructures'
 import { useMapManager } from '@/hooks/useMapManager'
 import { InstancedVegetation } from '../decorations/InstancedVegetation'
+import { InstancedTrees } from '../decorations/InstancedTrees'
 import { useRef, useEffect, useState, useMemo } from 'react'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
@@ -69,6 +70,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
     const {
         villageGeometries,
         vegetationSpots,
+        treeSpotsCache,
         grassMatrices,
         dirtMatrices,
         isLoading,
@@ -77,6 +79,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
     } = useMapStore(useShallow(state => ({
         villageGeometries: state.villageGeometries,
         vegetationSpots: state.vegetationSpotsCache,
+        treeSpotsCache: state.treeSpotsCache,
         grassMatrices: state.grassMatricesCache,
         dirtMatrices: state.dirtMatricesCache,
         isLoading: state.isLoading,
@@ -141,7 +144,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
             onCountChange?.(villageGeometries.length)
         }
     }, [villageGeometries, onReady, onCountChange])
-    
+
     const center = useMemo(() => new THREE.Vector3(), [])
 
     return (
@@ -179,11 +182,12 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 villageGeometries={villageGeometries}
             />
 
-            {renderGrassAndFlowers && (
-                <VegetationGroup>
+            <VegetationGroup>
+                <InstancedTrees treeSpots={treeSpotsCache} />
+                {renderGrassAndFlowers && (
                     <InstancedVegetation vegetationData={displayedVegetation} />
-                </VegetationGroup>
-            )}
+                )}
+            </VegetationGroup>
         </>
     )
 }

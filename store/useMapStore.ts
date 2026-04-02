@@ -1,4 +1,4 @@
-import { HouseData, VegetationData, VillageData } from '@/types/scene'
+import { HouseData, SerializedVector3, VegetationData, VillageData } from '@/types/scene'
 import { Village } from '@/types/token'
 import * as THREE from 'three'
 import { create } from 'zustand'
@@ -8,6 +8,7 @@ type ChunkData = {
     grassMatrices: THREE.Matrix4[]
     dirtMatrices: THREE.Matrix4[]
     vegetation: VegetationData[]
+    treeSpots: SerializedVector3[]
 }
 
 interface MapState {
@@ -16,6 +17,7 @@ interface MapState {
     grassMatricesCache: THREE.Matrix4[]
     dirtMatricesCache: THREE.Matrix4[]
     vegetationSpotsCache: VegetationData[]
+    treeSpotsCache: SerializedVector3[]
     villageGeometries: VillageData[]
     hoveredToken: Village | null
     selectedToken: Village | null
@@ -56,6 +58,7 @@ const initialState: MapState = {
     grassMatricesCache: [],
     dirtMatricesCache: [],
     vegetationSpotsCache: [],
+    treeSpotsCache: [],
     villageGeometries: [],
     hoveredToken: null,
     selectedToken: null,
@@ -81,6 +84,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
             grassMatricesCache: [...state.grassMatricesCache, ...data.grassMatrices],
             dirtMatricesCache: [...state.dirtMatricesCache, ...data.dirtMatrices],
             vegetationSpotsCache: [...state.vegetationSpotsCache, ...data.vegetation],
+            treeSpotsCache: [...state.treeSpotsCache, ...data.treeSpots],
         })),
 
     addVillageGeometries: (geometries) =>

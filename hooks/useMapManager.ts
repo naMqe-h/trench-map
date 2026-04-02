@@ -2,12 +2,11 @@ import { useCallback, useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import * as BufferGeometryUtils from 'three-stdlib'
 import { createTenementGeometries } from '@/components/scene/houses/Tenement'
-import { createTreeGeometries } from '@/components/scene/decorations/Tree'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
-import { HouseData, HouseMaterial, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
+import { HouseData, HouseMaterial, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, SerializedVector3, VillageData } from '@/types/scene'
 import { useShallow } from 'zustand/react/shallow'
 
 export const useMapManager = (initialVillages: Village[]) => {
@@ -43,6 +42,8 @@ export const useMapManager = (initialVillages: Village[]) => {
 
                 let houseCounter = useMapStore.getState().housesCache.length
                 const allNewHouses: HouseData[] = []
+                const allTreeSpots: SerializedVector3[] = []
+
                 const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                     const village = vData.village
                     const position = new THREE.Vector3().fromArray(vData.position)
@@ -54,12 +55,10 @@ export const useMapManager = (initialVillages: Village[]) => {
                     }))
 
                     allNewHouses.push(...villageHouses)
+                    allTreeSpots.push(...vData.treeSpots)
 
                     const localHouseGeometries: Record<HouseMaterial, THREE.BufferGeometry[]> = {
                         cobble: [], plank: [], glass: [], brick: [], stoneBrick: []
-                    }
-                    const localTreeGeometries: { trunk: THREE.BufferGeometry[], leaves: THREE.BufferGeometry[] } = {
-                        trunk: [], leaves: []
                     }
 
                     villageHouses.forEach((house) => {
@@ -87,23 +86,6 @@ export const useMapManager = (initialVillages: Village[]) => {
                         }
                     })
 
-                    vData.treeSpots.forEach((spot) => {
-                        const treeId = houseCounter++
-                        const { trunk, leaves } = createTreeGeometries(spot as THREE.Vector3Tuple)
-                        trunk.forEach(geo => {
-                            const count = geo.attributes.position.count
-                            const ids = new Float32Array(count).fill(treeId)
-                            geo.setAttribute('aHouseId', new THREE.BufferAttribute(ids, 1))
-                        })
-                        leaves.forEach(geo => {
-                            const count = geo.attributes.position.count
-                            const ids = new Float32Array(count).fill(treeId)
-                            geo.setAttribute('aHouseId', new THREE.BufferAttribute(ids, 1))
-                        })
-                        localTreeGeometries.trunk.push(...trunk)
-                        localTreeGeometries.leaves.push(...leaves)
-                    })
-
                     const mergedVillageGeometries: Partial<Record<HouseMaterial, THREE.BufferGeometry | null>> = {}
                     for (const type in localHouseGeometries) {
                         const material = type as HouseMaterial
@@ -120,34 +102,12 @@ export const useMapManager = (initialVillages: Village[]) => {
                         geos.forEach(geo => geo.dispose())
                     }
 
-                    const trunkMerged = localTreeGeometries.trunk.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.trunk) : null
-                    if (trunkMerged) {
-                        const count = trunkMerged.attributes.position.count
-                        const spawnTimes = new Float32Array(count).fill(spawnTime)
-                        trunkMerged.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
-                    }
-
-                    const leavesMerged = localTreeGeometries.leaves.length > 0 ? BufferGeometryUtils.mergeBufferGeometries(localTreeGeometries.leaves) : null
-                    if (leavesMerged) {
-                        const count = leavesMerged.attributes.position.count
-                        const spawnTimes = new Float32Array(count).fill(spawnTime)
-                        leavesMerged.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
-                    }
-
-                    const mergedVillageTreeGeometries = {
-                        trunk: trunkMerged,
-                        leaves: leavesMerged,
-                    }
-                    localTreeGeometries.trunk.forEach(geo => geo.dispose())
-                    localTreeGeometries.leaves.forEach(geo => geo.dispose())
-
                     return {
                         ...village,
                         position,
                         radius,
                         placedHouses: villageHouses,
                         geometries: mergedVillageGeometries as Record<HouseMaterial, THREE.BufferGeometry | null>,
-                        treeGeometries: mergedVillageTreeGeometries
                     }
                 })
 
@@ -156,8 +116,9 @@ export const useMapManager = (initialVillages: Village[]) => {
                     grassMatrices: newGrassMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
                     dirtMatrices: newDirtMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
                     vegetation: newVegetationSpots,
+                    treeSpots: allTreeSpots,
                 })
-                
+
                 useMapStore.getState().addVillageGeometries(newVillageGeometries)
                 useMapStore.getState().setGenerationStep(null)
                 useMapStore.getState().setGenerating(false)
@@ -202,7 +163,7 @@ export const useMapManager = (initialVillages: Village[]) => {
             store.setLoading(false)
         }
     }, [isLoading, hasMore, offset, store])
-    
+
     const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
         store.addLiveVillage(newVillage, isNew)
     }, [store])
@@ -212,3 +173,4 @@ export const useMapManager = (initialVillages: Village[]) => {
         addLiveToken
     }
 }
+
