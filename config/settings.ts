@@ -25,8 +25,6 @@ export const MAP_SETTINGS = {
     MIN_HOUSE_DISTANCE: 12,
     // Additional padding for village radius calculation
     VILLAGE_RADIUS_PADDING: 12,
-    // Footprint size for tenement houses
-    TENEMENT_FOOTPRINT: 7,
     // Footprint size for other houses
     DEFAULT_HOUSE_FOOTPRINT: 5,
     // Width of paths around villages

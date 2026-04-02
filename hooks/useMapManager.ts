@@ -1,12 +1,10 @@
 import { useCallback, useRef, useEffect } from 'react'
 import * as THREE from 'three'
-import * as BufferGeometryUtils from 'three-stdlib'
-import { createTenementGeometries } from '@/components/scene/houses/Tenement'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
-import { HouseData, HouseMaterial, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, SerializedVector3, VillageData } from '@/types/scene'
+import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, SerializedVector3, VillageData } from '@/types/scene'
 import { useShallow } from 'zustand/react/shallow'
 
 export const useMapManager = (initialVillages: Village[]) => {
@@ -35,12 +33,10 @@ export const useMapManager = (initialVillages: Village[]) => {
         workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
             useMapStore.getState().setGenerationStep('building')
             const data = event.data
-            const spawnTime = performance.now() / 1000
 
             setTimeout(() => {
                 const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots } = data
 
-                let houseCounter = useMapStore.getState().housesCache.length
                 const allNewHouses: HouseData[] = []
                 const allTreeSpots: SerializedVector3[] = []
 
@@ -57,57 +53,14 @@ export const useMapManager = (initialVillages: Village[]) => {
                     allNewHouses.push(...villageHouses)
                     allTreeSpots.push(...vData.treeSpots)
 
-                    const localHouseGeometries: Record<HouseMaterial, THREE.BufferGeometry[]> = {
-                        cobble: [], plank: [], glass: [], brick: [], stoneBrick: []
-                    }
-
-                    villageHouses.forEach((house) => {
-                        if (house.type === 'basic-house' || house.type === 'stone-tall-house') return
-
-                        const houseId = houseCounter++
-                        let houseGeos
-                        const pos = house.position.toArray() as THREE.Vector3Tuple
-                        if (house.type === 'tenement') {
-                            houseGeos = createTenementGeometries(pos)
-                        } 
-
-                        if (!houseGeos) return
-
-                        for (const [type, geos] of Object.entries(houseGeos)) {
-                            const material = type as HouseMaterial
-                            if (localHouseGeometries[material] && (geos as THREE.BufferGeometry[]).length > 0) {
-                                (geos as THREE.BufferGeometry[]).forEach(geo => {
-                                    const count = geo.attributes.position.count
-                                    const houseIds = new Float32Array(count).fill(houseId)
-                                    geo.setAttribute('aHouseId', new THREE.BufferAttribute(houseIds, 1))
-                                })
-                                localHouseGeometries[material].push(...(geos as THREE.BufferGeometry[]))
-                            }
-                        }
-                    })
-
-                    const mergedVillageGeometries: Partial<Record<HouseMaterial, THREE.BufferGeometry | null>> = {}
-                    for (const type in localHouseGeometries) {
-                        const material = type as HouseMaterial
-                        const geos = localHouseGeometries[material]
-                        if (geos.length > 0) {
-                            const merged = BufferGeometryUtils.mergeBufferGeometries(geos)
-                            const count = merged?.attributes.position.count
-                            const spawnTimes = new Float32Array(count as number).fill(spawnTime)
-                            merged?.setAttribute('aSpawnTime', new THREE.BufferAttribute(spawnTimes, 1))
-                            mergedVillageGeometries[material] = merged
-                        } else {
-                            mergedVillageGeometries[material] = null
-                        }
-                        geos.forEach(geo => geo.dispose())
-                    }
-
                     return {
                         ...village,
                         position,
                         radius,
                         placedHouses: villageHouses,
-                        geometries: mergedVillageGeometries as Record<HouseMaterial, THREE.BufferGeometry | null>,
+                        geometries: {
+                            cobble: null, plank: null, glass: null, brick: null, stoneBrick: null
+                        },
                     }
                 })
 

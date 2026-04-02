@@ -47,20 +47,20 @@ export async function addToken(mint: string): Promise<Village> {
     const marketCap = +(price * supply).toFixed(0)
 
     const houses = {
-        tenement: 0,
-        stoneTallHouse: 0,
-        singleStory: 0,
+        'level-3': 0,
+        'level-2': 0,
+        'level-1': 0,
     }
 
     if (marketCap < 1_000_000) {
-        houses.tenement = Math.max(1, Math.floor(marketCap / 100_000))
+        houses['level-3'] = Math.max(1, Math.floor(marketCap / 100_000))
     } else if (marketCap < 10_000_000) {
-        houses.tenement = 10
-        houses.stoneTallHouse = Math.max(1, Math.floor((marketCap - 1_000_000) / 1_000_000))
+        houses['level-3'] = 10
+        houses['level-2'] = Math.max(1, Math.floor((marketCap - 1_000_000) / 1_000_000))
     } else {
-        houses.tenement = 10
-        houses.stoneTallHouse = 10
-        houses.singleStory = Math.max(1, Math.floor((marketCap - 10_000_000) / 10_000_000))
+        houses['level-3'] = 10
+        houses['level-2'] = 10
+        houses['level-1'] = Math.max(1, Math.floor((marketCap - 10_000_000) / 10_000_000))
     }
 
     const villageData = {

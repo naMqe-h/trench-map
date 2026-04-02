@@ -4,6 +4,7 @@ import { generateHousePositions, calculateSpiralPosition } from '@/lib/generatio
 import { MapWorkerPayload, MapWorkerRequest, PlacedVillage, ProcessedVillageData, VegetationData, VegetationType } from '@/types/scene'
 import { Village } from '@/types/token'
 import { createNoise2D } from 'simplex-noise'
+import { HOUSE_TIERS } from '@/constants/houses'
 
 const placedVillagesCache: PlacedVillage[] = []
 const boundsCache = new THREE.Box3()
@@ -41,10 +42,23 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
                     const house_x = Math.round(h.position.x)
                     const house_z = Math.round(h.position.z)
-                    const footprint = h.type === 'tenement' ? MAP_SETTINGS.TENEMENT_FOOTPRINT : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
-                    for (let i = -footprint; i <= footprint; i++) {
-                        for (let j = -footprint; j <= footprint; j++) {
-                            occupiedCoordsCache.add(`${house_x + i},${house_z + j}`)
+                    
+                    const tier = Object.values(HOUSE_TIERS).find(t => t.modelType === h.type)
+                    if (tier) {
+                        const halfFootprintX = Math.floor(tier.footprint.x / 2)
+                        const halfFootprintZ = Math.floor(tier.footprint.z / 2)
+
+                        for (let i = -halfFootprintX; i <= halfFootprintX; i++) {
+                            for (let j = -halfFootprintZ; j <= halfFootprintZ; j++) {
+                                occupiedCoordsCache.add(`${house_x + i},${house_z + j}`)
+                            }
+                        }
+                    } else {
+                        const footprint = MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
+                        for (let i = -footprint; i <= footprint; i++) {
+                            for (let j = -footprint; j <= footprint; j++) {
+                                occupiedCoordsCache.add(`${house_x + i},${house_z + j}`)
+                            }
                         }
                     }
                 })

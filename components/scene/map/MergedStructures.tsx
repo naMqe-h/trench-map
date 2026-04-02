@@ -7,6 +7,7 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { VillageData } from '@/types/scene'
 import { BasicHouse } from '../houses/BasicHouse'
 import { StoneTallhouse } from '../houses/StoneTallhouse'
+import { StoneGableHouse } from '../houses/StoneGableHouse'
 
 type MergedStructuresProps = {
     villageGeometries: VillageData[]
@@ -113,6 +114,14 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                         if (house.type === 'stone-tall-house') {
                             return (
                                 <StoneTallhouse 
+                                    key={`${village.id}-${index}`} 
+                                    position={house.position.toArray()} 
+                                />
+                            )
+                        }
+                        if (house.type === 'stone-gable-house') {
+                            return (
+                                <StoneGableHouse 
                                     key={`${village.id}-${index}`} 
                                     position={house.position.toArray()} 
                                 />
