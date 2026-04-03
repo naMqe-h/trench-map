@@ -4,7 +4,7 @@ import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
-import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, SerializedVector3, VillageData } from '@/types/scene'
+import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
 import { useShallow } from 'zustand/react/shallow'
 
 export const useMapManager = (initialVillages: Village[]) => {
@@ -35,10 +35,9 @@ export const useMapManager = (initialVillages: Village[]) => {
             const data = event.data
 
             setTimeout(() => {
-                const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots } = data
+                const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, treeSpots: newTreeSpots } = data
 
                 const allNewHouses: HouseData[] = []
-                const allTreeSpots: SerializedVector3[] = []
 
                 const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                     const village = vData.village
@@ -51,7 +50,6 @@ export const useMapManager = (initialVillages: Village[]) => {
                     }))
 
                     allNewHouses.push(...villageHouses)
-                    allTreeSpots.push(...vData.treeSpots)
 
                     return {
                         ...village,
@@ -69,7 +67,7 @@ export const useMapManager = (initialVillages: Village[]) => {
                     grassMatrices: newGrassMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
                     dirtMatrices: newDirtMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
                     vegetation: newVegetationSpots,
-                    treeSpots: allTreeSpots,
+                    treeSpots: newTreeSpots,
                 })
 
                 useMapStore.getState().addVillageGeometries(newVillageGeometries)

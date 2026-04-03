@@ -13,6 +13,27 @@ const dirtCoordsCache = new Set<string>()
 const occupiedCoordsCache = new Set<string>()
 const noise2D = createNoise2D()
 
+function isSpaceFree(x: number, z: number, size: number, padding: number, occupiedSet: Set<string>): boolean {
+    const halfExclusion = Math.floor((size + 2 * padding) / 2)
+    for (let dx = -halfExclusion; dx <= halfExclusion; dx++) {
+        for (let dz = -halfExclusion; dz <= halfExclusion; dz++) {
+            if (occupiedSet.has(`${x + dx},${z + dz}`)) {
+                return false
+            }
+        }
+    }
+    return true
+}
+
+function markOccupied(x: number, z: number, size: number, occupiedSet: Set<string>) {
+    const halfSize = Math.floor(size / 2)
+    for (let dx = -halfSize; dx <= halfSize; dx++) {
+        for (let dz = -halfSize; dz <= halfSize; dz++) {
+            occupiedSet.add(`${x + dx},${z + dz}`)
+        }
+    }
+}
+
 self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
     switch (event.data.type) {
         case 'PROCESS_CHUNK': {
@@ -66,24 +87,6 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                 const localBounds = new THREE.Box3().setFromPoints(villageHouses.map(h => h.position))
                 tempBounds.union(localBounds)
 
-                const villageMinX = Math.floor(localBounds.min.x - MAP_SETTINGS.VILLAGE_PADDING);
-                const villageMaxX = Math.ceil(localBounds.max.x + MAP_SETTINGS.VILLAGE_PADDING);
-                const villageMinZ = Math.floor(localBounds.min.z - MAP_SETTINGS.VILLAGE_PADDING);
-                const villageMaxZ = Math.ceil(localBounds.max.z + MAP_SETTINGS.VILLAGE_PADDING);
-
-                const treeSpots: [number, number, number][] = []
-
-                for (let x = villageMinX; x <= villageMaxX; x++) {
-                    for (let z = villageMinZ; z <= villageMaxZ; z++) {
-                        const key = `${x},${z}`
-                        if (occupiedCoordsCache.has(key)) continue;
-
-                        if (Math.random() < 1 / MAP_SETTINGS.TREE_DENSITY_DIVISOR) {
-                            treeSpots.push([x, 0.5, z])
-                        }
-                    }
-                }
-
                 processedVillages.push({
                     village,
                     position: position.toArray(),
@@ -92,9 +95,28 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                         position: h.position.toArray(),
                         type: h.type
                     })),
-                    treeSpots
+                    treeSpots: []
                 })
             })
+
+            const treeSpots: [number, number, number][] = []
+            if (!tempBounds.isEmpty()) {
+                const treeMinX = Math.floor(tempBounds.min.x - MAP_SETTINGS.VILLAGE_PADDING * 2);
+                const treeMaxX = Math.ceil(tempBounds.max.x + MAP_SETTINGS.VILLAGE_PADDING * 2);
+                const treeMinZ = Math.floor(tempBounds.min.z - MAP_SETTINGS.VILLAGE_PADDING * 2);
+                const treeMaxZ = Math.ceil(tempBounds.max.z + MAP_SETTINGS.VILLAGE_PADDING * 2);
+
+                for (let x = treeMinX; x <= treeMaxX; x++) {
+                    for (let z = treeMinZ; z <= treeMaxZ; z++) {
+                        if (Math.random() < 1 / MAP_SETTINGS.TREE_DENSITY_DIVISOR) {
+                            if (isSpaceFree(x, z, MAP_SETTINGS.TREE_FOOTPRINT, MAP_SETTINGS.TREE_PADDING, occupiedCoordsCache)) {
+                                treeSpots.push([x, 0.5, z])
+                                markOccupied(x, z, MAP_SETTINGS.TREE_FOOTPRINT, occupiedCoordsCache)
+                            }
+                        }
+                    }
+                }
+            }
 
             boundsCache.union(tempBounds)
 
@@ -166,6 +188,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                 newGrassMatrices,
                 newDirtMatrices,
                 newVegetationSpots,
+                treeSpots,
                 center: center.toArray(),
                 type: 'CHUNK_PROCESSED'
             }

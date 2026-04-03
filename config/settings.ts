@@ -51,4 +51,8 @@ export const MAP_SETTINGS = {
     SUN_LIGHT_INTENSITY: 1.2,
     // Padding for houses
     HOUSE_PADDING: 5,
+    // Tree footprint size
+    TREE_FOOTPRINT: 5,
+    // Tree padding from other elements
+    TREE_PADDING: 1,
 }

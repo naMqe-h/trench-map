@@ -81,6 +81,7 @@ export type ChunkProcessedPayload = {
     newGrassMatrices: SerializedMatrix4[]
     newDirtMatrices: SerializedMatrix4[]
     newVegetationSpots: VegetationData[]
+    treeSpots: SerializedVector3[]
     center: SerializedVector3
 }
 

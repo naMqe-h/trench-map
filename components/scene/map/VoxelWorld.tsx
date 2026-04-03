@@ -185,8 +185,8 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
                 villageGeometries={villageGeometries}
             />
 
+            <InstancedTrees treeSpots={treeSpotsCache} />
             <VegetationGroup>
-                <InstancedTrees treeSpots={treeSpotsCache} />
                 {renderGrassAndFlowers && (
                     <InstancedVegetation vegetationData={displayedVegetation} />
                 )}
