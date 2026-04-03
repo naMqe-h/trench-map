@@ -11,6 +11,8 @@ import { Village } from '@/types/token'
 import LoadingScreen from '@/components/ui/LoadingScreen'
 import { useShallow } from 'zustand/react/shallow'
 import { Minimap } from '../ui/Minimap'
+import { useMapStore } from '@/store/useMapStore'
+import { motion } from 'framer-motion'
 
 interface ClientCanvasWrapperProps {
     villages: Village[]
@@ -25,6 +27,8 @@ export function ClientCanvasWrapper({ villages }: ClientCanvasWrapperProps) {
             autoDetectSettings: state.autoDetectSettings,
         }))
     )
+
+    const isIntroPlaying = useMapStore(useShallow((state) => state.isIntroPlaying))
 
     useEffect(() => {
         if (_hasHydrated) {
@@ -43,11 +47,42 @@ export function ClientCanvasWrapper({ villages }: ClientCanvasWrapperProps) {
     return (
         <>
             <VoxelCanvas villages={villages} />
-            <PerformanceOverlay />
             <Tooltip />
-            <Sidebar />
             <SettingsOverlay />
-            <Minimap />
+
+            <motion.div
+                initial={{ opacity: 0, x: -20, y: -20 }}
+                animate={{
+                    opacity: isIntroPlaying ? 0 : 1,
+                    x: isIntroPlaying ? -20 : 0,
+                    y: isIntroPlaying ? -20 : 0,
+                }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                style={{ pointerEvents: isIntroPlaying ? 'none' : 'auto' }}
+            >
+                <PerformanceOverlay />
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: isIntroPlaying ? 0 : 1 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                style={{ pointerEvents: isIntroPlaying ? 'none' : 'auto' }}
+            >
+                <Sidebar />
+            </motion.div>
+
+            <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{
+                    opacity: isIntroPlaying ? 0 : 1,
+                    scale: isIntroPlaying ? 0.8 : 1,
+                }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                style={{ pointerEvents: isIntroPlaying ? 'none' : 'auto' }}
+            >
+                <Minimap />
+            </motion.div>
         </>
     )
 }

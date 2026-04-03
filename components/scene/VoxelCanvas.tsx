@@ -13,8 +13,9 @@ import { useSettingsStore } from '@/store/useSettingsStore'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
 import { useShallow } from 'zustand/react/shallow'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { CameraTracker } from './CameraTracker'
+import { CameraIntro } from './camera/CameraIntro'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -37,21 +38,16 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const cameraControlsRef = useRef<CameraControls>(null)
     const [newVillageData, setNewVillageData] = useState<{ village: Village, trigger: number, isNew: boolean } | null>(null)
     
-    const { generationStep, setGenerationStepAction } = useMapStore(
+    const { setGenerationStepAction, isIntroPlaying } = useMapStore(
         useShallow((state) => ({
-            generationStep: state.generationStep,
             setGenerationStepAction: state.setGenerationStep,
+            isIntroPlaying: state.isIntroPlaying,
         }))
     )
 
     const timeOfDay = useTimeOfDay()
 
     const canvasDpr = useMemo(() => [1, dpr] as [number, number], [dpr])
-
-    const handleTokenProcessed = (village: Village, index: number, isNew: boolean = true) => {
-        setGenerationStepAction('fetching')
-        setNewVillageData({ village, trigger: Date.now(), isNew })
-    }
 
     const coordsRef = useRef<HTMLSpanElement>(null)
 
@@ -60,7 +56,15 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
 
     return (
         <>
-            <TopBar onTokenProcessed={handleTokenProcessed} generationStep={generationStep} />
+            <motion.div
+                initial={{ opacity: 0, y: -50 }}
+                animate={{ opacity: isIntroPlaying ? 0 : 1, y: isIntroPlaying ? -50 : 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                style={{ pointerEvents: isIntroPlaying ? 'none' : 'auto' }}
+                className='fixed top-0 left-0 w-full z-50'
+            >
+                <TopBar setNewVillageData={setNewVillageData} />
+            </motion.div>
             <AnimatePresence>
                 {!isReady && <LoadingScreen />}
             </AnimatePresence>
@@ -70,6 +74,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 gl={CANVAS_GL}
                 style={CANVAS_STYLE}
             >
+                <CameraIntro isReady={isReady} />
                 <color attach="background" args={[timeOfDay.backgroundColor]} />
                 <VoxelWorld
                     villages={villages}
@@ -99,7 +104,15 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     </EffectComposer>
                 )}
             </Canvas>
-            <BottomBar villageCount={villageCount} coordsRef={coordsRef} />
+            <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: isIntroPlaying ? 0 : 1, y: isIntroPlaying ? 50 : 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                style={{ pointerEvents: isIntroPlaying ? 'none' : 'auto' }}
+                className='fixed bottom-0 left-0 w-full z-50 '
+            >
+                <BottomBar villageCount={villageCount} coordsRef={coordsRef} />
+            </motion.div>
         </>
     )
 }

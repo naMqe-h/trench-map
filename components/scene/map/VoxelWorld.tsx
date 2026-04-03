@@ -138,6 +138,8 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
         }
     }, [villageGeometries, pendingFlyToCa, activeControlsRef, onFlyToStart])
 
+            const isIntroPlaying = useMapStore(state => state.isIntroPlaying)
+
     useEffect(() => {
         if (villageGeometries && villageGeometries.length > 0) {
             onReady?.()
@@ -155,6 +157,7 @@ export const VoxelWorld = ({ villages, onReady, onCountChange, controlsRef, newV
             <CameraControls 
                 ref={activeControlsRef} 
                 makeDefault 
+                enabled={!isIntroPlaying}
                 maxPolarAngle={MAP_SETTINGS.CAMERA_MAX_POLAR_ANGLE} 
                 minDistance={MAP_SETTINGS.CAMERA_MIN_DISTANCE} 
                 maxDistance={MAP_SETTINGS.CAMERA_MAX_DISTANCE} 

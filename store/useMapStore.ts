@@ -32,6 +32,7 @@ interface MapState {
     cameraRotation: number
     fps: number
     fpsHistory: number[]
+    isIntroPlaying: boolean
 }
 
 interface MapActions {
@@ -50,6 +51,7 @@ interface MapActions {
     resetMap: () => void
     setCameraState: (position: { x: number; z: number }, rotation: number) => void
     updatePerformanceMetrics: (fps: number) => void
+    setIsIntroPlaying: (isPlaying: boolean) => void
 }
 
 const initialState: MapState = {
@@ -73,6 +75,7 @@ const initialState: MapState = {
     cameraRotation: 0,
     fps: 0,
     fpsHistory: [],
+    isIntroPlaying: true,
 }
 
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
@@ -140,4 +143,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
             fps,
             fpsHistory: [...state.fpsHistory.slice(-99), fps],
         })),
+
+    setIsIntroPlaying: (isPlaying) => set({ isIntroPlaying: isPlaying }),
 }))

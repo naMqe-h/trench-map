@@ -1,18 +1,26 @@
 "use client"
 
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { processToken } from '@/actions/processToken'
 import { Village } from '@/types/token'
+import { useMapStore } from '@/store/useMapStore'
+import { useShallow } from 'zustand/react/shallow'
 
 type TopBarProps = {
-    onTokenProcessed: (village: Village, index: number, isNew: boolean) => void
-    generationStep: string | null
+    setNewVillageData: (data: { village: Village; trigger: number; isNew: boolean }) => void
 }
 
-export function TopBar({ onTokenProcessed, generationStep }: TopBarProps) {
+const TopBar = memo(function TopBar({ setNewVillageData }: TopBarProps) {
     const [contractAddress, setContractAddress] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
+
+    const { generationStep, setGenerationStepAction } = useMapStore(
+        useShallow((state) => ({
+            generationStep: state.generationStep,
+            setGenerationStepAction: state.setGenerationStep,
+        }))
+    )
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -24,7 +32,12 @@ export function TopBar({ onTokenProcessed, generationStep }: TopBarProps) {
         try {
             const result = await processToken(contractAddress.trim())
             if (result.success) {
-                onTokenProcessed(result.village, result.index, result.isNew)
+                setGenerationStepAction('fetching')
+                setNewVillageData({ 
+                    village: result.village, 
+                    trigger: Date.now(), 
+                    isNew: result.isNew 
+                })
                 setContractAddress('')
             } else {
                 setError("Failed to process token.")
@@ -45,8 +58,9 @@ export function TopBar({ onTokenProcessed, generationStep }: TopBarProps) {
         return "Search"
     }
 
+
     return (
-        <div className="fixed top-0 left-0 w-full z-50 bg-black/70 backdrop-blur-md px-4 py-3 flex justify-center items-center font-minecraft">
+        <div className="bg-black/70 backdrop-blur-md px-4 py-3 flex justify-center items-center min-h-[64px]">
             <form onSubmit={handleSubmit} className="w-full flex flex-col sm:flex-row justify-center items-center gap-2">
                 <input
                     type="text"
@@ -71,5 +85,7 @@ export function TopBar({ onTokenProcessed, generationStep }: TopBarProps) {
             )}
         </div>
     )
-}
+})
+
+export { TopBar }
 
