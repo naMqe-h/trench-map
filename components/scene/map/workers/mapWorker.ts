@@ -93,7 +93,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                     radius,
                     villageHouses: villageHouses.map(h => ({
                         position: h.position.toArray(),
-                        type: h.type
+                        type: h.type,
+                        rotation: h.rotation || 0
                     })),
                     treeSpots: []
                 })

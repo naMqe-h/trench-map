@@ -17,16 +17,12 @@ export type SerializedMatrix4 = number[]
 export type HouseType = 'basic-house' | 'stone-tall-house' | 'stone-gable-house'
 
 /**
- * Defines the material types used for house geometries.
- */
-export type HouseMaterial = 'cobble' | 'plank' | 'glass' | 'brick' | 'stoneBrick'
-
-/**
  * Represents the structure for house data, including its position and type.
  */
 export type HouseData = {
     position: THREE.Vector3
     type: HouseType
+    rotation?: number
 }
 
 /**
@@ -58,7 +54,6 @@ export interface VillageData extends Village {
     position: THREE.Vector3
     radius: number
     placedHouses: HouseData[]
-    geometries: Record<HouseMaterial, THREE.BufferGeometry | null>
 }
 
 /**
@@ -69,7 +64,7 @@ export interface ProcessedVillageData {
     village: Village
     position: SerializedVector3
     radius: number
-    villageHouses: { position: SerializedVector3, type: HouseType }[]
+    villageHouses: { position: SerializedVector3, type: HouseType, rotation: number }[]
     treeSpots: SerializedVector3[]
 }
 

@@ -96,6 +96,7 @@ export const generateHousePositions = (
                 generatedHouses.push({
                     position: candidatePos,
                     type: tierToPlace.modelType as HouseType,
+                    rotation: 0
                 })
                 housePlaced = true
                 break

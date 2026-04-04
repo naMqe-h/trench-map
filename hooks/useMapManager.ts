@@ -46,7 +46,8 @@ export const useMapManager = (initialVillages: Village[]) => {
 
                     const villageHouses = vData.villageHouses.map((h) => ({
                         position: new THREE.Vector3().fromArray(h.position),
-                        type: h.type
+                        type: h.type,
+                        rotation: h.rotation
                     }))
 
                     allNewHouses.push(...villageHouses)
@@ -56,9 +57,6 @@ export const useMapManager = (initialVillages: Village[]) => {
                         position,
                         radius,
                         placedHouses: villageHouses,
-                        geometries: {
-                            cobble: null, plank: null, glass: null, brick: null, stoneBrick: null
-                        },
                     }
                 })
 
