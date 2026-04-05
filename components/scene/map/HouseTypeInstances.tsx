@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { ThreeEvent } from '@react-three/fiber'
 import { useMapStore } from '@/store/useMapStore'
 import { VillageData, HouseData } from '@/types/scene'
@@ -24,6 +24,9 @@ export const HouseTypeInstances = ({
 }: HouseTypeInstancesProps) => {
     const { scene } = useGLTF(modelPath) as any
     const [meshes, setMeshes] = useState<{ structure: THREE.Mesh | null, glass: THREE.Mesh | null }>({ structure: null, glass: null })
+    const proxyRef = useRef<THREE.Mesh>(null)
+    const instancesRef = useRef<THREE.InstancedMesh>(null)
+    const isIntroPlaying = useMapStore((state) => state.isIntroPlaying)
 
     useEffect(() => {
         let structure: THREE.Mesh | null = null
@@ -60,10 +63,28 @@ export const HouseTypeInstances = ({
         }
     }, [isNight, meshes.glass])
 
+    useEffect(() => {
+        return () => {
+            document.body.style.cursor = 'auto'
+        }
+    }, [])
+
     if (!meshes.structure || !meshes.glass || houses.length === 0) return null
 
-    const handlePointerMove = (village: VillageData) => (e: ThreeEvent<PointerEvent>) => {
+    const handlePointerMove = (village: VillageData, house: HouseData) => (e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation()
+        if (isIntroPlaying) return
+
+        document.body.style.cursor = 'pointer'
+
+        if (e.instanceId !== undefined && proxyRef.current) {
+            proxyRef.current.position.copy(house.position)
+            proxyRef.current.rotation.set(0, house.rotation || 0, 0)
+            proxyRef.current.scale.set(1.001, 1.001, 1.001)
+            proxyRef.current.updateMatrix()
+            proxyRef.current.visible = true
+        }
+
         const currentHovered = useMapStore.getState().hoveredToken
         if (currentHovered?.id !== village.id) {
             setHoveredToken(village)
@@ -72,17 +93,23 @@ export const HouseTypeInstances = ({
 
     const handlePointerOut = (e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation()
+        document.body.style.cursor = 'auto'
+        if (proxyRef.current) {
+            proxyRef.current.visible = false
+        }
         setHoveredToken(null)
     }
 
     const handleClick = (village: VillageData) => (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation()
+        if (isIntroPlaying) return
         setSelectedToken(village)
     }
 
     return (
         <>
             <Instances 
+                ref={instancesRef}
                 geometry={meshes.structure.geometry} 
                 material={meshes.structure.material}
                 castShadow={isShadowEnabled}
@@ -93,7 +120,7 @@ export const HouseTypeInstances = ({
                         key={`${village.id}-${i}`}
                         position={house.position} 
                         rotation={[0, house.rotation || 0, 0]}
-                        onPointerMove={handlePointerMove(village)}
+                        onPointerMove={handlePointerMove(village, house)}
                         onPointerOut={handlePointerOut}
                         onClick={handleClick(village)}
                     />
@@ -110,12 +137,24 @@ export const HouseTypeInstances = ({
                         key={`${village.id}-${i}-glass`}
                         position={house.position} 
                         rotation={[0, house.rotation || 0, 0]}
-                        onPointerMove={handlePointerMove(village)}
-                        onPointerOut={handlePointerOut}
                         onClick={handleClick(village)}
                     />
                 ))}
             </Instances>
+            <mesh 
+                ref={proxyRef} 
+                visible={false} 
+                matrixAutoUpdate={false} 
+                geometry={meshes.structure.geometry}
+            >
+                <meshStandardMaterial 
+                    emissive="#cccccc" 
+                    emissiveIntensity={0.15} 
+                    transparent 
+                    opacity={0.4} 
+                    depthWrite={false} 
+                />
+            </mesh>
         </>
     )
 }
