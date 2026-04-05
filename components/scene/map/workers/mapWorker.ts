@@ -125,13 +125,13 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
             const newDirtMatrices: number[][] = []
             const newVegetationSpots: VegetationData[] = []
 
-            if (!boundsCache.isEmpty()) {
+            if (!tempBounds.isEmpty()) {
                 const maxRadius = Math.max(...processedVillages.map(v => v.radius), 0)
                 const expansion = maxRadius + 8
-                const minX = Math.floor(boundsCache.min.x - expansion)
-                const maxX = Math.ceil(boundsCache.max.x + expansion)
-                const minZ = Math.floor(boundsCache.min.z - expansion)
-                const maxZ = Math.ceil(boundsCache.max.z + expansion)
+                const minX = Math.floor(tempBounds.min.x - expansion)
+                const maxX = Math.ceil(tempBounds.max.x + expansion)
+                const minZ = Math.floor(tempBounds.min.z - expansion)
+                const maxZ = Math.ceil(tempBounds.max.z + expansion)
 
                 const flowerTypes: VegetationType[] = ['rose', 'tulip', 'dandelion']
 
