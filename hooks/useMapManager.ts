@@ -34,44 +34,42 @@ export const useMapManager = (initialVillages: Village[]) => {
             useMapStore.getState().setGenerationStep('building')
             const data = event.data
 
-            setTimeout(() => {
-                const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, treeSpots: newTreeSpots } = data
+            const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, treeSpots: newTreeSpots } = data
 
-                const allNewHouses: HouseData[] = []
+            const allNewHouses: HouseData[] = []
 
-                const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
-                    const village = vData.village
-                    const position = new THREE.Vector3().fromArray(vData.position)
-                    const radius = vData.radius
+            const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
+                const village = vData.village
+                const position = new THREE.Vector3().fromArray(vData.position)
+                const radius = vData.radius
 
-                    const villageHouses = vData.villageHouses.map((h) => ({
-                        position: new THREE.Vector3().fromArray(h.position),
-                        type: h.type,
-                        rotation: h.rotation
-                    }))
+                const villageHouses = vData.villageHouses.map((h) => ({
+                    position: new THREE.Vector3().fromArray(h.position),
+                    type: h.type,
+                    rotation: h.rotation
+                }))
 
-                    allNewHouses.push(...villageHouses)
+                allNewHouses.push(...villageHouses)
 
-                    return {
-                        ...village,
-                        position,
-                        radius,
-                        placedHouses: villageHouses,
-                    }
-                })
+                return {
+                    ...village,
+                    position,
+                    radius,
+                    placedHouses: villageHouses,
+                }
+            })
 
-                useMapStore.getState().appendChunkData({
-                    houses: allNewHouses,
-                    grassMatrices: newGrassMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
-                    dirtMatrices: newDirtMatrices.map(arr => new THREE.Matrix4().fromArray(arr)),
-                    vegetation: newVegetationSpots,
-                    treeSpots: newTreeSpots,
-                })
+            useMapStore.getState().appendChunkData({
+                houses: allNewHouses,
+                grassMatrices: newGrassMatrices,
+                dirtMatrices: newDirtMatrices,
+                vegetation: newVegetationSpots,
+                treeSpots: newTreeSpots,
+            })
 
-                useMapStore.getState().addVillageGeometries(newVillageGeometries)
-                useMapStore.getState().setGenerationStep(null)
-                useMapStore.getState().setGenerating(false)
-            }, 0)
+            useMapStore.getState().addVillageGeometries(newVillageGeometries)
+            useMapStore.getState().setGenerationStep(null)
+            useMapStore.getState().setGenerating(false)
         }
 
         return () => {

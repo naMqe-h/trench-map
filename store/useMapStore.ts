@@ -1,12 +1,11 @@
 import { HouseData, SerializedVector3, VegetationData, VillageData } from '@/types/scene'
 import { Village } from '@/types/token'
-import * as THREE from 'three'
 import { create } from 'zustand'
 
 type ChunkData = {
     houses: HouseData[]
-    grassMatrices: THREE.Matrix4[]
-    dirtMatrices: THREE.Matrix4[]
+    grassMatrices: Float32Array
+    dirtMatrices: Float32Array
     vegetation: VegetationData[]
     treeSpots: SerializedVector3[]
 }
@@ -14,8 +13,8 @@ type ChunkData = {
 interface MapState {
     lastProcessedIndex: number
     housesCache: HouseData[]
-    grassMatricesCache: THREE.Matrix4[]
-    dirtMatricesCache: THREE.Matrix4[]
+    grassMatricesCache: Float32Array
+    dirtMatricesCache: Float32Array
     vegetationSpotsCache: VegetationData[]
     treeSpotsCache: SerializedVector3[]
     villageGeometries: VillageData[]
@@ -54,8 +53,8 @@ interface MapActions {
 const initialState: MapState = {
     lastProcessedIndex: 0,
     housesCache: [],
-    grassMatricesCache: [],
-    dirtMatricesCache: [],
+    grassMatricesCache: new Float32Array(0),
+    dirtMatricesCache: new Float32Array(0),
     vegetationSpotsCache: [],
     treeSpotsCache: [],
     villageGeometries: [],
@@ -73,14 +72,21 @@ const initialState: MapState = {
     isIntroPlaying: true,
 }
 
+function mergeTypedArrays(a: Float32Array, b: Float32Array): Float32Array {
+    const res = new Float32Array(a.length + b.length)
+    res.set(a)
+    res.set(b, a.length)
+    return res
+}
+
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
     ...initialState,
 
     appendChunkData: (data) =>
         set((state) => ({
             housesCache: [...state.housesCache, ...data.houses],
-            grassMatricesCache: [...state.grassMatricesCache, ...data.grassMatrices],
-            dirtMatricesCache: [...state.dirtMatricesCache, ...data.dirtMatrices],
+            grassMatricesCache: mergeTypedArrays(state.grassMatricesCache, data.grassMatrices),
+            dirtMatricesCache: mergeTypedArrays(state.dirtMatricesCache, data.dirtMatrices),
             vegetationSpotsCache: [...state.vegetationSpotsCache, ...data.vegetation],
             treeSpotsCache: [...state.treeSpotsCache, ...data.treeSpots],
         })),

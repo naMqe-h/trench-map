@@ -73,8 +73,8 @@ export interface ProcessedVillageData {
 export type ChunkProcessedPayload = {
     type: 'CHUNK_PROCESSED'
     processedVillages: ProcessedVillageData[]
-    newGrassMatrices: SerializedMatrix4[]
-    newDirtMatrices: SerializedMatrix4[]
+    newGrassMatrices: Float32Array
+    newDirtMatrices: Float32Array
     newVegetationSpots: VegetationData[]
     treeSpots: SerializedVector3[]
     center: SerializedVector3

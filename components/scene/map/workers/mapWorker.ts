@@ -121,8 +121,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
             boundsCache.union(tempBounds)
 
-            const newGrassMatrices: number[][] = []
-            const newDirtMatrices: number[][] = []
+            const grassMatrixData: number[] = []
+            const dirtMatrixData: number[] = []
             const newVegetationSpots: VegetationData[] = []
 
             if (!tempBounds.isEmpty()) {
@@ -153,14 +153,14 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                                 dirtCoordsCache.add(key)
                                 dummy.position.set(x, -0.5, z)
                                 dummy.updateMatrix()
-                                newDirtMatrices.push([...dummy.matrix.elements])
+                                dirtMatrixData.push(...dummy.matrix.elements)
                             }
                         } else {
                             if (!grassCoordsCache.has(key)) {
                                 grassCoordsCache.add(key)
                                 dummy.position.set(x, -0.5, z)
                                 dummy.updateMatrix()
-                                newGrassMatrices.push([...dummy.matrix.elements])
+                                grassMatrixData.push(...dummy.matrix.elements)
 
                                 if (occupiedCoordsCache.has(key)) continue
 
@@ -184,17 +184,21 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
             const center = new THREE.Vector3()
             boundsCache.getCenter(center)
 
+            const grassMatrices = new Float32Array(grassMatrixData)
+            const dirtMatrices = new Float32Array(dirtMatrixData)
+
             const payload: MapWorkerPayload = {
                 processedVillages,
-                newGrassMatrices,
-                newDirtMatrices,
+                newGrassMatrices: grassMatrices,
+                newDirtMatrices: dirtMatrices,
                 newVegetationSpots,
                 treeSpots,
                 center: center.toArray(),
                 type: 'CHUNK_PROCESSED'
             }
 
-            self.postMessage(payload)
+            const workerScope = self as unknown as DedicatedWorkerGlobalScope
+            workerScope.postMessage(payload, [grassMatrices.buffer, dirtMatrices.buffer])
             break
         }
         default:
