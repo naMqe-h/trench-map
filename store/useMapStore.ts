@@ -30,8 +30,6 @@ interface MapState {
     error: string | null
     cameraPosition: { x: number; z: number }
     cameraRotation: number
-    fps: number
-    fpsHistory: number[]
     isIntroPlaying: boolean
 }
 
@@ -50,7 +48,6 @@ interface MapActions {
     initializeVillages: (villages: Village[]) => void
     resetMap: () => void
     setCameraState: (position: { x: number; z: number }, rotation: number) => void
-    updatePerformanceMetrics: (fps: number) => void
     setIsIntroPlaying: (isPlaying: boolean) => void
 }
 
@@ -73,8 +70,6 @@ const initialState: MapState = {
     error: null,
     cameraPosition: { x: 0, z: 0 },
     cameraRotation: 0,
-    fps: 0,
-    fpsHistory: [],
     isIntroPlaying: true,
 }
 
@@ -137,12 +132,6 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     resetMap: () => set(initialState),
 
     setCameraState: (position, rotation) => set({ cameraPosition: position, cameraRotation: rotation }),
-
-    updatePerformanceMetrics: (fps) =>
-        set((state) => ({
-            fps,
-            fpsHistory: [...state.fpsHistory.slice(-99), fps],
-        })),
 
     setIsIntroPlaying: (isPlaying) => set({ isIntroPlaying: isPlaying }),
 }))

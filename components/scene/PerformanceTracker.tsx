@@ -1,9 +1,9 @@
 import { useFrame } from '@react-three/fiber'
 import { useRef } from 'react'
-import { useMapStore } from '../../store/useMapStore'
+import { usePerformanceStore } from '../../store/usePerformanceStore'
 
 export const PerformanceTracker = () => {
-    const updatePerformanceMetrics = useMapStore((state) => state.updatePerformanceMetrics)
+    const updatePerformanceMetrics = usePerformanceStore((state) => state.updatePerformanceMetrics)
     const frameCount = useRef(0)
     const lastTime = useRef(performance.now())
     const updateInterval = 500

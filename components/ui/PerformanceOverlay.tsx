@@ -1,13 +1,13 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { useMapStore } from '../../store/useMapStore'
+import { usePerformanceStore } from '../../store/usePerformanceStore'
 import { useSettingsStore } from '../../store/useSettingsStore'
 
 export const PerformanceOverlay = () => {
     const showFpsCounter = useSettingsStore((state) => state.showFpsCounter)
-    const fps = useMapStore((state) => state.fps)
-    const fpsHistory = useMapStore((state) => state.fpsHistory)
+    const fps = usePerformanceStore((state) => state.fps)
+    const fpsHistory = usePerformanceStore((state) => state.fpsHistory)
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
     const getThresholdColor = (value: number) => {
