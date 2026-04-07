@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { ThreeEvent } from '@react-three/fiber'
 import { useMapStore } from '@/store/useMapStore'
+import { useDevStore } from '@/store/useDevStore'
 import { VillageData, HouseData } from '@/types/scene'
 import { useGLTF, Instances, Instance } from '@react-three/drei'
 import * as THREE from 'three'
@@ -27,6 +28,7 @@ export const HouseTypeInstances = ({
     const proxyRef = useRef<THREE.Mesh>(null)
     const instancesRef = useRef<THREE.InstancedMesh>(null)
     const isIntroPlaying = useMapStore((state) => state.isIntroPlaying)
+    const wireframeMode = useDevStore((state) => state.wireframeMode)
 
     useEffect(() => {
         let structure: THREE.Mesh | null = null
@@ -59,9 +61,18 @@ export const HouseTypeInstances = ({
             material.emissive.setHex(0xffaa00)
             material.transparent = true
             material.opacity = 1.0
+            material.wireframe = wireframeMode
             material.needsUpdate = true
         }
-    }, [isNight, meshes.glass])
+    }, [isNight, meshes.glass, wireframeMode])
+
+    useEffect(() => {
+        if (meshes.structure) {
+            const material = meshes.structure.material as THREE.MeshStandardMaterial
+            material.wireframe = wireframeMode
+            material.needsUpdate = true
+        }
+    }, [meshes.structure, wireframeMode])
 
     useEffect(() => {
         return () => {
@@ -153,6 +164,7 @@ export const HouseTypeInstances = ({
                     transparent 
                     opacity={0.4} 
                     depthWrite={false} 
+                    wireframe={wireframeMode}
                 />
             </mesh>
         </>

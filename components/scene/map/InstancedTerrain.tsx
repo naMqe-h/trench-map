@@ -2,13 +2,15 @@ import { useRef, useEffect, useState, useMemo } from 'react'
 import * as THREE from 'three'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { useSettingsStore } from '@/store/useSettingsStore'
+import { useDevStore } from '@/store/useDevStore'
 
 type InstancedBlocksProps = {
     matrices: Float32Array
     texture: THREE.Texture
+    wireframe?: boolean
 }
 
-const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
+const InstancedBlocks = ({ matrices, texture, wireframe }: InstancedBlocksProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
     const [bufferSize, setBufferSize] = useState(200000)
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
@@ -39,7 +41,7 @@ const InstancedBlocks = ({ matrices, texture }: InstancedBlocksProps) => {
             castShadow={shadowQuality !== 'off'}
             receiveShadow={shadowQuality !== 'off'}
         >
-            <meshStandardMaterial map={texture} roughness={1} metalness={0} />
+            <meshStandardMaterial map={texture} roughness={1} metalness={0} wireframe={wireframe} />
         </instancedMesh>
     )
 }
@@ -52,6 +54,7 @@ type InstancedTerrainProps = {
 export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerrainProps) => {
     const textures = useTextureAtlas()
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
+    const wireframeMode = useDevStore(state => state.wireframeMode)
 
     const repeatingGrassTexture = useMemo(() => {
         const tex = textures.grass.clone()
@@ -71,10 +74,10 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerra
                 receiveShadow={shadowQuality !== 'off'}
             >
                 <planeGeometry args={[10000, 10000]} />
-                <meshStandardMaterial map={repeatingGrassTexture} roughness={1} metalness={0} />
+                <meshStandardMaterial map={repeatingGrassTexture} roughness={1} metalness={0} wireframe={wireframeMode} />
             </mesh>
-            <InstancedBlocks texture={textures.grass} matrices={grassMatrices} />
-            <InstancedBlocks texture={textures.dirt} matrices={dirtMatrices} />
+            <InstancedBlocks texture={textures.grass} matrices={grassMatrices} wireframe={wireframeMode} />
+            <InstancedBlocks texture={textures.dirt} matrices={dirtMatrices} wireframe={wireframeMode} />
         </>
     )
 }

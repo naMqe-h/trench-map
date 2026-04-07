@@ -6,6 +6,7 @@ import { WorldEnvironment } from '../world/WorldEnvironment'
 import { WorldVegetation } from '../world/WorldVegetation'
 import { WorldTerrain } from '../world/WorldTerrain'
 import { WorldStructures } from '../world/WorldStructures'
+import { DevPanel } from '@/components/dev/DevPanel'
 
 type VoxelWorldProps = {
     villages: Village[]
@@ -31,6 +32,7 @@ export const VoxelWorld = ({
 
     return (
         <>
+            <DevPanel loadMoreVillages={loadMoreVillages} />
             <PerformanceTracker />
             
             <WorldCamera 
