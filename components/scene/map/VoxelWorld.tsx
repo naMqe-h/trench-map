@@ -29,10 +29,11 @@ export const VoxelWorld = ({
 }: VoxelWorldProps) => {
     
     const { loadMoreVillages, addLiveToken } = useMapManager(villages)
+    const isDev = process.env.NODE_ENV === 'development'
 
     return (
         <>
-            <DevPanel loadMoreVillages={loadMoreVillages} />
+            {isDev && <DevPanel loadMoreVillages={loadMoreVillages} />}
             <PerformanceTracker />
             
             <WorldCamera 

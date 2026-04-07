@@ -9,8 +9,6 @@ type DevPanelProps = {
 }
 
 export const DevPanel = ({ loadMoreVillages }: DevPanelProps) => {
-    const isDev = process.env.NODE_ENV === 'development'
-    
     const setMaxChunks = useDevStore((state) => state.setMaxChunks)
     const setWireframeMode = useDevStore((state) => state.setWireframeMode)
     const setFreeCam = useDevStore((state) => state.setFreeCam)
@@ -50,8 +48,6 @@ export const DevPanel = ({ loadMoreVillages }: DevPanelProps) => {
             },
         }),
     }), [loadMoreVillages])
-
-    if (!isDev) return null
 
     return null
 }

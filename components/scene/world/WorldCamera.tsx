@@ -32,9 +32,12 @@ const CameraTracker = ({
     coordsRef: React.RefObject<HTMLSpanElement | null> | null 
 }) => {
     if(!coordsRef) return null
+    const isDev = process.env.NODE_ENV === 'development'
     const loadDistance = useSettingsStore((state) => state.loadDistance)
     const maxChunks = useDevStore((state) => state.maxChunks)
     const freeCam = useDevStore((state) => state.freeCam)
+
+    const effectiveFreeCam = isDev && freeCam
 
     useFrame((state) => {
         if (coordsRef.current && (state.controls as any)) {
@@ -42,10 +45,12 @@ const CameraTracker = ({
             coordsRef.current.innerText = `X: ${Math.round(target.x)} Z: ${Math.round(target.z)}`
         }
 
-        if (!hasMore || isLoading || freeCam) return
+        if (!hasMore || isLoading || effectiveFreeCam) return
 
-        const currentChunks = offset / 20
-        if (currentChunks >= maxChunks) return
+        if (isDev) {
+            const currentChunks = offset / 20
+            if (currentChunks >= maxChunks) return
+        }
 
         const cameraDistance = Math.sqrt(state.camera.position.x ** 2 + state.camera.position.z ** 2)
         const threshold = Math.sqrt(offset) * loadDistance
@@ -65,10 +70,13 @@ export const WorldCamera = ({
     loadMoreVillages,
     addLiveToken
 }: WorldCameraProps) => {
+    const isDev = process.env.NODE_ENV === 'development'
     const defaultCameraControlsRef = useRef<any>(null)
     const activeControlsRef = controlsRef || defaultCameraControlsRef
     const cameraDamping = useSettingsStore((state) => state.cameraDamping)
     const freeCam = useDevStore((state) => state.freeCam)
+
+    const effectiveFreeCam = isDev && freeCam
     
     const {
         villageGeometries,
@@ -139,10 +147,10 @@ export const WorldCamera = ({
             <CameraControls 
                 ref={activeControlsRef} 
                 makeDefault 
-                enabled={!isIntroPlaying || freeCam}
-                maxPolarAngle={freeCam ? Math.PI : MAP_SETTINGS.CAMERA_MAX_POLAR_ANGLE} 
-                minDistance={freeCam ? 0 : MAP_SETTINGS.CAMERA_MIN_DISTANCE} 
-                maxDistance={freeCam ? Infinity : MAP_SETTINGS.CAMERA_MAX_DISTANCE} 
+                enabled={!isIntroPlaying || effectiveFreeCam}
+                maxPolarAngle={effectiveFreeCam ? Math.PI : MAP_SETTINGS.CAMERA_MAX_POLAR_ANGLE} 
+                minDistance={effectiveFreeCam ? 0 : MAP_SETTINGS.CAMERA_MIN_DISTANCE} 
+                maxDistance={effectiveFreeCam ? Infinity : MAP_SETTINGS.CAMERA_MAX_DISTANCE} 
                 smoothTime={cameraDamping}
                 draggingSmoothTime={cameraDamping}
             />

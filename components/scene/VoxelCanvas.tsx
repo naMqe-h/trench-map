@@ -9,6 +9,7 @@ import { CameraControls } from '@react-three/drei'
 import LoadingScreen from '../ui/LoadingScreen'
 import { useTimeOfDay } from '@/hooks/useTimeOfDay'
 import { Bloom, EffectComposer, N8AO } from '@react-three/postprocessing'
+import { Leva } from 'leva'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { useMapStore } from '@/store/useMapStore'
 import { Village } from '@/types/token'
@@ -56,6 +57,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
 
     return (
         <>
+            <Leva hidden={process.env.NODE_ENV !== 'development'} />
             <motion.div
                 initial={{ opacity: 0, y: -50 }}
                 animate={{ opacity: isIntroPlaying ? 0 : 1, y: isIntroPlaying ? -50 : 0 }}
