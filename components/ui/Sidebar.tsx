@@ -4,7 +4,9 @@ import { useMapStore } from "@/store/useMapStore"
 import { X, Copy, Twitter, Send, Globe, Link as LinkIcon, Building2, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useEffect, useState } from "react"
-import { getTokenTradingData } from "@/actions/getTokenTradingData"
+import { DexTokenResponse } from "@/types/api"
+import { HOUSE_TIERS } from "../../constants/houses"
+import { fetchTokenData } from "@/actions/tokenActions"
 
 const SocialIcon = ({ type }: { type: string }) => {
     switch (type.toLowerCase()) {
@@ -15,13 +17,11 @@ const SocialIcon = ({ type }: { type: string }) => {
     }
 }
 
-import { HOUSE_TIERS } from "../../constants/houses"
-
 export function Sidebar() {
     const selectedToken = useMapStore((state) => state.selectedToken)
     const setSelectedToken = useMapStore((state) => state.setSelectedToken)
 
-    const [tradingData, setTradingData] = useState<any>(null)
+    const [tradingData, setTradingData] = useState<DexTokenResponse | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
     const socialKeys = selectedToken 
@@ -38,22 +38,24 @@ export function Sidebar() {
 
     useEffect(() => {
         if (selectedToken?.ca) {
-            let isMounted = true;
-            setIsLoading(true);
-            setTradingData(null);
+            let isMounted = true
+            setIsLoading(true)
+            setTradingData(null)
             
-            getTokenTradingData(selectedToken.ca).then(data => {
+            fetchTokenData(selectedToken.ca).then(data => {
                 if (isMounted) {
-                    setTradingData(data);
-                    setIsLoading(false);
+                    setTradingData(data)
+                    setIsLoading(false)
                 }
-            });
+            })
 
-            return () => { isMounted = false; };
+            return () => { isMounted = false }
         } else {
-            setTradingData(null);
+            setTradingData(null)
         }
-    }, [selectedToken?.ca]);
+    }, [selectedToken?.ca])
+
+    const timeframes = ['m5', 'h1', 'h6', 'h24'] as const
 
     return (
         <AnimatePresence>
@@ -147,7 +149,7 @@ export function Sidebar() {
                                 <div className="flex flex-col gap-1 bg-black/20 rounded-lg p-3 border border-white/5">
                                     <div className="flex justify-between items-center w-full py-1">
                                         <span className="text-sm text-gray-400">Market Cap</span>
-                                        <span className="text-sm font-semibold text-white">${tradingData.marketCap?.toLocaleString()}</span>
+                                        <span className="text-sm font-semibold text-white">${tradingData.marketCap.toLocaleString()}</span>
                                     </div>
                                     <div className="flex justify-between items-center w-full py-1">
                                         <span className="text-sm text-gray-400">Current Price</span>
@@ -155,7 +157,7 @@ export function Sidebar() {
                                     </div>
                                     <div className="flex justify-between items-center w-full py-1">
                                         <span className="text-sm text-gray-400">FDV</span>
-                                        <span className="text-sm font-semibold text-white">${tradingData.fdv?.toLocaleString()}</span>
+                                        <span className="text-sm font-semibold text-white">${tradingData.fdv.toLocaleString()}</span>
                                     </div>
                                 </div>
                                 
@@ -167,26 +169,26 @@ export function Sidebar() {
                                     <div className="text-center text-xs text-gray-500">24h</div>
 
                                     <div className="text-xs text-gray-400">Change</div>
-                                    {['m5', 'h1', 'h6', 'h24'].map(tf => (
-                                        <div key={`p-${tf}`} className={`text-center text-xs font-semibold ${tradingData.priceChange?.[tf] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                                            {tradingData.priceChange?.[tf] > 0 ? '+' : ''}{tradingData.priceChange?.[tf] || 0}%
+                                    {timeframes.map(tf => (
+                                        <div key={`p-${tf}`} className={`text-center text-xs font-semibold ${tradingData.priceChange[tf] >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                            {tradingData.priceChange[tf] > 0 ? '+' : ''}{tradingData.priceChange[tf]}%
                                         </div>
                                     ))}
 
                                     <div className="text-xs text-gray-400">Vol</div>
-                                    {['m5', 'h1', 'h6', 'h24'].map(tf => (
+                                    {timeframes.map(tf => (
                                         <div key={`v-${tf}`} className="text-center text-xs text-gray-300">
-                                            ${tradingData.volume?.[tf] ? Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 1 }).format(tradingData.volume[tf]) : '0'}
+                                            ${Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 1 }).format(tradingData.volume[tf])}
                                         </div>
                                     ))}
 
                                     <div className="text-xs text-gray-400">Txns</div>
-                                    {['m5', 'h1', 'h6', 'h24'].map(tf => {
-                                        const txns = tradingData.txns?.[tf];
-                                        const total = txns ? (txns.buys + txns.sells) : 0;
+                                    {timeframes.map(tf => {
+                                        const txns = tradingData.txns[tf]
+                                        const total = txns.buys + txns.sells
                                         return (
                                             <div key={`t-${tf}`} className="text-center text-xs text-gray-300">
-                                                {total ? Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 1 }).format(total) : '0'}
+                                                {Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 1 }).format(total)}
                                             </div>
                                         )
                                     })}

@@ -2,7 +2,7 @@
  * Defines the number of each type of house in a village.
  */
 export interface Houses {
-    [key:string]: number
+    [key: string]: number
 }
 
 /**
