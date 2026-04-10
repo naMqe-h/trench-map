@@ -1,51 +1,41 @@
 "use server"
 
-import { Houses, Village } from "@/types/token"
-import { supabaseAdmin } from "../database/client"
-import { unstable_cache } from "next/cache"
+import { Village } from "@/types/token"
 
-interface TokenRow {
-    ca: string
-    name: string
-    ticker: string
-    image: string
-    market_cap: number
-    houses: Houses
-    socials: Record<string, string>
-}
+export async function getVillageChunks(limit: number, offset: number): Promise<Village[]> {
+    const apiUrl = process.env.API_URL
 
-export const getVillageChunks = unstable_cache(
-    async (limit: number, offset: number): Promise<Village[]> => {
-        const { data, error } = await supabaseAdmin
-            .from("tokens")
-            .select("*")
-            .order("market_cap", { ascending: false })
-            .range(offset, offset + limit - 1)
+    if (!apiUrl) {
+        throw new Error("API_URL environment variable is not defined")
+    }
 
-        if (error) {
-            throw new Error(`Supabase select error: ${error.message}`)
-        }
+    try {
+        const res = await fetch(`${apiUrl}/map/chunks?offset=${offset}&limit=${limit}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            next: {
+                revalidate: 300,
+                tags: ["villages"],
+            },
+        })
 
-        if (!data) {
+        if (!res.ok) {
+            console.error(`getVillageChunks fetch failed: ${res.status} ${res.statusText}`)
             return []
         }
 
-        const villages: Village[] = data.map((row: TokenRow) => ({
-            id: row.ca,
-            ca: row.ca,
-            name: row.name,
-            ticker: row.ticker,
-            image: row.image,
-            marketCap: row.market_cap,
-            houses: row.houses,
-            socials: row.socials,
-        }))
+        const data = await res.json()
 
-        return villages
-    },
-    ["getVillageChunks"],
-    {
-        revalidate: 300,
-        tags: ["villages"],
-    },
-)
+        if (!Array.isArray(data)) {
+            console.error("getVillageChunks: Expected array response")
+            return []
+        }
+
+        return data as Village[]
+    } catch (error) {
+        console.error("getVillageChunks error:", error)
+        return []
+    }
+}
