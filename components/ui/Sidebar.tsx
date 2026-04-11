@@ -24,10 +24,13 @@ export function Sidebar() {
     const [tradingData, setTradingData] = useState<DexTokenResponse | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
-    const socialKeys = selectedToken 
-        ? (Array.isArray(selectedToken.socials) 
-            ? selectedToken.socials 
-            : selectedToken.socials ? Object.keys(selectedToken.socials) : [])
+    const socialKeys = selectedToken?.socials
+        ? (Array.isArray(selectedToken.socials)
+            ? (selectedToken.socials as string[]).filter(s => !!s)
+            : Object.keys(selectedToken.socials).filter(key => {
+                const value = (selectedToken.socials as Record<string, string>)[key]
+                return value !== undefined && value !== null && value !== ""
+            }))
         : []
 
     const handleCopy = () => {
@@ -116,7 +119,7 @@ export function Sidebar() {
                                 {socialKeys.map((social) => {
                                     let url = '#'
                                     if (!Array.isArray(selectedToken.socials) && selectedToken.socials) {
-                                        url = selectedToken.socials[social as keyof typeof selectedToken.socials] || '#'
+                                        url = (selectedToken.socials as Record<string, string>)[social] || '#'
                                     }
                                     return (
                                         <a 

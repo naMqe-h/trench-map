@@ -30,9 +30,14 @@ export function Tooltip() {
 
     if (!hoveredToken) return null
 
-    const socialKeys = Array.isArray(hoveredToken.socials) 
-        ? hoveredToken.socials 
-        : hoveredToken.socials ? Object.keys(hoveredToken.socials) : []
+    const socialKeys = hoveredToken.socials
+        ? (Array.isArray(hoveredToken.socials)
+            ? (hoveredToken.socials as string[]).filter(s => !!s)
+            : Object.keys(hoveredToken.socials).filter(key => {
+                const value = (hoveredToken.socials as Record<string, string>)[key]
+                return value !== undefined && value !== null && value !== ""
+            }))
+        : []
 
     const marketCapValue = (hoveredToken as any).market_cap ?? hoveredToken.marketCap
 
