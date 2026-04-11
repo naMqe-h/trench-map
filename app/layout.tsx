@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { Pixelify_Sans } from "next/font/google"
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import "./globals.css"
 
 const pixelifySans = Pixelify_Sans({
@@ -50,6 +52,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${pixelifySans.className} antialiased`}>
         {children}
+        <ToastContainer theme="dark" position="bottom-right" />
       </body>
     </html>
   )

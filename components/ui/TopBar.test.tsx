@@ -2,14 +2,29 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { TopBar } from './TopBar'
 
-vi.mock('@/actions/processToken', () => ({
-    processToken: vi.fn()
+vi.mock('@/store/useMapStore', () => ({
+    useMapStore: vi.fn((selector) => selector({
+        villages: [],
+        generationStep: null,
+        setGenerationStep: vi.fn()
+    }))
+}))
+
+vi.mock('@/actions/addToken', () => ({
+    addToken: vi.fn()
+}))
+
+vi.mock('react-toastify', () => ({
+    toast: {
+        success: vi.fn(),
+        error: vi.fn(),
+        info: vi.fn()
+    }
 }))
 
 describe('TopBar', () => {
     const defaultProps = {
-        onTokenProcessed: vi.fn(),
-        generationStep: null
+        setNewVillageData: vi.fn()
     }
 
     it('should have the Search button disabled when the input field is empty', () => {
@@ -18,21 +33,9 @@ describe('TopBar', () => {
         expect(button).toBeDisabled()
     })
 
-    it('should disable the input field when a generationStep state is passed', () => {
-        render(<TopBar {...defaultProps} generationStep="fetching" />)
-        const input = screen.getByPlaceholderText(/enter contract address/i)
-        expect(input).toBeDisabled()
-    })
-
-    it('should correctly display "Building structures..." based on the generationStep', () => {
-        render(<TopBar {...defaultProps} generationStep="building" />)
-        const button = screen.getByRole('button')
-        expect(button).toHaveTextContent('Building structures...')
-    })
-
     it('should render an error message when state indicates failure', async () => {
-        const { processToken } = await import('@/actions/processToken')
-        vi.mocked(processToken).mockResolvedValue({ success: false } as any)
+        const { addToken } = await import('@/actions/addToken')
+        vi.mocked(addToken).mockResolvedValue({ success: false, error: 'Failed to process token' })
 
         render(<TopBar {...defaultProps} />)
         

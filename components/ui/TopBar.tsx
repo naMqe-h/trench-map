@@ -1,12 +1,13 @@
 "use client"
 
 import { memo, useState, useRef, useEffect } from 'react'
-import { processToken } from '@/actions/processToken'
+import { addToken } from '@/actions/addToken'
 import { Village } from '@/types/token'
 import { useMapStore } from '@/store/useMapStore'
 import { useShallow } from 'zustand/react/shallow'
 import { Search, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { toast } from 'react-toastify'
 
 type TopBarProps = {
     setNewVillageData: (data: { village: Village; trigger: number; isNew: boolean }) => void
@@ -15,12 +16,12 @@ type TopBarProps = {
 const TopBar = memo(function TopBar({ setNewVillageData }: TopBarProps) {
     const [contractAddress, setContractAddress] = useState('')
     const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
     const [isMobileExpanded, setIsMobileExpanded] = useState(false)
     const inputRef = useRef<HTMLInputElement>(null)
 
-    const { generationStep, setGenerationStepAction } = useMapStore(
+    const { villages, generationStep, setGenerationStepAction } = useMapStore(
         useShallow((state) => ({
+            villages: state.villages,
             generationStep: state.generationStep,
             setGenerationStepAction: state.setGenerationStep,
         }))
@@ -34,28 +35,43 @@ const TopBar = memo(function TopBar({ setNewVillageData }: TopBarProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!contractAddress.trim()) return
+        const ca = contractAddress.trim()
+        if (!ca) return
+
+        const existingVillage = villages.find(v => v.ca.toLowerCase() === ca.toLowerCase())
+        if (existingVillage) {
+            setNewVillageData({
+                village: existingVillage,
+                trigger: Date.now(),
+                isNew: false
+            })
+            setContractAddress('')
+            setIsMobileExpanded(false)
+            return
+        }
 
         setIsLoading(true)
-        setError(null)
 
         try {
-            const result = await processToken(contractAddress.trim())
-            if (result.success) {
+            const result = await addToken(ca)
+            if (result.success && result.village) {
+                toast.success("Village added successfully!")
                 setGenerationStepAction('fetching')
                 setNewVillageData({ 
                     village: result.village, 
                     trigger: Date.now(), 
-                    isNew: result.isNew 
+                    isNew: true 
                 })
                 setContractAddress('')
                 setIsMobileExpanded(false)
             } else {
-                setError("Failed to process token.")
+                const errorMessage = result.error || "Failed to process token."
+                toast.error(errorMessage)
             }
         } catch (err: any) {
             console.error("Error processing token:", err)
-            setError(err.message || "An error occurred while processing the token.")
+            const errorMessage = err.message || "An error occurred while processing the token."
+            toast.error(errorMessage)
         } finally {
             setIsLoading(false)
         }
@@ -123,15 +139,8 @@ const TopBar = memo(function TopBar({ setNewVillageData }: TopBarProps) {
                     )}
                 </AnimatePresence>
             </div>
-
-            {error && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-red-600/90 text-white px-4 py-2 text-sm border border-red-500 z-[60] shadow-xl rounded-sm">
-                    {error}
-                </div>
-            )}
         </div>
     )
 })
 
 export { TopBar }
-

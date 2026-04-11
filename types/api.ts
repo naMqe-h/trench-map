@@ -67,4 +67,14 @@ export interface DexTokenResponse {
     marketCap: number
     pairCreatedAt: number
     info: DexInfo
-}
+    }
+
+    export interface Token {
+    ca: string
+    name: string
+    ticker: string
+    image: string
+    market_cap: number
+    houses: Record<string, number>
+    socials: Record<string, string>
+    }
