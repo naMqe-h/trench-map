@@ -64,7 +64,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                     onPointerMove={(e) => {
                         e.stopPropagation()
                         const currentHovered = useMapStore.getState().hoveredToken
-                        if (currentHovered?.id !== village.id) {
+                        if (currentHovered?.ca !== village.ca) {
                             setHoveredToken(village)
                         }
                     }}

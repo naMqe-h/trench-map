@@ -97,7 +97,7 @@ export const HouseTypeInstances = ({
         }
 
         const currentHovered = useMapStore.getState().hoveredToken
-        if (currentHovered?.id !== village.id) {
+        if (currentHovered?.ca !== village.ca) {
             setHoveredToken(village)
         }
     }

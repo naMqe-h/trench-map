@@ -34,6 +34,8 @@ export function Tooltip() {
         ? hoveredToken.socials 
         : hoveredToken.socials ? Object.keys(hoveredToken.socials) : []
 
+    const marketCapValue = (hoveredToken as any).market_cap ?? hoveredToken.marketCap
+
     return (
         <div
             ref={tooltipRef}
@@ -44,23 +46,12 @@ export function Tooltip() {
                 <div className="text-sm text-gray-300 font-medium">
                     ${hoveredToken.ticker}
                 </div>
-                {hoveredToken.marketCap !== undefined && (
+                {marketCapValue !== undefined && (
                     <div className="text-sm mt-1">
-                        MCap: <span className="font-semibold text-green-400">${hoveredToken.marketCap.toLocaleString()}</span>
+                        MCap: <span className="font-semibold text-green-400">${marketCapValue.toLocaleString()}</span>
                     </div>
                 )}
             </div>
-
-            {hoveredToken.villageStats && (
-                <div className="flex flex-row gap-3 border-t border-white/10 pt-2">
-                    {Object.entries(hoveredToken.villageStats).map(([key, value]) => (
-                        <div key={key} className="flex gap-1 items-center">
-                            <span className="text-xs text-gray-400 capitalize">{key}:</span>
-                            <span className="text-sm font-semibold text-blue-400">{value}</span>
-                        </div>
-                    ))}
-                </div>
-            )}
 
             {socialKeys.length > 0 && (
                 <div className="flex flex-row gap-2">
