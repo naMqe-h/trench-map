@@ -55,4 +55,8 @@ export const MAP_SETTINGS = {
     TREE_FOOTPRINT: 5,
     // Tree padding from other elements
     TREE_PADDING: 1,
+    // Water noise scale
+    WATER_NOISE_SCALE: 40,
+    // Noise threshold for lakes
+    WATER_LAKE_THRESHOLD: -0.6,
 }

@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { useDevStore } from '@/store/useDevStore'
+import { WaterInstances } from '../world/WaterInstances'
 
 type InstancedBlocksProps = {
     matrices: Float32Array
@@ -49,9 +50,10 @@ const InstancedBlocks = ({ matrices, texture, wireframe }: InstancedBlocksProps)
 type InstancedTerrainProps = {
     grassMatrices: Float32Array
     dirtMatrices: Float32Array
+    waterMatrices: Float32Array
 }
 
-export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerrainProps) => {
+export const InstancedTerrain = ({ grassMatrices, dirtMatrices, waterMatrices }: InstancedTerrainProps) => {
     const textures = useTextureAtlas()
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
     const wireframeMode = useDevStore(state => state.wireframeMode)
@@ -78,6 +80,7 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerra
             </mesh>
             <InstancedBlocks texture={textures.grass} matrices={grassMatrices} wireframe={wireframeMode} />
             <InstancedBlocks texture={textures.soil} matrices={dirtMatrices} wireframe={wireframeMode} />
+            <WaterInstances texture={textures.water} matrices={waterMatrices} wireframe={wireframeMode} />
         </>
     )
 }

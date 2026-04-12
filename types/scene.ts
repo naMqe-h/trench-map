@@ -75,6 +75,7 @@ export type ChunkProcessedPayload = {
     processedVillages: ProcessedVillageData[]
     newGrassMatrices: Float32Array
     newDirtMatrices: Float32Array
+    newWaterMatrices: Float32Array
     newVegetationSpots: VegetationData[]
     treeSpots: SerializedVector3[]
     center: SerializedVector3

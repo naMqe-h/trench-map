@@ -3,10 +3,11 @@ import { useShallow } from 'zustand/react/shallow'
 import { InstancedTerrain } from '../map/InstancedTerrain'
 
 export const WorldTerrain = () => {
-    const { grassMatrices, dirtMatrices } = useMapStore(
+    const { grassMatrices, dirtMatrices, waterMatrices } = useMapStore(
         useShallow((state) => ({
             grassMatrices: state.grassMatricesCache,
             dirtMatrices: state.dirtMatricesCache,
+            waterMatrices: state.waterMatricesCache,
         }))
     )
 
@@ -14,6 +15,7 @@ export const WorldTerrain = () => {
         <InstancedTerrain 
             grassMatrices={grassMatrices} 
             dirtMatrices={dirtMatrices}
+            waterMatrices={waterMatrices}
         />
     )
 }

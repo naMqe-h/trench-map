@@ -34,7 +34,7 @@ export const useMapManager = (initialVillages: Village[]) => {
             useMapStore.getState().setGenerationStep('building')
             const data = event.data
 
-            const { processedVillages, newGrassMatrices, newDirtMatrices, newVegetationSpots, treeSpots: newTreeSpots } = data
+            const { processedVillages, newGrassMatrices, newDirtMatrices, newWaterMatrices, newVegetationSpots, treeSpots: newTreeSpots } = data
 
             const allNewHouses: HouseData[] = []
 
@@ -63,6 +63,7 @@ export const useMapManager = (initialVillages: Village[]) => {
                 houses: allNewHouses,
                 grassMatrices: newGrassMatrices,
                 dirtMatrices: newDirtMatrices,
+                waterMatrices: newWaterMatrices,
                 vegetation: newVegetationSpots,
                 treeSpots: newTreeSpots,
             })

@@ -6,6 +6,7 @@ type ChunkData = {
     houses: HouseData[]
     grassMatrices: Float32Array
     dirtMatrices: Float32Array
+    waterMatrices: Float32Array
     vegetation: VegetationData[]
     treeSpots: SerializedVector3[]
 }
@@ -15,6 +16,7 @@ interface MapState {
     housesCache: HouseData[]
     grassMatricesCache: Float32Array
     dirtMatricesCache: Float32Array
+    waterMatricesCache: Float32Array
     vegetationSpotsCache: VegetationData[]
     treeSpotsCache: SerializedVector3[]
     villageGeometries: VillageData[]
@@ -55,6 +57,7 @@ const initialState: MapState = {
     housesCache: [],
     grassMatricesCache: new Float32Array(0),
     dirtMatricesCache: new Float32Array(0),
+    waterMatricesCache: new Float32Array(0),
     vegetationSpotsCache: [],
     treeSpotsCache: [],
     villageGeometries: [],
@@ -87,6 +90,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
             housesCache: [...state.housesCache, ...data.houses],
             grassMatricesCache: mergeTypedArrays(state.grassMatricesCache, data.grassMatrices),
             dirtMatricesCache: mergeTypedArrays(state.dirtMatricesCache, data.dirtMatrices),
+            waterMatricesCache: mergeTypedArrays(state.waterMatricesCache, data.waterMatrices),
             vegetationSpotsCache: [...state.vegetationSpotsCache, ...data.vegetation],
             treeSpotsCache: [...state.treeSpotsCache, ...data.treeSpots],
         })),

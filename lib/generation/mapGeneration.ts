@@ -113,8 +113,14 @@ export const generateHousePositions = (
 
 
 
-export const calculateSpiralPosition = (index: number, villageRadius: number, placedVillages: PlacedVillage[], padding: number = MAP_SETTINGS.VILLAGE_PADDING): THREE.Vector3 => {
-    if (index === 0) {
+export const calculateSpiralPosition = (
+    index: number, 
+    villageRadius: number, 
+    placedVillages: PlacedVillage[], 
+    padding: number = MAP_SETTINGS.VILLAGE_PADDING,
+    isValid?: (pos: THREE.Vector3) => boolean
+): THREE.Vector3 => {
+    if (index === 0 && (!isValid || isValid(new THREE.Vector3(0, 0, 0)))) {
         return new THREE.Vector3(0, 0, 0)
     }
 
@@ -130,7 +136,7 @@ export const calculateSpiralPosition = (index: number, villageRadius: number, pl
 
         const hasCollision = placedVillages.some(v => v.position.distanceTo(testPos) < (villageRadius + v.radius + padding))
         
-        if (hasCollision) {
+        if (hasCollision || (isValid && !isValid(testPos))) {
             attempt += MAP_SETTINGS.SPIRAL_COLLISION_STEP
         } else {
             return testPos
