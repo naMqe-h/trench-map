@@ -3,6 +3,7 @@
 import { useRef, useEffect } from "react"
 import { useMapStore } from "@/store/useMapStore"
 import { Twitter, Send, Globe, Link as LinkIcon } from "lucide-react"
+import moment from "moment"
 
 const SocialIcon = ({ type }: { type: string }) => {
     switch (type.toLowerCase()) {
@@ -39,7 +40,7 @@ export function Tooltip() {
             }))
         : []
 
-    const marketCapValue = (hoveredToken as any).market_cap ?? hoveredToken.marketCap
+    const marketCapValue = hoveredToken.marketCap
 
     return (
         <div
@@ -68,13 +69,9 @@ export function Tooltip() {
                 </div>
             )}
 
-            {hoveredToken.lastRefreshed && (
+            {(hoveredToken.lastUpdated) && (
                 <div className="text-xs text-gray-500 mt-1">
-                    Last refreshed: {
-                        hoveredToken.lastRefreshed instanceof Date 
-                            ? hoveredToken.lastRefreshed.toLocaleString() 
-                            : hoveredToken.lastRefreshed
-                    }
+                    Updated: {moment(hoveredToken.lastUpdated).fromNow()}
                 </div>
             )}
         </div>

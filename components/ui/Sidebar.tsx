@@ -221,16 +221,6 @@ export function Sidebar() {
                             </div>
                         </div>
                     )}
-
-                    {selectedToken.lastRefreshed && (
-                        <div className="text-xs text-gray-500 mt-2 border-t border-white/10 pt-2 text-center">
-                            Last refreshed: {
-                                selectedToken.lastRefreshed instanceof Date 
-                                    ? selectedToken.lastRefreshed.toLocaleString() 
-                                    : selectedToken.lastRefreshed
-                            }
-                        </div>
-                    )}
                 </motion.div>
             )}
         </AnimatePresence>

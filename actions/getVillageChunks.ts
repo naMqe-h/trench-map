@@ -33,7 +33,12 @@ export async function getVillageChunks(limit: number, offset: number): Promise<V
             return []
         }
 
-        return data as Village[]
+        return data.map((v: any) => ({
+            ...v,
+            marketCap: v.market_cap,
+            lastUpdated: v.last_updated,
+        })) as Village[]
+        
     } catch (error) {
         console.error("getVillageChunks error:", error)
         return []

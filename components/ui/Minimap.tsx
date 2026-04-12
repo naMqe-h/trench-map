@@ -26,7 +26,7 @@ export function Minimap() {
             return null
         }
 
-        const marketCaps = villages.map(v => v.marketCap).filter(mc => mc > 0)
+        const marketCaps = villages.map(v => v.marketCap || 0).filter(mc => mc > 0)
         if (marketCaps.length === 0) return null
 
         const minMarketCap = Math.min(...marketCaps)
@@ -48,7 +48,8 @@ export function Minimap() {
         }
 
         return villages.map((village) => {
-            if (!cameraPosition || village.marketCap <= 0) return null
+            const currentMarketCap = village.marketCap || 0
+            if (!cameraPosition || currentMarketCap <= 0) return null
 
             const dx = village.position.x - cameraPosition.x
             const dz = village.position.z - cameraPosition.z
@@ -62,11 +63,11 @@ export function Minimap() {
                 return null
             }
 
-            const radius = scaleRadius(village.marketCap)
+            const radius = scaleRadius(currentMarketCap)
 
             return (
                 <circle
-                    key={village.id}
+                    key={village.ca}
                     cx={mapX}
                     cy={mapY}
                     r={radius}

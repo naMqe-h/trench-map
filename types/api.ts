@@ -75,6 +75,7 @@ export interface DexTokenResponse {
     ticker: string
     image: string
     market_cap: number
+    last_updated: string | Date
     houses: Record<string, number>
     socials: Record<string, string>
     }

@@ -29,6 +29,7 @@ export async function addToken(ca: string): Promise<{ success: boolean; village?
             ticker: data.ticker,
             image: data.image,
             marketCap: data.market_cap,
+            lastUpdated: data.last_updated,
             houses: data.houses,
             socials: data.socials
         }

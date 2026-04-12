@@ -16,8 +16,8 @@ export interface Village {
     image: string
     houses: Houses
     marketCap: number
-    socials?: string[] | Record<string, string>
+    socials: string[] | Record<string, string>
+    lastUpdated: string | Date
     forcedIndex?: number
-    lastRefreshed?: string | Date
     villageStats?: Record<string, number>
 }

@@ -22,7 +22,7 @@ const presets: Record<'high' | 'medium' | 'low', PresetSettings> = {
         renderGrassAndFlowers: true,
     },
     medium: {
-        postProcessingEnabled: true,
+        postProcessingEnabled: false,
         dpr: 1.0,
         aoQuality: 'performance',
         shadowQuality: 'on',
