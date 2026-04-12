@@ -77,7 +77,7 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices }: InstancedTerra
                 <meshStandardMaterial map={repeatingGrassTexture} roughness={1} metalness={0} wireframe={wireframeMode} />
             </mesh>
             <InstancedBlocks texture={textures.grass} matrices={grassMatrices} wireframe={wireframeMode} />
-            <InstancedBlocks texture={textures.dirt} matrices={dirtMatrices} wireframe={wireframeMode} />
+            <InstancedBlocks texture={textures.soil} matrices={dirtMatrices} wireframe={wireframeMode} />
         </>
     )
 }
