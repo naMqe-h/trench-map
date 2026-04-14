@@ -1,8 +1,22 @@
 "use server"
 
+import { promises as fs } from 'fs'
+import path from 'path'
 import { Village } from "@/types/token"
 
 export async function getVillageChunks(limit: number, offset: number): Promise<Village[]> {
+    if (process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true') {
+        const filePath = path.join(process.cwd(), 'public', 'mock-villages.json')
+        const fileContent = await fs.readFile(filePath, 'utf8')
+        const data = JSON.parse(fileContent)
+
+        return data.map((v: any) => ({
+            ...v,
+            marketCap: v.market_cap,
+            lastUpdated: v.last_updated,
+        })) as Village[]
+    }
+
     const apiUrl = process.env.API_URL
 
     if (!apiUrl) {

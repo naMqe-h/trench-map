@@ -1,0 +1,19 @@
+[
+    {
+        "ca": "MockTokenAddress111111111111111111111111111",
+        "name": "Test Token",
+        "image": "https://example.com/mock-token-image.png",
+        "market_cap": 250000,
+        "houses": {
+            "level-1": 4,
+            "level-2": 2,
+            "level-3": 1
+        },
+        "socials": {
+            "twitter": "#",
+            "telegram": "#"
+        },
+        "last_updated": "2026-04-14T12:00:00Z",
+        "ticker": "TEST"
+    }
+]

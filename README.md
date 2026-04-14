@@ -33,6 +33,10 @@ TrenchMap is built with a modern, performant web technology stack:
 -   **Database & Auth**: [Supabase](https://supabase.io/)
 -   **Data Sources**: [Helius RPC](https://www.helius.dev/), [DexScreener API](https://docs.dexscreener.com/api/reference)
 
+## Architecture & Local Development (Mock Data)
+
+Our production backend data pipeline is proprietary and closed-source. To enable community contributions, running the project locally defaults to using `NEXT_PUBLIC_USE_MOCK_DATA=true`. This setting loads data from `public/mock-villages.json`, allowing contributors to do full UI/WebGL development and testing without needing access to the live production database.
+
 ## Getting Started
 
 To get a local copy up and running, follow these simple steps.
