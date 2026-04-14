@@ -14,7 +14,7 @@ export const MAP_SETTINGS = {
     // Minimum empty space between village boundaries
     VILLAGE_PADDING: 4,
     // Higher number = fewer trees (1 / TREE_DENSITY_DIVISOR)
-    TREE_DENSITY_DIVISOR: 800,
+    TREE_DENSITY_DIVISOR: 300,
     // Base scale for Fermat's Spiral
     SPIRAL_SCALE: 15,
     // Multiplier for camera distance chunk loading

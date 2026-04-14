@@ -13,6 +13,7 @@ const grassCoordsCache = new Set<string>()
 const dirtCoordsCache = new Set<string>()
 const waterCoordsCache = new Set<string>()
 const occupiedCoordsCache = new Set<string>()
+const treeEvaluatedCoordsCache = new Set<string>()
 const allHousesCache: Array<{x: number, z: number, fx: number, fz: number}> = []
 const noise2D = createNoise2D()
 const waterNoise2D = createNoise2D()
@@ -39,17 +40,15 @@ function markOccupied(x: number, z: number, size: number, occupiedSet: Set<strin
 }
 
 function isSafeDistanceFromHouses(x: number, z: number, treeFootprint: number, treePadding: number, houses: Array<{x: number, z: number, fx: number, fz: number}>): boolean {
-    const tHalf = treeFootprint / 2
+    const treeRadius = treeFootprint / 2
     for (const h of houses) {
-        const dx = Math.abs(x - h.x)
-        const dz = Math.abs(z - h.z)
+        const dx = x - h.x
+        const dz = z - h.z
+        const dist = Math.hypot(dx, dz)
 
-        const distX = Math.max(0, dx - (tHalf + h.fx / 2))
-        const distZ = Math.max(0, dz - (tHalf + h.fz / 2))
+        const houseRadius = Math.max(h.fx, h.fz) / 2
 
-        const dist = Math.sqrt(distX * distX + distZ * distZ)
-
-        if (dist < treePadding) {
+        if (dist < (treeRadius + houseRadius + treePadding)) {
             return false
         }
     }
@@ -90,10 +89,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
                     const exactX = h.position.x
                     const exactZ = h.position.z
-                    const house_x = Math.round(exactX)
-                    const house_z = Math.round(exactZ)
                     
-                    const tier = Object.values(HOUSE_TIERS).find(t => t.modelType === h.type)
+                    const tier: any = Object.values(HOUSE_TIERS).find((t: any) => t.modelType === h.type)
                     const fx = tier ? tier.footprint.x : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
                     const fz = tier ? tier.footprint.z : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
                     
@@ -101,10 +98,10 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
                     const halfX = Math.floor(fx / 2)
                     const halfZ = Math.floor(fz / 2)
-                    const minX = house_x - halfX
-                    const maxX = house_x + halfX
-                    const minZ = house_z - halfZ
-                    const maxZ = house_z + halfZ
+                    const minX = Math.round(exactX) - halfX
+                    const maxX = Math.round(exactX) + halfX
+                    const minZ = Math.round(exactZ) - halfZ
+                    const maxZ = Math.round(exactZ) + halfZ
 
                     for (let i = minX; i <= maxX; i++) {
                         for (let j = minZ; j <= maxZ; j++) {
@@ -170,14 +167,18 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
             const treeSpots: [number, number, number][] = []
             if (!tempBounds.isEmpty()) {
-                const treeMinX = gridMinX
-                const treeMaxX = gridMaxX
-                const treeMinZ = gridMinZ
-                const treeMaxZ = gridMaxZ
+                const treeMinX = Math.floor(tempBounds.min.x)
+                const treeMaxX = Math.ceil(tempBounds.max.x)
+                const treeMinZ = Math.floor(tempBounds.min.z)
+                const treeMaxZ = Math.ceil(tempBounds.max.z)
 
                 for (let x = treeMinX; x <= treeMaxX; x++) {
                     for (let z = treeMinZ; z <= treeMaxZ; z++) {
                         const key = `${x},${z}`
+                        
+                        if (treeEvaluatedCoordsCache.has(key)) continue
+                        treeEvaluatedCoordsCache.add(key)
+
                         if (occupiedByVillages.has(key)) continue
 
                         if (Math.random() < 1 / MAP_SETTINGS.TREE_DENSITY_DIVISOR) {
@@ -232,7 +233,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                 const finalWaterCoords = new Set<string>()
                 const visited = new Set<string>()
 
-                for (const coord of waterCandidates) {
+                for (const coord of Array.from(waterCandidates)) {
                     if (visited.has(coord)) continue
 
                     const group: string[] = []
