@@ -24,7 +24,7 @@ export const BottomBar = ({ villageCount, coordsRef }: BottomBarProps) => {
                 <div className="flex items-center gap-2">
                     <span className="hidden sm:inline">Created by naMqe</span>
                     <Link
-                        href="https://github.com/naMqe-h" 
+                        href="https://github.com/naMqe-h/trench-map" 
                         target="_blank"
                         rel="noopener noreferrer"
                         className="hover:text-blue-400 transition-colors cursor-pointer text-lg sm:text-base"

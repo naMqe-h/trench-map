@@ -15,9 +15,9 @@ TrenchMap provides a novel, immersive way to explore the fast-paced world of Sol
 ## Features
 
 -   **High-Performance 3D Graphics**: Utilizes merged geometries and instancing to render a vast and complex world smoothly in your browser.
--   **Shader-Based Interactions**: Interactive hover and selection effects are implemented directly on the GPU with custom shaders for maximum performance.
--   **Real-Time Data Integration**: Key market data, such as trading volume and price action, is streamed from DexScreener to dynamically alter the visual landscape.
--   **Minimap HUD**: A responsive Heads-Up Display provides a 2D overview of the map, helping you navigate the world and quickly identify points of interest.
+-   **GPU-Instanced Selection Effects**: Interactive hover and selection effects are implemented using emissive proxy meshes and instanced rendering for maximum performance.
+-   **Data Integration**: Key market data, such as trading volume and price action, is fetched from our backend to dynamically alter the visual landscape.
+-   **Minimap HUD**: A desktop-optimized Heads-Up Display provides a 2D overview of the map, helping you navigate the world and quickly identify points of interest.
 -   **Dynamic Voxel World**: The map is built from procedurally generated chunks, allowing for a scalable and ever-expanding universe of tokens.
 
 ## Tech Stack
@@ -30,8 +30,7 @@ TrenchMap is built with a modern, performant web technology stack:
 -   **React-Three Bridge**: [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction)
 -   **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
 -   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
--   **Database & Auth**: [Supabase](https://supabase.io/)
--   **Data Sources**: [Helius RPC](https://www.helius.dev/), [DexScreener API](https://docs.dexscreener.com/api/reference)
+-   **Data Sources**: Backend API
 
 ## Architecture & Local Development (Mock Data)
 
@@ -77,26 +76,10 @@ You need [Node.js](https://nodejs.org/en/download/) (version 18.x or higher) and
 4.  **Populate `.env.local`:**
     You will need to fill in the values in your new `.env.local` file.
     ```
-    # For Solana blockchain data
-    HELIUS_API_KEY=your_helius_api_key
-
-    # For Supabase database
-    SUPABASE_URL=your_supabase_project_url
-    SUPABASE_ANON_KEY=your_supabase_anon_key
-    SUPABASE_SERVICE_ROLE=your_supabase_service_role_key
+    # For API Integration
+    API_URL=your_api_server_url
+    NEXT_PUBLIC_USE_MOCK_DATA=true
     ```
-    **WARNING**: The `SUPABASE_SERVICE_ROLE` key has admin privileges and must **NEVER** be exposed on the client side. Only use it in server-side code (e.g., Next.js API routes or server functions).
-
-    #### Obtaining Credentials
-    *   **Supabase**:
-        1.  Go to [supabase.com](https://supabase.com/) and create a new project.
-        2.  Navigate to your project's **Settings** > **API**.
-        3.  Under "Project API keys", you will find the **Project URL** (`SUPABASE_URL`) and the public **anon key** (`SUPABASE_ANON_KEY`).
-        4.  Under the same section, you will find the secret **service_role key** (`SUPABASE_SERVICE_ROLE`). Treat this key like a password.
-    *   **Helius API Key**:
-        1.  Go to [helius.dev](https://www.helius.dev/) and sign up for an account.
-        2.  Create a new project to get a free RPC API key.
-        3.  Copy your API key and set it as the `HELIUS_API_KEY` value.
 
 5.  **Run the development server:**
     ```sh
