@@ -65,7 +65,6 @@ const CameraTracker = ({
 export const WorldCamera = ({ 
     controlsRef, 
     coordsRef, 
-    newVillage, 
     onFlyToStart,
     loadMoreVillages,
     addLiveToken
@@ -83,32 +82,34 @@ export const WorldCamera = ({
         isLoading,
         hasMore,
         offset,
-        isIntroPlaying
+        isIntroPlaying,
+        cameraFlightRequest
     } = useMapStore(useShallow(state => ({
         villageGeometries: state.villageGeometries,
         isLoading: state.isLoading,
         hasMore: state.hasMore,
         offset: state.offset,
-        isIntroPlaying: state.isIntroPlaying
+        isIntroPlaying: state.isIntroPlaying,
+        cameraFlightRequest: state.cameraFlightRequest
     })))
 
     const lastTrigger = useRef<number>(0)
     const [pendingFlyToCa, setPendingFlyToCa] = useState<string | null>(null)
 
     useEffect(() => {
-        if (newVillage && newVillage.trigger !== lastTrigger.current) {
-            lastTrigger.current = newVillage.trigger
+        if (cameraFlightRequest && cameraFlightRequest.trigger !== lastTrigger.current) {
+            lastTrigger.current = cameraFlightRequest.trigger
 
-            const existingVillage = villageGeometries.find(v => v.ca === newVillage.village.ca)
+            const existingVillage = villageGeometries.find(v => v.ca === cameraFlightRequest.village.ca)
 
             if (existingVillage) {
-                setPendingFlyToCa(newVillage.village.ca)
+                setPendingFlyToCa(cameraFlightRequest.village.ca)
             } else {
-                setPendingFlyToCa(newVillage.village.ca)
-                addLiveToken(newVillage.village, newVillage.isNew)
+                setPendingFlyToCa(cameraFlightRequest.village.ca)
+                addLiveToken(cameraFlightRequest.village, cameraFlightRequest.isNew)
             }
         }
-    }, [newVillage, villageGeometries, addLiveToken])
+    }, [cameraFlightRequest, villageGeometries, addLiveToken])
 
     useEffect(() => {
         if (pendingFlyToCa) {

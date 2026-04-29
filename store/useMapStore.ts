@@ -31,6 +31,7 @@ interface MapState {
     error: string | null
     cameraPosition: { x: number; z: number }
     cameraRotation: number
+    cameraFlightRequest: { village: Village; trigger: number; isNew: boolean } | null
     isIntroPlaying: boolean
 }
 
@@ -49,6 +50,7 @@ interface MapActions {
     initializeVillages: (villages: Village[]) => void
     resetMap: () => void
     setCameraState: (position: { x: number; z: number }, rotation: number) => void
+    setCameraFlightRequest: (request: { village: Village; trigger: number; isNew: boolean } | null) => void
     setIsIntroPlaying: (isPlaying: boolean) => void
 }
 
@@ -72,6 +74,7 @@ const initialState: MapState = {
     error: null,
     cameraPosition: { x: 0, z: 0 },
     cameraRotation: 0,
+    cameraFlightRequest: null,
     isIntroPlaying: true,
 }
 
@@ -142,6 +145,8 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
     resetMap: () => set(initialState),
 
     setCameraState: (position, rotation) => set({ cameraPosition: position, cameraRotation: rotation }),
+
+    setCameraFlightRequest: (request) => set({ cameraFlightRequest: request }),
 
     setIsIntroPlaying: (isPlaying) => set({ isIntroPlaying: isPlaying }),
 }))

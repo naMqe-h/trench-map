@@ -3,11 +3,63 @@
 import { useMapStore } from '@/store/useMapStore'
 import { useSettingsStore } from '@/store/useSettingsStore'
 import { useShallow } from 'zustand/react/shallow'
-import { useMemo } from 'react'
+import { useMemo, useState, memo, useEffect, useCallback } from 'react'
+import { VillageData } from '@/types/scene'
 
 const MINIMAP_SIZE = 200
 const MAP_SCALE = 0.5
 const VIEW_RADIUS = MINIMAP_SIZE / 2
+
+const MinimapMarker = memo(({ 
+    village, 
+    radius 
+}: { 
+    village: VillageData, 
+    radius: number 
+}) => {
+    const [imageError, setImageError] = useState(false)
+    const setCameraFlightRequest = useMapStore((state) => state.setCameraFlightRequest)
+    const fallbackColor = "#f59e0b"
+
+    const handleClick = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation()
+        setCameraFlightRequest({
+            village,
+            trigger: Date.now(),
+            isNew: false
+        })
+    }, [village, setCameraFlightRequest])
+
+    const x = village.position.x * MAP_SCALE
+    const y = village.position.z * MAP_SCALE
+
+    return (
+        <g 
+            transform={`translate(${x}, ${y})`}
+            onClick={handleClick}
+            className="cursor-pointer"
+        >
+            <circle
+                r={radius}
+                fill={fallbackColor}
+            />
+            {village.image && !imageError && (
+                <image
+                    href={village.image}
+                    x={-radius}
+                    y={-radius}
+                    width={radius * 2}
+                    height={radius * 2}
+                    clipPath="url(#markerClip)"
+                    preserveAspectRatio="xMidYMid slice"
+                    onError={() => setImageError(true)}
+                />
+            )}
+        </g>
+    )
+})
+
+MinimapMarker.displayName = 'MinimapMarker'
 
 export function Minimap() {
     const showMinimap = useSettingsStore((state) => state.showMinimap)
@@ -19,15 +71,25 @@ export function Minimap() {
         }))
     )
 
+    useEffect(() => {
+        if (!villages) return
+        villages.forEach(v => {
+            if (v.image) {
+                const img = new Image()
+                img.src = v.image
+            }
+        })
+    }, [villages])
+
     const rotationDegrees = cameraRotation * (180 / Math.PI)
 
-    const villageDots = useMemo(() => {
+    const villageDataWithRadius = useMemo(() => {
         if (!villages || villages.length === 0) {
-            return null
+            return []
         }
 
         const marketCaps = villages.map(v => v.marketCap || 0).filter(mc => mc > 0)
-        if (marketCaps.length === 0) return null
+        if (marketCaps.length === 0) return []
 
         const minMarketCap = Math.min(...marketCaps)
         const maxMarketCap = Math.max(...marketCaps)
@@ -39,7 +101,7 @@ export function Minimap() {
         const logMax = Math.log(maxMarketCap)
         const logRange = logMax - logMin
 
-        const scaleRadius = (mc: number) => {
+        const getRadius = (mc: number) => {
             if (logRange === 0) {
                 return (minRadius + maxRadius) / 2
             }
@@ -47,39 +109,18 @@ export function Minimap() {
             return Math.max(minRadius, Math.min(maxRadius, scaled))
         }
 
-        return villages.map((village) => {
-            const currentMarketCap = village.marketCap || 0
-            if (!cameraPosition || currentMarketCap <= 0) return null
-
-            const dx = village.position.x - cameraPosition.x
-            const dz = village.position.z - cameraPosition.z
-
-            const mapX = dx * MAP_SCALE + VIEW_RADIUS
-            const mapY = dz * MAP_SCALE + VIEW_RADIUS
-            
-            const dist = Math.hypot(mapX - VIEW_RADIUS, mapY - VIEW_RADIUS)
-
-            if (dist > VIEW_RADIUS) {
-                return null
-            }
-
-            const radius = scaleRadius(currentMarketCap)
-
-            return (
-                <circle
-                    key={village.ca}
-                    cx={mapX}
-                    cy={mapY}
-                    r={radius}
-                    fill="#f59e0b"
-                />
-            )
-        })
-    }, [villages, cameraPosition])
+        return villages.map((village) => ({
+            village,
+            radius: getRadius(village.marketCap || 0)
+        }))
+    }, [villages])
 
     if (!showMinimap) {
         return null
     }
+
+    const offsetX = -cameraPosition.x * MAP_SCALE
+    const offsetY = -cameraPosition.z * MAP_SCALE
 
     return (
         <div
@@ -91,11 +132,26 @@ export function Minimap() {
                     <clipPath id="circleClip">
                         <circle cx={VIEW_RADIUS} cy={VIEW_RADIUS} r={VIEW_RADIUS} />
                     </clipPath>
+                    
+                    <clipPath id="markerClip" clipPathUnits="objectBoundingBox">
+                        <circle cx="0.5" cy="0.5" r="0.5" />
+                    </clipPath>
                 </defs>
 
                 <g clipPath="url(#circleClip)">
                     <circle cx={VIEW_RADIUS} cy={VIEW_RADIUS} r={VIEW_RADIUS} fill="rgba(17, 24, 39, 0.7)" />
-                    {villageDots}
+                    
+                    <g transform={`translate(${VIEW_RADIUS}, ${VIEW_RADIUS})`}>
+                        <g transform={`translate(${offsetX}, ${offsetY})`}>
+                            {villageDataWithRadius.map((data) => (
+                                <MinimapMarker
+                                    key={data.village.ca}
+                                    village={data.village}
+                                    radius={data.radius}
+                                />
+                            ))}
+                        </g>
+                    </g>
                 </g>
 
                 <g transform={`translate(${VIEW_RADIUS}, ${VIEW_RADIUS}) rotate(${rotationDegrees})`}>

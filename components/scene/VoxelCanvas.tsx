@@ -37,12 +37,12 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const [isReady, setIsReady] = useState(false)
     const [villageCount, setVillageCount] = useState(0)
     const cameraControlsRef = useRef<CameraControls>(null)
-    const [newVillageData, setNewVillageData] = useState<{ village: Village, trigger: number, isNew: boolean } | null>(null)
     
-    const { setGenerationStepAction, isIntroPlaying } = useMapStore(
+    const { setGenerationStepAction, isIntroPlaying, setCameraFlightRequest } = useMapStore(
         useShallow((state) => ({
             setGenerationStepAction: state.setGenerationStep,
             isIntroPlaying: state.isIntroPlaying,
+            setCameraFlightRequest: state.setCameraFlightRequest,
         }))
     )
 
@@ -65,7 +65,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 style={{ pointerEvents: isIntroPlaying ? 'none' : 'auto' }}
                 className='fixed top-0 left-0 w-full z-50'
             >
-                <TopBar setNewVillageData={setNewVillageData} />
+                <TopBar setNewVillageData={setCameraFlightRequest} />
             </motion.div>
             <AnimatePresence>
                 {!isReady && <LoadingScreen />}
@@ -83,7 +83,6 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                     onReady={handleReady}
                     onCountChange={setVillageCount}
                     controlsRef={cameraControlsRef}
-                    newVillage={newVillageData}
                     onFlyToStart={handleFlyToStart}
                     coordsRef={coordsRef}
                 />

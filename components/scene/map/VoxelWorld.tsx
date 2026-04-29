@@ -13,7 +13,6 @@ type VoxelWorldProps = {
     onReady?: () => void
     onCountChange?: (count: number) => void
     controlsRef?: React.RefObject<any>
-    newVillage?: { village: Village, trigger: number, isNew: boolean } | null
     onFlyToStart?: () => void
     coordsRef: React.RefObject<HTMLSpanElement | null> | null
 }
@@ -23,7 +22,6 @@ export const VoxelWorld = ({
     onReady, 
     onCountChange, 
     controlsRef, 
-    newVillage, 
     onFlyToStart, 
     coordsRef 
 }: VoxelWorldProps) => {
@@ -39,7 +37,6 @@ export const VoxelWorld = ({
             <WorldCamera 
                 controlsRef={controlsRef}
                 coordsRef={coordsRef}
-                newVillage={newVillage}
                 onFlyToStart={onFlyToStart}
                 loadMoreVillages={loadMoreVillages}
                 addLiveToken={addLiveToken}
