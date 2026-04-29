@@ -14,7 +14,7 @@ export type SerializedMatrix4 = number[]
 /**
  * Represents the different types of houses available in the village.
  */
-export type HouseType = 'basic-house' | 'stone-tall-house' | 'stone-gable-house'
+export type HouseType = 'basic-house' | 'stone-tall-house' | 'stone-gable-house' | 'town-hall-1' | 'town-hall-2' | 'town-hall-3'
 
 /**
  * Represents the structure for house data, including its position and type.

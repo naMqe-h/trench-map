@@ -1,6 +1,6 @@
 {
     "name": "trench-map",
-    "version": "0.1.25",
+    "version": "0.2.0",
     "private": true,
     "engines": {
         "node": ">=18"

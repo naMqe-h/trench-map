@@ -5,6 +5,7 @@ import { useDevStore } from '@/store/useDevStore'
 import { VillageData, HouseData } from '@/types/scene'
 import { useGLTF, Instances, Instance } from '@react-three/drei'
 import * as THREE from 'three'
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 
 type HouseTypeInstancesProps = {
     houses: { house: HouseData; village: VillageData }[]
@@ -31,26 +32,41 @@ export const HouseTypeInstances = ({
     const wireframeMode = useDevStore((state) => state.wireframeMode)
 
     useEffect(() => {
-        let structure: THREE.Mesh | null = null
-        let glass: THREE.Mesh | null = null
+        const structureGeometries: THREE.BufferGeometry[] = []
+        const glassGeometries: THREE.BufferGeometry[] = []
+        let structureMaterial: THREE.Material | null = null
+        let glassMaterial: THREE.Material | null = null
         
         scene.updateMatrixWorld(true)
         
         scene.traverse((child: any) => {
             if (child.isMesh) {
+                child.updateMatrixWorld(true)
                 const bakedGeometry = child.geometry.clone()
                 bakedGeometry.applyMatrix4(child.matrixWorld)
                 
-                const bakedMesh = new THREE.Mesh(bakedGeometry, child.material)
-
-                if (child.material.map?.name.includes('glass')) {
-                    glass = bakedMesh
+                if (child.material.map?.name.includes('glass') || child.material.name.toLowerCase().includes('glass')) {
+                    glassGeometries.push(bakedGeometry)
+                    if (!glassMaterial) glassMaterial = child.material
                 } else {
-                    structure = bakedMesh
+                    structureGeometries.push(bakedGeometry)
+                    if (!structureMaterial) structureMaterial = child.material
                 }
             }
         })
-        setMeshes({ structure, glass })
+
+        const mergedStructure = structureGeometries.length > 0 
+            ? (structureGeometries.length === 1 ? structureGeometries[0] : mergeGeometries(structureGeometries))
+            : null
+        
+        const mergedGlass = glassGeometries.length > 0
+            ? (glassGeometries.length === 1 ? glassGeometries[0] : mergeGeometries(glassGeometries))
+            : null
+
+        setMeshes({ 
+            structure: mergedStructure ? new THREE.Mesh(mergedStructure, structureMaterial!) : null, 
+            glass: mergedGlass ? new THREE.Mesh(mergedGlass, glassMaterial!) : null 
+        })
     }, [scene])
 
     useEffect(() => {
@@ -80,7 +96,7 @@ export const HouseTypeInstances = ({
         }
     }, [])
 
-    if (!meshes.structure || !meshes.glass || houses.length === 0) return null
+    if (!meshes.structure || houses.length === 0) return null
 
     const handlePointerMove = (village: VillageData, house: HouseData) => (e: ThreeEvent<PointerEvent>) => {
         e.stopPropagation()
@@ -137,21 +153,23 @@ export const HouseTypeInstances = ({
                     />
                 ))}
             </Instances>
-            <Instances 
-                geometry={meshes.glass.geometry} 
-                material={meshes.glass.material}
-                castShadow={isShadowEnabled}
-                receiveShadow={isShadowEnabled}
-            >
-                {houses.map(({ house, village }, i) => (
-                    <Instance 
-                        key={`${village.id}-${i}-glass`}
-                        position={house.position} 
-                        rotation={[0, house.rotation || 0, 0]}
-                        onClick={handleClick(village)}
-                    />
-                ))}
-            </Instances>
+            {meshes.glass && (
+                <Instances 
+                    geometry={meshes.glass.geometry} 
+                    material={meshes.glass.material}
+                    castShadow={isShadowEnabled}
+                    receiveShadow={isShadowEnabled}
+                >
+                    {houses.map(({ house, village }, i) => (
+                        <Instance 
+                            key={`${village.id}-${i}-glass`}
+                            position={house.position} 
+                            rotation={[0, house.rotation || 0, 0]}
+                            onClick={handleClick(village)}
+                        />
+                    ))}
+                </Instances>
+            )}
             <mesh 
                 ref={proxyRef} 
                 visible={false} 

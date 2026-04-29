@@ -8,7 +8,23 @@ export const generateHousePositions = (
     villageRootPosition: number[],
     existingHouses: HouseData[],
 ) => {
+    const generatedHouses: HouseData[] = []
+    const rootVec = new THREE.Vector3(villageRootPosition[0], 0, villageRootPosition[2])
+
+    const rawTownHallLevel = houseCounts['town-hall']
+    if (rawTownHallLevel) {
+        const validatedLevel = [1, 2, 3].includes(rawTownHallLevel) ? rawTownHallLevel : 1
+        const townHallType = `town-hall-${validatedLevel}` as HouseType
+        
+        generatedHouses.push({
+            position: new THREE.Vector3(0, 0, 0),
+            type: townHallType,
+            rotation: 0
+        })
+    }
+
     const houseTiersToPlace = Object.entries(houseCounts)
+        .filter(([key]) => key !== 'town-hall')
         .flatMap(([levelKey, count]) => {
             const tier = HOUSE_TIERS[levelKey]
             return tier ? Array(count).fill(tier) : []
@@ -22,15 +38,12 @@ export const generateHousePositions = (
             return b.level - a.level
         })
 
-    const houseCount = houseTiersToPlace.length
-    if (houseCount === 0) {
-        return []
+    if (houseTiersToPlace.length === 0) {
+        return generatedHouses
     }
-
-    const generatedHouses: HouseData[] = []
-    const rootVec = new THREE.Vector3(villageRootPosition[0], 0, villageRootPosition[2])
     
     const SPACING_MULTIPLIER = 5
+    const houseCount = houseTiersToPlace.length
     const initialSearchRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (Math.sqrt(houseCount) * SPACING_MULTIPLIER)
 
     const checkCollision = (pos: THREE.Vector3, footprintToPlace: { x: number, z: number }, existingHouse: HouseData) => {
@@ -66,19 +79,20 @@ export const generateHousePositions = (
             const step = 2
             for (let x = -currentSearchRadius; x <= currentSearchRadius; x += step) {
                 for (let z = -currentSearchRadius; z <= currentSearchRadius; z += step) {
-                    const point = new THREE.Vector3(rootVec.x + x, 0, rootVec.z + z)
-                    if (point.distanceTo(rootVec) <= currentSearchRadius) {
+                    const point = new THREE.Vector3(x, 0, z)
+                    if (point.length() <= currentSearchRadius) {
                         candidatePoints.push(point)
                     }
                 }
             }
             
-            candidatePoints.sort((a, b) => a.distanceTo(rootVec) - b.distanceTo(rootVec))
+            candidatePoints.sort((a, b) => a.length() - b.length())
 
             for (const candidatePos of candidatePoints) {
                 let hasCollision = false
                 for (const house of existingHouses) {
-                    if (checkCollision(candidatePos, footprintToPlace, house)) {
+                    const worldCandidate = candidatePos.clone().add(rootVec)
+                    if (checkCollision(worldCandidate, footprintToPlace, house)) {
                         hasCollision = true
                         break
                     }

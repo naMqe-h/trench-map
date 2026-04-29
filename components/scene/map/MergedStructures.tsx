@@ -10,6 +10,15 @@ type MergedStructuresProps = {
     villageGeometries: VillageData[]
 }
 
+const HOUSE_CONFIGS: { type: HouseType; path: string }[] = [
+    { type: 'basic-house', path: '/models/basic-house.glb' },
+    { type: 'stone-tall-house', path: '/models/stone-tall-house.glb' },
+    { type: 'stone-gable-house', path: '/models/stone-gable-house.glb' },
+    { type: 'town-hall-1', path: '/models/town-hall/town-hall-1.glb' },
+    { type: 'town-hall-2', path: '/models/town-hall/town-hall-2.glb' },
+    { type: 'town-hall-3', path: '/models/town-hall/town-hall-3.glb' },
+]
+
 export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) => {
     const setHoveredToken = useMapStore((state) => state.setHoveredToken)
     const setSelectedToken = useMapStore((state) => state.setSelectedToken)
@@ -21,11 +30,16 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
         const groups: Record<HouseType, { house: HouseData; village: VillageData }[]> = {
             'basic-house': [],
             'stone-tall-house': [],
-            'stone-gable-house': []
+            'stone-gable-house': [],
+            'town-hall-1': [],
+            'town-hall-2': [],
+            'town-hall-3': []
         }
         villageGeometries.forEach(village => {
             village.placedHouses.forEach(house => {
-                groups[house.type].push({ house, village })
+                if (groups[house.type]) {
+                    groups[house.type].push({ house, village })
+                }
             })
         })
         return groups
@@ -33,30 +47,17 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
 
     return (
         <>
-            <HouseTypeInstances 
-                houses={groupedHouses['basic-house']} 
-                modelPath="/models/basic-house.glb" 
-                isNight={timeOfDay.isNight} 
-                isShadowEnabled={isShadowEnabled}
-                setHoveredToken={setHoveredToken}
-                setSelectedToken={setSelectedToken}
-            />
-            <HouseTypeInstances 
-                houses={groupedHouses['stone-tall-house']} 
-                modelPath="/models/stone-tall-house.glb" 
-                isNight={timeOfDay.isNight} 
-                isShadowEnabled={isShadowEnabled}
-                setHoveredToken={setHoveredToken}
-                setSelectedToken={setSelectedToken}
-            />
-            <HouseTypeInstances 
-                houses={groupedHouses['stone-gable-house']} 
-                modelPath="/models/stone-gable-house.glb" 
-                isNight={timeOfDay.isNight} 
-                isShadowEnabled={isShadowEnabled}
-                setHoveredToken={setHoveredToken}
-                setSelectedToken={setSelectedToken}
-            />
+            {HOUSE_CONFIGS.map(config => (
+                <HouseTypeInstances 
+                    key={config.type}
+                    houses={groupedHouses[config.type]} 
+                    modelPath={config.path} 
+                    isNight={timeOfDay.isNight} 
+                    isShadowEnabled={isShadowEnabled}
+                    setHoveredToken={setHoveredToken}
+                    setSelectedToken={setSelectedToken}
+                />
+            ))}
 
             {villageGeometries.map(village => (
                 <group 
@@ -83,6 +84,4 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
     )
 }
 
-useGLTF.preload('/models/basic-house.glb')
-useGLTF.preload('/models/stone-tall-house.glb')
-useGLTF.preload('/models/stone-gable-house.glb')
+HOUSE_CONFIGS.forEach(config => useGLTF.preload(config.path))

@@ -5,6 +5,7 @@
         "image": "https://example.com/mock-token-image.png",
         "market_cap": 250000,
         "houses": {
+            "town-hall": 2,
             "level-1": 4,
             "level-2": 2,
             "level-3": 1
