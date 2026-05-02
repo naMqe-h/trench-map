@@ -6,7 +6,7 @@ export interface Houses {
 }
 
 /**
- * Represents the core data for a village fetched from the database.
+ * Represents the core data for a village.
  */
 export interface Village {
     id?: string
@@ -16,7 +16,7 @@ export interface Village {
     image: string
     houses: Houses
     marketCap: number
-    socials: string[] | Record<string, string>
+    socials: Record<string, string>
     lastUpdated: string | Date
     forcedIndex?: number
     villageStats?: Record<string, number>

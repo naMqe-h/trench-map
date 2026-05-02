@@ -1,7 +1,18 @@
 "use server"
 
-import { Village } from "@/types/token"
-import { Token } from "../types/api"
+import { DexTokenResponse } from "@/types/api";
+import { Houses, Village } from "@/types/token"
+
+
+interface Token extends DexTokenResponse {
+    name: string
+    image: string
+    market_cap: number
+    houses: Houses
+    socials: Record<string, string>
+    last_updated: string | Date
+    ticker: string
+}
 
 export async function addToken(ca: string): Promise<{ success: boolean; village?: Village; error?: string }> {
     try {

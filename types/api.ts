@@ -1,81 +1,166 @@
-export interface DexToken {
-    address: string
-    name: string
-    symbol: string
+export interface DexSocials {
+    twitter: string
+    website: string
+    telegram: string
 }
 
-export interface DexTxns {
+export interface DexDev {
+    amount: number
+    percentage: number
+}
+
+export interface DexPoolTxns {
+    buys: number
+    sells: number
+    total: number
+    volume: number
+    volume24h: number
+}
+
+export interface DexPrice {
+    usd: number
+    quote: number
+}
+
+export interface DexSecurity {
+    mintAuthority: string | null
+    freezeAuthority: string | null
+}
+
+export interface DexLiquidity {
+    usd: number
+    quote: number
+}
+
+export interface DexMarketCap {
+    usd: number
+    quote: number
+}
+
+export interface DexShareholder {
+    kind: string
+    address: string
+    shareBps: number
+    sharePercent: number
+}
+
+export interface DexFeeSharingConfig {
+    admin: string
+    status: string
+    address: string
+    adminRevoked: boolean
+    shareholders: DexShareholder[]
+}
+
+export interface DexPumpFunAmm {
+    isMayhemMode: boolean
+    tokenProgram: string
+    isCashbackCoin: boolean
+    feeSharingConfig: DexFeeSharingConfig
+}
+
+export interface DexPool {
+    txns: DexPoolTxns
+    price: DexPrice
+    lpBurn: number
+    market: string
+    poolId: string
+    decimals: number
+    deployer: string
+    security: DexSecurity
+    createdAt: number
+    liquidity: DexLiquidity
+    marketCap: DexMarketCap
+    quoteToken: string
+    lastUpdated: number
+    "pumpfun-amm"?: DexPumpFunAmm
+    tokenSupply: number
+    tokenAddress: string
+}
+
+export interface DexPools {
+    pool: DexPool
+    count: number
+}
+
+export interface DexEvent {
+    priceChangePercentage: number
+}
+
+export interface DexEvents {
+    "1m": DexEvent
+    "5m": DexEvent
+    "15m": DexEvent
+    "30m": DexEvent
+    "1h": DexEvent
+    "2h": DexEvent
+    "3h": DexEvent
+    "4h": DexEvent
+    "5h": DexEvent
+    "6h": DexEvent
+    "12h": DexEvent
+    "24h": DexEvent
+}
+
+export interface DexWallet {
+    wallet: string
+    balance: number
+    percentage: number
+}
+
+export interface DexWalletsInfo {
+    count: number
+    wallets: DexWallet[]
+    totalBalance: number
+    totalPercentage: number
+}
+
+export interface DexFees {
+    [key: string]: number
+    total: number
+    totalTips: number
+    totalTrading: number
+}
+
+export interface DexRisk {
+    risks: any[]
+    score: number
+    rugged: boolean
+    jupiterVerified: boolean
+}
+
+export interface DexTotalTxns {
+    all: number
     buys: number
     sells: number
 }
 
 export interface DexVolume {
-    h24: number
-    h6: number
-    h1: number
     m5: number
+    h1: number
+    h6: number
+    h24: number
 }
 
-export interface DexLiquidity {
-    usd: number
-    base: number
-    quote: number
-}
-
-export interface DexWebsite {
-    url: string
-    label: string
-}
-
-export interface DexSocial {
-    url: string
-    type: string
-}
-
-export interface DexInfo {
-    imageUrl: string
-    header: string
-    openGraph: string
-    websites: DexWebsite[]
-    socials: DexSocial[]
+export interface DexPriceChange {
+    m5?: number
+    h1?: number
+    h6?: number
+    h24?: number
 }
 
 export interface DexTokenResponse {
-    chainId: string
-    dexId: string
-    url: string
-    pairAddress: string
-    baseToken: DexToken
-    quoteToken: DexToken
-    priceNative: string
-    priceUsd: string
-    txns: {
-        m5: DexTxns
-        h1: DexTxns
-        h6: DexTxns
-        h24: DexTxns
-    }
-    volume: DexVolume
-    priceChange: {
-        m5: number
-        h1: number
-        h6: number
-        h24: number
-    }
-    liquidity: DexLiquidity
-    fdv: number
-    marketCap: number
-    pairCreatedAt: number
-    info: DexInfo
-    }
-
-    export interface Token {
     ca: string
-    name: string
-    ticker: string
-    image: string
-    market_cap: number
-    last_updated: string | Date
-    houses: Record<string, number>
-    socials: Record<string, string>
-    }
+    dev: DexDev
+    pools: DexPools
+    events: DexEvents
+    snipers: DexWalletsInfo
+    insiders: DexWalletsInfo
+    top10_holders: number
+    fees: DexFees
+    risk: DexRisk
+    txns: DexTotalTxns
+    holders_count: number
+    volume: DexVolume
+    priceChange: DexPriceChange
+}
