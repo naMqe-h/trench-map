@@ -17,6 +17,8 @@ const HOUSE_CONFIGS: { type: HouseType; path: string }[] = [
     { type: 'town-hall-1', path: '/models/town-hall/town-hall-1.glb' },
     { type: 'town-hall-2', path: '/models/town-hall/town-hall-2.glb' },
     { type: 'town-hall-3', path: '/models/town-hall/town-hall-3.glb' },
+    { type: 'library-1', path: '/models/library/library-1.glb' },
+    { type: 'library-2', path: '/models/library/library-2.glb' },
 ]
 
 export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) => {
@@ -33,7 +35,9 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
             'stone-gable-house': [],
             'town-hall-1': [],
             'town-hall-2': [],
-            'town-hall-3': []
+            'town-hall-3': [],
+            'library-1': [],
+            'library-2': []
         }
         villageGeometries.forEach(village => {
             village.placedHouses.forEach(house => {

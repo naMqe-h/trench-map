@@ -24,19 +24,29 @@ export const generateHousePositions = (
     }
 
     const houseTiersToPlace = Object.entries(houseCounts)
-        .filter(([key]) => key !== 'town-hall')
+        .filter(([key]) => key !== 'town-hall' && key !== 'library')
         .flatMap(([levelKey, count]) => {
             const tier = HOUSE_TIERS[levelKey]
             return tier ? Array(count).fill(tier) : []
         })
-        .sort((a, b) => {
-            const footprintA = a.footprint.x * a.footprint.z
-            const footprintB = b.footprint.x * b.footprint.z
-            if (footprintB !== footprintA) {
-                return footprintB - footprintA
-            }
-            return b.level - a.level
-        })
+
+    const rawLibraryLevel = houseCounts['library']
+    if (rawLibraryLevel) {
+        const validatedLevel = [1, 2].includes(rawLibraryLevel) ? rawLibraryLevel : 1
+        const libraryTier = HOUSE_TIERS[`library-${validatedLevel}`]
+        if (libraryTier) {
+            houseTiersToPlace.push(libraryTier)
+        }
+    }
+
+    houseTiersToPlace.sort((a, b) => {
+        const footprintA = a.footprint.x * a.footprint.z
+        const footprintB = b.footprint.x * b.footprint.z
+        if (footprintB !== footprintA) {
+            return footprintB - footprintA
+        }
+        return b.level - a.level
+    })
 
     if (houseTiersToPlace.length === 0) {
         return generatedHouses

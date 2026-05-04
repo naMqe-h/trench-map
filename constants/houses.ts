@@ -5,7 +5,8 @@ export const HOUSE_TIERS: Record<string, { label: string; modelType: string; foo
     'town-hall-1': { label: 'Town Hall', modelType: 'town-hall-1', footprint: { x: 14, z: 9 }, level: 1 },
     'town-hall-2': { label: 'Town Hall', modelType: 'town-hall-2', footprint: { x: 20, z: 13 }, level: 2 },
     'town-hall-3': { label: 'Town Hall', modelType: 'town-hall-3', footprint: { x: 35, z: 23 }, level: 3 },
-    'library-1': { label: 'Library', modelType: 'library-1', footprint: { x: 35, z: 23 }, level: 1 }
+    'library-1': { label: 'Library', modelType: 'library-1', footprint: { x: 14, z: 9 }, level: 1 },
+    'library-2': { label: 'Library', modelType: 'library-2', footprint: { x: 27, z: 17 }, level: 2 },
 }
 
 export const HOUSE_NAMES: Record<string, { label: string }> = {
