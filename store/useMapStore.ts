@@ -22,6 +22,7 @@ interface MapState {
     villageGeometries: VillageData[]
     hoveredToken: Village | null
     selectedToken: Village | null
+    selectedHouseType: string | null
     villages: Village[]
     offset: number
     hasMore: boolean
@@ -40,7 +41,7 @@ interface MapActions {
     addVillageGeometries: (geometries: VillageData[]) => void
     setLastProcessedIndex: (index: number) => void
     setHoveredToken: (token: Village | null) => void
-    setSelectedToken: (token: Village | null) => void
+    setSelectedToken: (token: Village | null, houseType?: string) => void
     setLoading: (isLoading: boolean) => void
     setGenerating: (isGenerating: boolean) => void
     setGenerationStep: (step: string | null) => void
@@ -65,6 +66,7 @@ const initialState: MapState = {
     villageGeometries: [],
     hoveredToken: null,
     selectedToken: null,
+    selectedHouseType: null,
     villages: [],
     offset: 0,
     hasMore: true,
@@ -107,7 +109,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     setHoveredToken: (token) => set({ hoveredToken: token }),
 
-    setSelectedToken: (token) => set({ selectedToken: token }),
+    setSelectedToken: (token, houseType = 'town-hall') => set({ selectedToken: token, selectedHouseType: houseType }),
 
     setLoading: (isLoading) => set({ isLoading }),
 

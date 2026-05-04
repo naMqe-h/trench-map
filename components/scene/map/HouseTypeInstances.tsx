@@ -10,15 +10,17 @@ import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js
 type HouseTypeInstancesProps = {
     houses: { house: HouseData; village: VillageData }[]
     modelPath: string
+    houseType: string
     isNight: boolean
     isShadowEnabled: boolean
     setHoveredToken: (token: any) => void
-    setSelectedToken: (token: any) => void
+    setSelectedToken: (token: any, houseType?: string) => void
 }
 
 export const HouseTypeInstances = ({ 
     houses, 
     modelPath, 
+    houseType,
     isNight, 
     isShadowEnabled, 
     setHoveredToken, 
@@ -130,7 +132,8 @@ export const HouseTypeInstances = ({
     const handleClick = (village: VillageData) => (e: ThreeEvent<MouseEvent>) => {
         e.stopPropagation()
         if (isIntroPlaying) return
-        setSelectedToken(village)
+        const sidebarType = houseType.startsWith('library') ? 'library' : 'town-hall'
+        setSelectedToken(village, sidebarType)
     }
 
     return (

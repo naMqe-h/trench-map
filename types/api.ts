@@ -164,3 +164,19 @@ export interface DexTokenResponse {
     volume: DexVolume
     priceChange: DexPriceChange
 }
+
+
+export interface TokenHolder {
+    wallet: string
+    amount: number
+    percentage: number
+    value: {
+        quote: number
+        usd: number
+    }
+}
+
+export interface TokenHoldersResponse {
+    total: number
+    accounts: TokenHolder[]
+}

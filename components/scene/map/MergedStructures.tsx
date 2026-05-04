@@ -56,6 +56,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                     key={config.type}
                     houses={groupedHouses[config.type]} 
                     modelPath={config.path} 
+                    houseType={config.type}
                     isNight={timeOfDay.isNight} 
                     isShadowEnabled={isShadowEnabled}
                     setHoveredToken={setHoveredToken}
@@ -79,7 +80,7 @@ export const MergedStructures = ({ villageGeometries }: MergedStructuresProps) =
                     }}
                     onClick={(e) => {
                         e.stopPropagation()
-                        setSelectedToken(village)
+                        setSelectedToken(village, 'town-hall')
                     }}
                 >
                 </group>

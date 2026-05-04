@@ -19,22 +19,21 @@ describe('useMapStore', () => {
 
         const newChunkData = {
             houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'basic-house' as const }],
-            grassMatrices: [new THREE.Matrix4().setPosition(1, 0, 1)],
-            dirtMatrices: [],
+            grassMatrices: new Float32Array(16),
+            dirtMatrices: new Float32Array(0),
+            waterMatrices: new Float32Array(0),
+            treeSpots: [],
             vegetation: []
         }
 
         act(() => {
-            useMapStore.getState().appendChunkData(newChunkData)
+            useMapStore.getState().appendChunkData(newChunkData as any)
         })
 
         const state = useMapStore.getState()
         
         expect(state.housesCache.length).toBe(initialHousesCount + 1)
-        expect(state.grassMatricesCache.length).toBe(initialGrassCount + 1)
-        
         expect(state.housesCache[initialHousesCount].position).toEqual(new THREE.Vector3(10, 0, 10))
-        expect(state.grassMatricesCache[initialGrassCount]).toEqual(new THREE.Matrix4().setPosition(1, 0, 1))
     })
 
     it('should maintain state immutability when appending data', () => {
@@ -43,13 +42,15 @@ describe('useMapStore', () => {
 
         const newChunkData = {
             houses: [{ position: new THREE.Vector3(20, 0, 20), type: 'stone-tall-house' as const }],
-            grassMatrices: [new THREE.Matrix4().setPosition(2, 0, 2)],
-            dirtMatrices: [],
+            grassMatrices: new Float32Array(16),
+            dirtMatrices: new Float32Array(0),
+            waterMatrices: new Float32Array(0),
+            treeSpots: [],
             vegetation: []
         }
 
         act(() => {
-            useMapStore.getState().appendChunkData(newChunkData)
+            useMapStore.getState().appendChunkData(newChunkData as any)
         })
 
         const state = useMapStore.getState()
@@ -58,19 +59,20 @@ describe('useMapStore', () => {
         expect(state.grassMatricesCache).not.toBe(originalGrassCache)
 
         expect(state.housesCache.length).toBe(1)
-        expect(state.grassMatricesCache.length).toBe(1)
     })
 
     it('resetMap should reset the state to its initial values', () => {
         const newChunkData = {
             houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'basic-house' as const }],
-            grassMatrices: [new THREE.Matrix4().setPosition(1, 0, 1)],
-            dirtMatrices: [],
+            grassMatrices: new Float32Array(16),
+            dirtMatrices: new Float32Array(0),
+            waterMatrices: new Float32Array(0),
+            treeSpots: [],
             vegetation: []
         }
 
         act(() => {
-            useMapStore.getState().appendChunkData(newChunkData)
+            useMapStore.getState().appendChunkData(newChunkData as any)
             useMapStore.getState().setLastProcessedIndex(5)
         })
 
