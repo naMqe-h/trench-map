@@ -21,6 +21,7 @@ interface MapState {
     treeSpotsCache: SerializedVector3[]
     villageGeometries: VillageData[]
     hoveredToken: Village | null
+    hoveredHouseType: string | null
     selectedToken: Village | null
     selectedHouseType: string | null
     villages: Village[]
@@ -40,7 +41,7 @@ interface MapActions {
     appendChunkData: (data: ChunkData) => void
     addVillageGeometries: (geometries: VillageData[]) => void
     setLastProcessedIndex: (index: number) => void
-    setHoveredToken: (token: Village | null) => void
+    setHoveredToken: (token: Village | null, houseType?: string | null) => void
     setSelectedToken: (token: Village | null, houseType?: string) => void
     setLoading: (isLoading: boolean) => void
     setGenerating: (isGenerating: boolean) => void
@@ -65,6 +66,7 @@ const initialState: MapState = {
     treeSpotsCache: [],
     villageGeometries: [],
     hoveredToken: null,
+    hoveredHouseType: null,
     selectedToken: null,
     selectedHouseType: null,
     villages: [],
@@ -107,7 +109,7 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
 
     setLastProcessedIndex: (index) => set({ lastProcessedIndex: index }),
 
-    setHoveredToken: (token) => set({ hoveredToken: token }),
+    setHoveredToken: (token, houseType = null) => set({ hoveredToken: token, hoveredHouseType: token ? houseType : null }),
 
     setSelectedToken: (token, houseType = 'town-hall') => set({ selectedToken: token, selectedHouseType: houseType }),
 

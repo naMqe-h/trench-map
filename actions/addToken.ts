@@ -42,7 +42,9 @@ export async function addToken(ca: string): Promise<{ success: boolean; village?
             marketCap: data.market_cap,
             lastUpdated: data.last_updated,
             houses: data.houses,
-            socials: data.socials
+            socials: data.socials,
+            holdersCount: data.holders_count,
+            top10HoldersPercentage: data.top10_holders
         }
 
         return {

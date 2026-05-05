@@ -17,6 +17,8 @@ export interface Village {
     houses: Houses
     marketCap: number
     socials: Record<string, string>
+    holdersCount: number
+    top10HoldersPercentage: number
     lastUpdated: string | Date
     forcedIndex?: number
     villageStats?: Record<string, number>

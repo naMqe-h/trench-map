@@ -2,20 +2,13 @@
 
 import { useRef, useEffect } from "react"
 import { useMapStore } from "@/store/useMapStore"
-import { Twitter, Send, Globe, Link as LinkIcon } from "lucide-react"
 import moment from "moment"
-
-const SocialIcon = ({ type }: { type: string }) => {
-    switch (type.toLowerCase()) {
-        case 'twitter': return <Twitter size={14} />
-        case 'telegram': return <Send size={14} />
-        case 'website': return <Globe size={14} />
-        default: return <LinkIcon size={14} />
-    }
-}
+import { TooltipInfo } from "./tooltips/TooltipInfo"
+import { TooltipHolders } from "./tooltips/TooltipHolders"
 
 export function Tooltip() {
     const hoveredToken = useMapStore((state) => state.hoveredToken)
+    const hoveredHouseType = useMapStore((state) => state.hoveredHouseType)
     const tooltipRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
@@ -31,49 +24,30 @@ export function Tooltip() {
 
     if (!hoveredToken) return null
 
-    const socialKeys = hoveredToken.socials
-        ? (Array.isArray(hoveredToken.socials)
-            ? (hoveredToken.socials as string[]).filter(s => !!s)
-            : Object.keys(hoveredToken.socials).filter(key => {
-                const value = (hoveredToken.socials as Record<string, string>)[key]
-                return value !== undefined && value !== null && value !== ""
-            }))
-        : []
-
-    const marketCapValue = hoveredToken.marketCap
-
     return (
         <div
             ref={tooltipRef}
             className="fixed pointer-events-none z-50 bg-gray-900/90 backdrop-blur-md rounded-xl p-4 text-white shadow-2xl flex flex-col gap-3 border border-white/10"
         >
             <div className="flex flex-col">
-                <div className="font-bold text-lg">{hoveredToken.name}</div>
-                <div className="text-sm text-gray-300 font-medium">
+                <div className="font-bold text-lg leading-tight">{hoveredToken.name}</div>
+                <div className="text-sm text-gray-400 font-medium">
                     ${hoveredToken.ticker}
                 </div>
-                {marketCapValue !== undefined && (
-                    <div className="text-sm mt-1">
-                        MCap: <span className="font-semibold text-green-400">${marketCapValue.toLocaleString()}</span>
-                    </div>
-                )}
             </div>
 
-            {socialKeys.length > 0 && (
-                <div className="flex flex-row gap-2">
-                    {socialKeys.map((social) => (
-                        <span key={social} className="p-1.5 bg-white/5 rounded-md text-gray-300">
-                            <SocialIcon type={social} />
-                        </span>
-                    ))}
-                </div>
+            {hoveredHouseType === 'library' ? (
+                <TooltipHolders token={hoveredToken} />
+            ) : (
+                <TooltipInfo token={hoveredToken} />
             )}
 
             {(hoveredToken.lastUpdated) && (
-                <div className="text-xs text-gray-500 mt-1">
-                    Updated: {moment(hoveredToken.lastUpdated).fromNow()}
+                <div className="text-xs text-gray-500 mt-1 pt-1 border-t border-white/5">
+                    Updated {moment(hoveredToken.lastUpdated).fromNow()}
                 </div>
             )}
         </div>
     )
 }
+

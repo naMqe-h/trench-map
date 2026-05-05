@@ -51,6 +51,8 @@ export async function getVillageChunks(limit: number, offset: number): Promise<V
             ...v,
             marketCap: v.market_cap,
             lastUpdated: v.last_updated,
+            holdersCount: v.holders_count,
+            top10HoldersPercentage: v.top10_holders
         })) as Village[]
         
     } catch (error) {

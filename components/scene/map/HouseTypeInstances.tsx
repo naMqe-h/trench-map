@@ -13,7 +13,7 @@ type HouseTypeInstancesProps = {
     houseType: string
     isNight: boolean
     isShadowEnabled: boolean
-    setHoveredToken: (token: any) => void
+    setHoveredToken: (token: any, houseType?: string | null) => void
     setSelectedToken: (token: any, houseType?: string) => void
 }
 
@@ -115,8 +115,11 @@ export const HouseTypeInstances = ({
         }
 
         const currentHovered = useMapStore.getState().hoveredToken
-        if (currentHovered?.ca !== village.ca) {
-            setHoveredToken(village)
+        const currentHoveredType = useMapStore.getState().hoveredHouseType
+        const targetType = houseType.startsWith('library') ? 'library' : 'town-hall'
+
+        if (currentHovered?.ca !== village.ca || currentHoveredType !== targetType) {
+            setHoveredToken(village, targetType)
         }
     }
 
