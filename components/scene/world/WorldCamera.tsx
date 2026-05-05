@@ -48,7 +48,7 @@ const CameraTracker = ({
         if (!hasMore || isLoading || effectiveFreeCam) return
 
         if (isDev) {
-            const currentChunks = offset / 20
+            const currentChunks = offset / MAP_SETTINGS.CHUNK_SIZE
             if (currentChunks >= maxChunks) return
         }
 
