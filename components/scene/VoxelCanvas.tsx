@@ -17,6 +17,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CameraTracker } from './CameraTracker'
 import { CameraIntro } from './camera/CameraIntro'
+import { PerformanceTester } from '../dev/PerformanceTester'
 
 type VoxelCanvasProps = {
     villages: Village[]
@@ -76,6 +77,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 gl={CANVAS_GL}
                 style={CANVAS_STYLE}
             >
+                <PerformanceTester />
                 <CameraIntro isReady={isReady} />
                 <color attach="background" args={[timeOfDay.backgroundColor]} />
                 <VoxelWorld
