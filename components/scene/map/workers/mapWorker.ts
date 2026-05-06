@@ -15,6 +15,11 @@ const waterCoordsCache = new Set<string>()
 const occupiedCoordsCache = new Set<string>()
 const treeEvaluatedCoordsCache = new Set<string>()
 const allHousesCache: Array<{x: number, z: number, fx: number, fz: number}> = []
+
+const GRID_CELL_SIZE = 50
+const housesSpatialGrid = new Map<string, Array<{x: number, z: number, fx: number, fz: number}>>()
+const getCellKey = (x: number, z: number) => `${Math.floor(x / GRID_CELL_SIZE)},${Math.floor(z / GRID_CELL_SIZE)}`
+
 const noise2D = createNoise2D()
 const waterNoise2D = createNoise2D()
 
@@ -39,17 +44,28 @@ function markOccupied(x: number, z: number, size: number, occupiedSet: Set<strin
     }
 }
 
-function isSafeDistanceFromHouses(x: number, z: number, treeFootprint: number, treePadding: number, houses: Array<{x: number, z: number, fx: number, fz: number}>): boolean {
+function isSafeDistanceFromHouses(x: number, z: number, treeFootprint: number, treePadding: number, spatialGrid: Map<string, Array<{x: number, z: number, fx: number, fz: number}>>): boolean {
     const treeRadius = treeFootprint / 2
-    for (const h of houses) {
-        const dx = x - h.x
-        const dz = z - h.z
-        const dist = Math.hypot(dx, dz)
+    const cellX = Math.floor(x / GRID_CELL_SIZE)
+    const cellZ = Math.floor(z / GRID_CELL_SIZE)
 
-        const houseRadius = Math.max(h.fx, h.fz) / 2
+    for (let dx = -1; dx <= 1; dx++) {
+        for (let dz = -1; dz <= 1; dz++) {
+            const key = `${cellX + dx},${cellZ + dz}`
+            const houses = spatialGrid.get(key)
+            if (!houses) continue
 
-        if (dist < (treeRadius + houseRadius + treePadding)) {
-            return false
+            for (const h of houses) {
+                const houseDx = x - h.x
+                const houseDz = z - h.z
+                const dist = Math.hypot(houseDx, houseDz)
+
+                const houseRadius = Math.max(h.fx, h.fz) / 2
+
+                if (dist < (treeRadius + houseRadius + treePadding)) {
+                    return false
+                }
+            }
         }
     }
     return true
@@ -94,7 +110,14 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                     const fx = tier ? tier.footprint.x : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
                     const fz = tier ? tier.footprint.z : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
                     
-                    allHousesCache.push({ x: exactX, z: exactZ, fx, fz })
+                    const houseData = { x: exactX, z: exactZ, fx, fz }
+                    allHousesCache.push(houseData)
+                    
+                    const cellKey = getCellKey(exactX, exactZ)
+                    if (!housesSpatialGrid.has(cellKey)) {
+                        housesSpatialGrid.set(cellKey, [])
+                    }
+                    housesSpatialGrid.get(cellKey)!.push(houseData)
 
                     const halfX = Math.floor(fx / 2)
                     const halfZ = Math.floor(fz / 2)
@@ -188,7 +211,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                             const isWater = isWaterCandidate && !waterExclusionZone.has(key)
 
                             if (!isWater) {
-                                const isSafeFromHouses = isSafeDistanceFromHouses(x, z, MAP_SETTINGS.TREE_FOOTPRINT, MAP_SETTINGS.TREE_PADDING, allHousesCache)
+                                const isSafeFromHouses = isSafeDistanceFromHouses(x, z, MAP_SETTINGS.TREE_FOOTPRINT, MAP_SETTINGS.TREE_PADDING, housesSpatialGrid)
                                 if (isSafeFromHouses && isSpaceFree(x, z, MAP_SETTINGS.TREE_FOOTPRINT, MAP_SETTINGS.TREE_PADDING, occupiedCoordsCache)) {
                                     treeSpots.push([x, 0.5, z])
                                     markOccupied(x, z, MAP_SETTINGS.TREE_FOOTPRINT, occupiedCoordsCache)

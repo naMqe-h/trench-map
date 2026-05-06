@@ -38,10 +38,11 @@ const CameraTracker = ({
     const freeCam = useDevStore((state) => state.freeCam)
 
     const effectiveFreeCam = isDev && freeCam
+    const targetVector = useRef(new THREE.Vector3())
 
     useFrame((state) => {
         if (coordsRef.current && (state.controls as any)) {
-            const target = (state.controls as any).getTarget(new THREE.Vector3())
+            const target = (state.controls as any).getTarget(targetVector.current)
             coordsRef.current.innerText = `X: ${Math.round(target.x)} Z: ${Math.round(target.z)}`
         }
 
