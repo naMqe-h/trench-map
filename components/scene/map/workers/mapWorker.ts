@@ -85,7 +85,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                 const villageHouses = generateHousePositions(village.houses, [0, 0, 0], [])
                 let maxDist = 0
                 villageHouses.forEach(h => {
-                    const dist = h.position.length()
+                    const [hx, hy, hz] = h.position
+                    const dist = Math.hypot(hx, hz)
                     if (dist > maxDist) maxDist = dist
                 })
                 const radius = maxDist + MAP_SETTINGS.VILLAGE_RADIUS_PADDING
@@ -98,13 +99,12 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                     MAP_SETTINGS.VILLAGE_PADDING
                 )
 
-                placedVillagesCache.push({ position, radius })
+                placedVillagesCache.push({ position: position.toArray(), radius })
 
                 villageHouses.forEach(h => {
-                    h.position.add(position)
-
-                    const exactX = h.position.x
-                    const exactZ = h.position.z
+                    const worldPos = new THREE.Vector3().fromArray(h.position).add(position)
+                    const exactX = worldPos.x
+                    const exactZ = worldPos.z
                     
                     const tier: any = Object.values(HOUSE_TIERS).find((t: any) => t.modelType === h.type)
                     const fx = tier ? tier.footprint.x : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
@@ -132,9 +132,11 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                             villageHouseKeysCache.add(key)
                         }
                     }
+
+                    h.position = worldPos.toArray()
                 })
 
-                const localBounds = new THREE.Box3().setFromPoints(villageHouses.map(h => h.position))
+                const localBounds = new THREE.Box3().setFromPoints(villageHouses.map(h => new THREE.Vector3().fromArray(h.position)))
                 tempBounds.union(localBounds)
 
                 const circleBounds = new THREE.Box3().setFromCenterAndSize(
@@ -148,7 +150,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                     position: position.toArray(),
                     radius,
                     villageHouses: villageHouses.map(h => ({
-                        position: h.position.toArray(),
+                        position: h.position,
                         type: h.type,
                         rotation: h.rotation || 0
                     })),
@@ -167,10 +169,11 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
             for (const v of placedVillagesCache) {
                 const vRadius = v.radius + 2
-                const vMinX = Math.floor(v.position.x - vRadius)
-                const vMaxX = Math.ceil(v.position.x + vRadius)
-                const vMinZ = Math.floor(v.position.z - vRadius)
-                const vMaxZ = Math.ceil(v.position.z + vRadius)
+                const [vx, vy, vz] = v.position
+                const vMinX = Math.floor(vx - vRadius)
+                const vMaxX = Math.ceil(vx + vRadius)
+                const vMinZ = Math.floor(vz - vRadius)
+                const vMaxZ = Math.ceil(vz + vRadius)
 
                 const startX = Math.max(vMinX, gridMinX)
                 const endX = Math.min(vMaxX, gridMaxX)
@@ -179,8 +182,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
                 for (let x = startX; x <= endX; x++) {
                     for (let z = startZ; z <= endZ; z++) {
-                        const dx = x - v.position.x
-                        const dz = z - v.position.z
+                        const dx = x - vx
+                        const dz = z - vz
                         if (dx * dx + dz * dz <= vRadius * vRadius) {
                             waterExclusionZone.add(`${x},${z}`)
                         }
@@ -301,8 +304,9 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                     let isInsideVillage = false
 
                     for (const v of placedVillagesCache) {
-                        const dx = x - v.position.x
-                        const dz = z - v.position.z
+                        const [vx, vy, vz] = v.position
+                        const dx = x - vx
+                        const dz = z - vz
                         const distSq = dx * dx + dz * dz
                         const inner = (v.radius - MAP_SETTINGS.PATH_WIDTH) ** 2
                         const outer = (v.radius + MAP_SETTINGS.PATH_WIDTH) ** 2

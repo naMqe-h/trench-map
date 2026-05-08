@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { useMapStore } from './useMapStore'
 import { act } from '@testing-library/react'
-import * as THREE from 'three'
 
 const initialStoreState = useMapStore.getState()
 
@@ -18,7 +17,7 @@ describe('useMapStore', () => {
         const initialGrassCount = useMapStore.getState().grassMatricesCache.length
 
         const newChunkData = {
-            houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'basic-house' as const }],
+            houses: [{ position: [10, 0, 10], type: 'basic-house' as const }],
             grassMatrices: new Float32Array(16),
             dirtMatrices: new Float32Array(0),
             waterMatrices: new Float32Array(0),
@@ -33,7 +32,7 @@ describe('useMapStore', () => {
         const state = useMapStore.getState()
         
         expect(state.housesCache.length).toBe(initialHousesCount + 1)
-        expect(state.housesCache[initialHousesCount].position).toEqual(new THREE.Vector3(10, 0, 10))
+        expect(state.housesCache[initialHousesCount].position).toEqual([10, 0, 10])
     })
 
     it('should maintain state immutability when appending data', () => {
@@ -41,7 +40,7 @@ describe('useMapStore', () => {
         const originalGrassCache = useMapStore.getState().grassMatricesCache
 
         const newChunkData = {
-            houses: [{ position: new THREE.Vector3(20, 0, 20), type: 'stone-tall-house' as const }],
+            houses: [{ position: [20, 0, 20], type: 'stone-tall-house' as const }],
             grassMatrices: new Float32Array(16),
             dirtMatrices: new Float32Array(0),
             waterMatrices: new Float32Array(0),
@@ -63,7 +62,7 @@ describe('useMapStore', () => {
 
     it('resetMap should reset the state to its initial values', () => {
         const newChunkData = {
-            houses: [{ position: new THREE.Vector3(10, 0, 10), type: 'basic-house' as const }],
+            houses: [{ position: [10, 0, 10], type: 'basic-house' as const }],
             grassMatrices: new Float32Array(16),
             dirtMatrices: new Float32Array(0),
             waterMatrices: new Float32Array(0),

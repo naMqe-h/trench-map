@@ -1,14 +1,20 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '../../config/settings'
-import { HouseData, HouseType, PlacedVillage } from '../../types/scene'
+import { HouseData, HouseType, PlacedVillage, SerializedVector3 } from '../../types/scene'
 import { HOUSE_TIERS } from '../../constants/houses'
+
+interface InternalHouseData {
+    position: THREE.Vector3
+    type: HouseType
+    rotation?: number
+}
 
 export const generateHousePositions = (
     houseCounts: Record<string, number>,
     villageRootPosition: number[],
     existingHouses: HouseData[],
-) => {
-    const generatedHouses: HouseData[] = []
+): HouseData[] => {
+    const generatedHouses: InternalHouseData[] = []
     const rootVec = new THREE.Vector3(villageRootPosition[0], 0, villageRootPosition[2])
 
     const rawTownHallLevel = houseCounts['town-hall']
@@ -49,15 +55,18 @@ export const generateHousePositions = (
     })
 
     if (houseTiersToPlace.length === 0) {
-        return generatedHouses
+        return generatedHouses.map(h => ({
+            ...h,
+            position: h.position.toArray() as SerializedVector3
+        }))
     }
     
     const SPACING_MULTIPLIER = 5
     const houseCount = houseTiersToPlace.length
     const initialSearchRadius = MAP_SETTINGS.HOUSE_PLACEMENT_BASE_RADIUS + (Math.sqrt(houseCount) * SPACING_MULTIPLIER)
 
-    const checkCollision = (pos: THREE.Vector3, footprintToPlace: { x: number, z: number }, existingHouse: HouseData) => {
-        const existingTier = Object.values(HOUSE_TIERS).find(t => t.modelType === existingHouse.type)
+    const checkCollision = (pos: THREE.Vector3, footprintToPlace: { x: number, z: number }, existingHousePos: THREE.Vector3, existingHouseType: HouseType) => {
+        const existingTier = Object.values(HOUSE_TIERS).find(t => t.modelType === existingHouseType)
         if (!existingTier) return false
 
         const existingFootprint = existingTier.footprint
@@ -67,10 +76,10 @@ export const generateHousePositions = (
         const minZ1 = pos.z - Math.floor(footprintToPlace.z / 2)
         const maxZ1 = pos.z + Math.floor(footprintToPlace.z / 2)
 
-        const minX2 = existingHouse.position.x - Math.floor(existingFootprint.x / 2)
-        const maxX2 = existingHouse.position.x + Math.floor(existingFootprint.x / 2)
-        const minZ2 = existingHouse.position.z - Math.floor(existingFootprint.z / 2)
-        const maxZ2 = existingHouse.position.z + Math.floor(existingFootprint.z / 2)
+        const minX2 = existingHousePos.x - Math.floor(existingFootprint.x / 2)
+        const maxX2 = existingHousePos.x + Math.floor(existingFootprint.x / 2)
+        const minZ2 = existingHousePos.z - Math.floor(existingFootprint.z / 2)
+        const maxZ2 = existingHousePos.z + Math.floor(existingFootprint.z / 2)
 
         if (minX1 < maxX2 + MAP_SETTINGS.HOUSE_PADDING && maxX1 > minX2 - MAP_SETTINGS.HOUSE_PADDING &&
             minZ1 < maxZ2 + MAP_SETTINGS.HOUSE_PADDING && maxZ1 > minZ2 - MAP_SETTINGS.HOUSE_PADDING) {
@@ -102,7 +111,8 @@ export const generateHousePositions = (
                 let hasCollision = false
                 for (const house of existingHouses) {
                     const worldCandidate = candidatePos.clone().add(rootVec)
-                    if (checkCollision(worldCandidate, footprintToPlace, house)) {
+                    const existingPos = new THREE.Vector3().fromArray(house.position)
+                    if (checkCollision(worldCandidate, footprintToPlace, existingPos, house.type)) {
                         hasCollision = true
                         break
                     }
@@ -110,7 +120,7 @@ export const generateHousePositions = (
                 if (hasCollision) continue
 
                 for (const house of generatedHouses) {
-                    if (checkCollision(candidatePos, footprintToPlace, house)) {
+                    if (checkCollision(candidatePos, footprintToPlace, house.position, house.type)) {
                         hasCollision = true
                         break
                     }
@@ -132,7 +142,10 @@ export const generateHousePositions = (
         }
     }
     
-    return generatedHouses
+    return generatedHouses.map(h => ({
+        ...h,
+        position: h.position.toArray() as SerializedVector3
+    }))
 }
 
 
@@ -158,7 +171,10 @@ export const calculateSpiralPosition = (
         const z = r * Math.sin(angle)
         const testPos = new THREE.Vector3(x, 0, z)
 
-        const hasCollision = placedVillages.some(v => v.position.distanceTo(testPos) < (villageRadius + v.radius + padding))
+        const hasCollision = placedVillages.some(v => {
+            const vPos = new THREE.Vector3().fromArray(v.position)
+            return vPos.distanceTo(testPos) < (villageRadius + v.radius + padding)
+        })
         
         if (hasCollision || (isValid && !isValid(testPos))) {
             attempt += MAP_SETTINGS.SPIRAL_COLLISION_STEP

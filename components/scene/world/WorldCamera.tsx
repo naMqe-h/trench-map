@@ -38,12 +38,15 @@ const CameraTracker = ({
     const freeCam = useDevStore((state) => state.freeCam)
 
     const effectiveFreeCam = isDev && freeCam
-    const targetVector = useRef(new THREE.Vector3())
+    const targetVector = useRef<THREE.Vector3>(new THREE.Vector3())
 
     useFrame((state) => {
-        if (coordsRef.current && (state.controls as any)) {
-            const target = (state.controls as any).getTarget(targetVector.current)
-            coordsRef.current.innerText = `X: ${Math.round(target.x)} Z: ${Math.round(target.z)}`
+        if (coordsRef.current && state.controls) {
+            const controls = state.controls as any
+            if (typeof controls.getTarget === 'function') {
+                controls.getTarget(targetVector.current)
+                coordsRef.current.innerText = `X: ${Math.round(targetVector.current.x)} Z: ${Math.round(targetVector.current.z)}`
+            }
         }
 
         if (!hasMore || isLoading || effectiveFreeCam) return
@@ -119,8 +122,8 @@ export const WorldCamera = ({
                 const pos = targetVillage.position
 
                 activeControlsRef.current?.setLookAt(
-                    pos.x + 60, 50, pos.z + 60,
-                    pos.x, 0.5, pos.z,
+                    pos[0] + 60, 50, pos[2] + 60,
+                    pos[0], 0.5, pos[2],
                     true
                 )
 

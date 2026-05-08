@@ -20,7 +20,7 @@ export type HouseType = 'basic-house' | 'stone-tall-house' | 'stone-gable-house'
  * Represents the structure for house data, including its position and type.
  */
 export type HouseData = {
-    position: THREE.Vector3
+    position: SerializedVector3
     type: HouseType
     rotation?: number
 }
@@ -29,7 +29,7 @@ export type HouseData = {
  * Represents a village that has been placed on the map, including its position and radius.
  */
 export interface PlacedVillage {
-    position: THREE.Vector3
+    position: SerializedVector3
     radius: number
 }
 
@@ -40,6 +40,7 @@ export type VegetationType = 'rose' | 'smallGrass' | 'tulip' | 'dandelion'
 
 /**
  * Represents a single piece of vegetation, including its position and type.
+ * @note Stored as plain arrays to avoid GC pressure.
  */
 export interface VegetationData {
     position: SerializedVector3
@@ -49,9 +50,10 @@ export interface VegetationData {
 /**
  * Represents the fully processed data for a village, including geometries for rendering.
  * This data is used on the client-side for visualization.
+ * @note Stored as plain arrays to avoid GC pressure.
  */
 export interface VillageData extends Village {
-    position: THREE.Vector3
+    position: SerializedVector3
     radius: number
     placedHouses: HouseData[]
 }

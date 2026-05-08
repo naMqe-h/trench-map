@@ -107,7 +107,7 @@ export const HouseTypeInstances = ({
         document.body.style.cursor = 'pointer'
 
         if (e.instanceId !== undefined && proxyRef.current) {
-            proxyRef.current.position.copy(house.position)
+            proxyRef.current.position.fromArray(house.position)
             proxyRef.current.rotation.set(0, house.rotation || 0, 0)
             proxyRef.current.scale.set(1.001, 1.001, 1.001)
             proxyRef.current.updateMatrix()

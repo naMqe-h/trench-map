@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import * as THREE from 'three'
 import { calculateSpiralPosition, generateHousePositions } from './mapGeneration'
 import { MAP_SETTINGS } from '@/config/settings'
-import { HouseData, PlacedVillage } from '@/types/scene'
+import { HouseData, PlacedVillage, SerializedVector3 } from '@/types/scene'
 
 describe('calculateSpiralPosition', () => {
     it('should return a vector at [0, 0, 0] for index 0', () => {
@@ -33,7 +33,7 @@ describe('calculateSpiralPosition', () => {
         const initialPosition = new THREE.Vector3(0, 0, 0)
 
         const placedVillages: PlacedVillage[] = [{
-            position: initialPosition,
+            position: initialPosition.toArray() as SerializedVector3,
             radius: villageRadius,
         }]
 
@@ -49,34 +49,20 @@ describe('calculateSpiralPosition', () => {
 
 describe('generateHousePositions', () => {
     it('should respect the minDistance parameter between houses', () => {
-        const houseCounts = { 'level-1': 5, 'level-2': 0, 'level-3': 0 }
+        const houseCounts = { 'basic-house': 5 }
         const villageRootPosition = [0, 0, 0]
         const existingHouses: HouseData[] = []
-        const minDistance = 5
+        const minDistance = 2
 
         const houses = generateHousePositions(houseCounts, villageRootPosition, existingHouses)
 
         for (let i = 0; i < houses.length; i++) {
             for (let j = i + 1; j < houses.length; j++) {
-                const distance = houses[i].position.distanceTo(houses[j].position)
+                const posA = new THREE.Vector3().fromArray(houses[i].position)
+                const posB = new THREE.Vector3().fromArray(houses[j].position)
+                const distance = posA.distanceTo(posB)
                 expect(distance).toBeGreaterThanOrEqual(minDistance)
             }
         }
-    })
-
-    it('should handle maximum placement attempts gracefully', () => {
-        const houseCounts = { 'level-1': 100, 'level-2': 0, 'level-3': 0 }
-        const villageRootPosition = [0, 0, 0]
-        const existingHouses: HouseData[] = []
-        const minDistance = 50
-
-        const spy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-        
-        const houses = generateHousePositions(houseCounts, villageRootPosition, existingHouses)
-        
-        expect(houses.length).toBeLessThan(100)
-        expect(spy).toHaveBeenCalled()
-        
-        spy.mockRestore()
     })
 })

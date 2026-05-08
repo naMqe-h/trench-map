@@ -30,8 +30,8 @@ const MinimapMarker = memo(({
         })
     }, [village, setCameraFlightRequest])
 
-    const x = village.position.x * MAP_SCALE
-    const y = village.position.z * MAP_SCALE
+    const x = village.position[0] * MAP_SCALE
+    const y = village.position[2] * MAP_SCALE
 
     return (
         <g 

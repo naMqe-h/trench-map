@@ -1,5 +1,4 @@
 import { useCallback, useRef, useEffect } from 'react'
-import * as THREE from 'three'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
@@ -40,11 +39,11 @@ export const useMapManager = (initialVillages: Village[]) => {
 
             const newVillageGeometries: VillageData[] = processedVillages.map((vData: ProcessedVillageData) => {
                 const village = vData.village
-                const position = new THREE.Vector3().fromArray(vData.position)
+                const position = vData.position
                 const radius = vData.radius
 
                 const villageHouses = vData.villageHouses.map((h) => ({
-                    position: new THREE.Vector3().fromArray(h.position),
+                    position: h.position,
                     type: h.type,
                     rotation: h.rotation
                 }))
