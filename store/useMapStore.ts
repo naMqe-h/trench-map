@@ -14,9 +14,9 @@ type ChunkData = {
 interface MapState {
     lastProcessedIndex: number
     housesCache: HouseData[]
-    grassMatricesCache: Float32Array
-    dirtMatricesCache: Float32Array
-    waterMatricesCache: Float32Array
+    grassMatricesChunks: Float32Array[]
+    dirtMatricesChunks: Float32Array[]
+    waterMatricesChunks: Float32Array[]
     vegetationSpotsCache: VegetationData[]
     treeSpotsCache: SerializedVector3[]
     villageGeometries: VillageData[]
@@ -59,9 +59,9 @@ interface MapActions {
 const initialState: MapState = {
     lastProcessedIndex: 0,
     housesCache: [],
-    grassMatricesCache: new Float32Array(0),
-    dirtMatricesCache: new Float32Array(0),
-    waterMatricesCache: new Float32Array(0),
+    grassMatricesChunks: [],
+    dirtMatricesChunks: [],
+    waterMatricesChunks: [],
     vegetationSpotsCache: [],
     treeSpotsCache: [],
     villageGeometries: [],
@@ -82,22 +82,15 @@ const initialState: MapState = {
     isIntroPlaying: true,
 }
 
-function mergeTypedArrays(a: Float32Array, b: Float32Array): Float32Array {
-    const res = new Float32Array(a.length + b.length)
-    res.set(a)
-    res.set(b, a.length)
-    return res
-}
-
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
     ...initialState,
 
     appendChunkData: (data) =>
         set((state) => ({
             housesCache: [...state.housesCache, ...data.houses],
-            grassMatricesCache: mergeTypedArrays(state.grassMatricesCache, data.grassMatrices),
-            dirtMatricesCache: mergeTypedArrays(state.dirtMatricesCache, data.dirtMatrices),
-            waterMatricesCache: mergeTypedArrays(state.waterMatricesCache, data.waterMatrices),
+            grassMatricesChunks: [...state.grassMatricesChunks, data.grassMatrices],
+            dirtMatricesChunks: [...state.dirtMatricesChunks, data.dirtMatrices],
+            waterMatricesChunks: [...state.waterMatricesChunks, data.waterMatrices],
             vegetationSpotsCache: [...state.vegetationSpotsCache, ...data.vegetation],
             treeSpotsCache: [...state.treeSpotsCache, ...data.treeSpots],
         })),

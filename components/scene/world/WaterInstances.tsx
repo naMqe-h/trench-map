@@ -4,7 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { useSettingsStore } from '@/store/useSettingsStore'
 
 type WaterInstancesProps = {
-    matrices: Float32Array
+    matrices: Float32Array[]
     texture: THREE.Texture
     wireframe?: boolean
 }
@@ -16,7 +16,11 @@ export const WaterInstances = ({ matrices, texture, wireframe }: WaterInstancesP
 
     const boxGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
 
-    const count = matrices.length / 16
+    const totalLength = useMemo(() => 
+        matrices.reduce((acc, chunk) => acc + chunk.length, 0),
+    [matrices])
+    
+    const count = totalLength / 16
 
     const uniforms = useMemo(() => ({
         uTime: { value: 0 }
@@ -33,12 +37,16 @@ export const WaterInstances = ({ matrices, texture, wireframe }: WaterInstancesP
     }, [count, bufferSize])
 
     useEffect(() => {
-        if (ref.current && matrices.length <= ref.current.instanceMatrix.array.length) {
-            ref.current.instanceMatrix.array.set(matrices)
+        if (ref.current && totalLength <= ref.current.instanceMatrix.array.length) {
+            let offset = 0
+            for (const chunk of matrices) {
+                ref.current.instanceMatrix.array.set(chunk, offset)
+                offset += chunk.length
+            }
             ref.current.count = count
             ref.current.instanceMatrix.needsUpdate = true
         }
-    }, [matrices, count, bufferSize])
+    }, [matrices, count, bufferSize, totalLength])
 
     return (
         <instancedMesh

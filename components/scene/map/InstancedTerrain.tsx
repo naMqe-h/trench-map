@@ -6,19 +6,23 @@ import { useDevStore } from '@/store/useDevStore'
 import { WaterInstances } from '../world/WaterInstances'
 
 type InstancedBlocksProps = {
-    matrices: Float32Array
+    matricesChunks: Float32Array[]
     texture: THREE.Texture
     wireframe?: boolean
 }
 
-const InstancedBlocks = ({ matrices, texture, wireframe }: InstancedBlocksProps) => {
+const InstancedBlocks = ({ matricesChunks, texture, wireframe }: InstancedBlocksProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
     const [bufferSize, setBufferSize] = useState(200000)
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
 
     const boxGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
 
-    const count = matrices.length / 16
+    const totalLength = useMemo(() => 
+        matricesChunks.reduce((acc, chunk) => acc + chunk.length, 0),
+    [matricesChunks])
+    
+    const count = totalLength / 16
 
     useEffect(() => {
         if (count > bufferSize - 5000) {
@@ -27,12 +31,16 @@ const InstancedBlocks = ({ matrices, texture, wireframe }: InstancedBlocksProps)
     }, [count, bufferSize])
 
     useEffect(() => {
-        if (ref.current && matrices.length <= ref.current.instanceMatrix.array.length) {
-            ref.current.instanceMatrix.array.set(matrices)
+        if (ref.current && totalLength <= ref.current.instanceMatrix.array.length) {
+            let offset = 0
+            for (const chunk of matricesChunks) {
+                ref.current.instanceMatrix.array.set(chunk, offset)
+                offset += chunk.length
+            }
             ref.current.count = count
             ref.current.instanceMatrix.needsUpdate = true
         }
-    }, [matrices, count, bufferSize])
+    }, [matricesChunks, count, bufferSize, totalLength])
 
     return (
         <instancedMesh
@@ -48,9 +56,9 @@ const InstancedBlocks = ({ matrices, texture, wireframe }: InstancedBlocksProps)
 }
 
 type InstancedTerrainProps = {
-    grassMatrices: Float32Array
-    dirtMatrices: Float32Array
-    waterMatrices: Float32Array
+    grassMatrices: Float32Array[]
+    dirtMatrices: Float32Array[]
+    waterMatrices: Float32Array[]
 }
 
 export const InstancedTerrain = ({ grassMatrices, dirtMatrices, waterMatrices }: InstancedTerrainProps) => {
@@ -78,8 +86,8 @@ export const InstancedTerrain = ({ grassMatrices, dirtMatrices, waterMatrices }:
                 <planeGeometry args={[10000, 10000]} />
                 <meshStandardMaterial map={repeatingGrassTexture} roughness={1} metalness={0} wireframe={wireframeMode} />
             </mesh>
-            <InstancedBlocks texture={textures.grass} matrices={grassMatrices} wireframe={wireframeMode} />
-            <InstancedBlocks texture={textures.soil} matrices={dirtMatrices} wireframe={wireframeMode} />
+            <InstancedBlocks texture={textures.grass} matricesChunks={grassMatrices} wireframe={wireframeMode} />
+            <InstancedBlocks texture={textures.soil} matricesChunks={dirtMatrices} wireframe={wireframeMode} />
             <WaterInstances texture={textures.water} matrices={waterMatrices} wireframe={wireframeMode} />
         </>
     )

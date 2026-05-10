@@ -14,7 +14,7 @@ describe('useMapStore', () => {
 
     it('should correctly append new chunk data to the cache', () => {
         const initialHousesCount = useMapStore.getState().housesCache.length
-        const initialGrassCount = useMapStore.getState().grassMatricesCache.length
+        const initialGrassChunksCount = useMapStore.getState().grassMatricesChunks.length
 
         const newChunkData = {
             houses: [{ position: [10, 0, 10], type: 'basic-house' as const }],
@@ -33,11 +33,12 @@ describe('useMapStore', () => {
         
         expect(state.housesCache.length).toBe(initialHousesCount + 1)
         expect(state.housesCache[initialHousesCount].position).toEqual([10, 0, 10])
+        expect(state.grassMatricesChunks.length).toBe(initialGrassChunksCount + 1)
     })
 
     it('should maintain state immutability when appending data', () => {
         const originalHousesCache = useMapStore.getState().housesCache
-        const originalGrassCache = useMapStore.getState().grassMatricesCache
+        const originalGrassChunks = useMapStore.getState().grassMatricesChunks
 
         const newChunkData = {
             houses: [{ position: [20, 0, 20], type: 'stone-tall-house' as const }],
@@ -55,9 +56,10 @@ describe('useMapStore', () => {
         const state = useMapStore.getState()
 
         expect(state.housesCache).not.toBe(originalHousesCache)
-        expect(state.grassMatricesCache).not.toBe(originalGrassCache)
+        expect(state.grassMatricesChunks).not.toBe(originalGrassChunks)
 
         expect(state.housesCache.length).toBe(1)
+        expect(state.grassMatricesChunks.length).toBe(1)
     })
 
     it('resetMap should reset the state to its initial values', () => {
@@ -85,7 +87,7 @@ describe('useMapStore', () => {
         const state = useMapStore.getState()
 
         expect(state.housesCache.length).toBe(0)
-        expect(state.grassMatricesCache.length).toBe(0)
+        expect(state.grassMatricesChunks.length).toBe(0)
         expect(state.vegetationSpotsCache.length).toBe(0)
         expect(state.lastProcessedIndex).toBe(0)
     })
