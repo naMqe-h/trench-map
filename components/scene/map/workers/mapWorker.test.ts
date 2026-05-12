@@ -80,7 +80,7 @@ describe('mapWorker logic', () => {
         expect(payload).toHaveProperty('newGrassMatrices')
         
         if (payload.newGrassMatrices.length > 0) {
-            expect(payload.newGrassMatrices[0]).toHaveLength(16)
+            expect(payload.newGrassMatrices.length % 16).toBe(0)
         }
     })
 })
