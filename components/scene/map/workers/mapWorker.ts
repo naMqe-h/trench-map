@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { MAP_SETTINGS } from '@/config/settings'
-import { MapWorkerPayload, MapWorkerRequest, PlacedVillage, VegetationData } from '@/types/scene'
+import { MapWorkerPayload, MapWorkerRequest, PlacedVillage, TreeSpot, VegetationData } from '@/types/scene'
 import { createNoise2D } from 'simplex-noise'
 import { processVillageBatch } from './utils/villagePlacement'
 import { generateWaterLayout, classifyTerrain, getWaterExclusionZone } from './utils/terrainUtils'
@@ -51,7 +51,7 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                 gridMinX, gridMaxX, gridMinZ, gridMaxZ
             )
 
-            const treeSpots: [number, number, number][] = []
+            const treeSpots: TreeSpot[] = []
             const treeMinX = Math.floor(tempBounds.min.x)
             const treeMaxX = Math.ceil(tempBounds.max.x)
             const treeMinZ = Math.floor(tempBounds.min.z)

@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { useRef, useLayoutEffect, useMemo } from 'react'
 import { useGLTF } from '@react-three/drei'
-import { SerializedVector3 } from '@/types/scene'
+import { TreeSpot } from '@/types/scene'
 
 type InstancedTreesProps = {
-    treeSpots: SerializedVector3[]
+    treeSpots: TreeSpot[]
 }
 
 export const InstancedTrees = ({ treeSpots }: InstancedTreesProps) => {
@@ -20,12 +20,12 @@ export const InstancedTrees = ({ treeSpots }: InstancedTreesProps) => {
 
         const dummy = new THREE.Object3D()
         for (let i = 0; i < treeSpots.length; i++) {
-            const [x, y, z] = treeSpots[i]
+            const spot = treeSpots[i]
+            const [x, y, z] = spot.position
             dummy.position.set(x, y - 0.5, z)
             
-            dummy.rotation.y = Math.random() * Math.PI * 2
-            const scale = THREE.MathUtils.lerp(0.9, 1.1, Math.random())
-            dummy.scale.set(scale, scale, scale)
+            dummy.rotation.set(0, spot.rotation, 0)
+            dummy.scale.setScalar(spot.scale)
 
             dummy.updateMatrix()
             instancedMeshRef.current.setMatrixAt(i, dummy.matrix)

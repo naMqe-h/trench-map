@@ -69,6 +69,15 @@ export interface VillageData extends Village {
 }
 
 /**
+ * Represents a single tree spot, including its position, rotation, and scale.
+ */
+export interface TreeSpot {
+    position: SerializedVector3
+    rotation: number
+    scale: number
+}
+
+/**
  * Represents the data structure for a village after being processed by the map worker.
  * Positions are serialized as arrays for efficient transfer from the worker.
  */
@@ -77,7 +86,7 @@ export interface ProcessedVillageData {
     position: SerializedVector3
     radius: number
     villageHouses: { position: SerializedVector3, type: HouseType, rotation: number }[]
-    treeSpots: SerializedVector3[]
+    treeSpots: TreeSpot[]
 }
 
 
@@ -89,7 +98,7 @@ export type ChunkProcessedPayload = {
     newDirtMatrices: Float32Array
     newWaterMatrices: Float32Array
     newVegetationSpots: VegetationData[]
-    treeSpots: SerializedVector3[]
+    treeSpots: TreeSpot[]
     center: SerializedVector3
 }
 

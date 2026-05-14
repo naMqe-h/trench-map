@@ -1,6 +1,7 @@
-﻿import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { useMapStore } from './useMapStore'
 import { act } from '@testing-library/react'
+import { TreeSpot } from '@/types/scene'
 
 const initialStoreState = useMapStore.getState()
 
@@ -21,7 +22,7 @@ describe('useMapStore', () => {
             grassMatrices: new Float32Array(16),
             dirtMatrices: new Float32Array(0),
             waterMatrices: new Float32Array(0),
-            treeSpots: [],
+            treeSpots: [] as TreeSpot[],
             vegetation: []
         }
 
@@ -52,7 +53,7 @@ describe('useMapStore', () => {
             grassMatrices: new Float32Array(16),
             dirtMatrices: new Float32Array(0),
             waterMatrices: new Float32Array(0),
-            treeSpots: [],
+            treeSpots: [] as TreeSpot[],
             vegetation: []
         }
 
@@ -75,7 +76,7 @@ describe('useMapStore', () => {
             grassMatrices: new Float32Array(16),
             dirtMatrices: new Float32Array(0),
             waterMatrices: new Float32Array(0),
-            treeSpots: [],
+            treeSpots: [] as TreeSpot[],
             vegetation: []
         }
 

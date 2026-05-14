@@ -1,5 +1,5 @@
 import { MAP_SETTINGS } from '@/config/settings'
-import { VegetationData, VegetationType } from '@/types/scene'
+import { TreeSpot, VegetationData, VegetationType } from '@/types/scene'
 import { isSpaceFree, markOccupied } from './gridUtils'
 import { isSafeDistanceFromHouses } from './villagePlacement'
 
@@ -15,7 +15,7 @@ export function evaluateTreeSpot(
     treeEvaluatedCoordsCache: Set<string>,
     housesSpatialGrid: Map<string, Array<{ x: number; z: number; fx: number; fz: number }>>,
     occupiedCoordsCache: Set<string>
-): [number, number, number] | null {
+): TreeSpot | null {
     const key = `${x},${z}`
 
     if (treeEvaluatedCoordsCache.has(key)) return null
@@ -32,7 +32,12 @@ export function evaluateTreeSpot(
             const isSafeFromHouses = isSafeDistanceFromHouses(x, z, MAP_SETTINGS.TREE_FOOTPRINT, MAP_SETTINGS.TREE_PADDING, housesSpatialGrid)
             if (isSafeFromHouses && isSpaceFree(x, z, MAP_SETTINGS.TREE_FOOTPRINT, MAP_SETTINGS.TREE_PADDING, occupiedCoordsCache)) {
                 markOccupied(x, z, MAP_SETTINGS.TREE_FOOTPRINT, occupiedCoordsCache)
-                return [x, 0.5, z]
+                
+                return {
+                    position: [x, 0.5, z],
+                    rotation: Math.random() * Math.PI * 2,
+                    scale: 0.9 + Math.random() * 0.2
+                }
             }
         }
     }

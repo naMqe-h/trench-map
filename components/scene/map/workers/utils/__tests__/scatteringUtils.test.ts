@@ -23,7 +23,11 @@ describe('scatteringUtils', () => {
                 occupiedCoordsCache
             )
 
-            expect(spot).toEqual([0, 0.5, 0])
+            expect(spot).toEqual({
+                position: [0, 0.5, 0],
+                rotation: 0,
+                scale: 0.9
+            })
             expect(treeEvaluatedCoordsCache.has('0,0')).toBe(true)
             
             vi.restoreAllMocks()

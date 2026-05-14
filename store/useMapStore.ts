@@ -1,4 +1,4 @@
-﻿import { HouseData, SerializedVector3, VegetationData, VillageData } from '@/types/scene'
+import { HouseData, TreeSpot, VegetationData, VillageData } from '@/types/scene'
 import { Village } from '@/types/token'
 import { create } from 'zustand'
 
@@ -8,7 +8,7 @@ type ChunkData = {
     dirtMatrices: Float32Array
     waterMatrices: Float32Array
     vegetation: VegetationData[]
-    treeSpots: SerializedVector3[]
+    treeSpots: TreeSpot[]
 }
 
 interface MapState {
@@ -18,7 +18,7 @@ interface MapState {
     dirtMatricesChunks: Float32Array[]
     waterMatricesChunks: Float32Array[]
     vegetationSpotsCache: VegetationData[]
-    treeSpotsCache: SerializedVector3[]
+    treeSpotsCache: TreeSpot[]
     villageGeometries: VillageData[]
     hoveredToken: Village | null
     hoveredHouseType: string | null
