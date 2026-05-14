@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+﻿import { describe, it, expect, beforeEach } from 'vitest'
 import { useMapStore } from './useMapStore'
 import { act } from '@testing-library/react'
 
@@ -12,7 +12,7 @@ describe('useMapStore', () => {
         })
     })
 
-    it('should correctly append new chunk data to the cache', () => {
+    it('should correctly finalize chunk processing and update state', () => {
         const initialHousesCount = useMapStore.getState().housesCache.length
         const initialGrassChunksCount = useMapStore.getState().grassMatricesChunks.length
 
@@ -25,8 +25,12 @@ describe('useMapStore', () => {
             vegetation: []
         }
 
+        const newGeometries = [
+            { id: 'v1', position: [0, 0, 0], radius: 10, placedHouses: [] }
+        ]
+
         act(() => {
-            useMapStore.getState().appendChunkData(newChunkData as any)
+            useMapStore.getState().finalizeChunkProcessing(newChunkData as any, newGeometries as any)
         })
 
         const state = useMapStore.getState()
@@ -34,9 +38,12 @@ describe('useMapStore', () => {
         expect(state.housesCache.length).toBe(initialHousesCount + 1)
         expect(state.housesCache[initialHousesCount].position).toEqual([10, 0, 10])
         expect(state.grassMatricesChunks.length).toBe(initialGrassChunksCount + 1)
+        expect(state.villageGeometries.length).toBe(1)
+        expect(state.isGenerating).toBe(false)
+        expect(state.generationStep).toBe(null)
     })
 
-    it('should maintain state immutability when appending data', () => {
+    it('should maintain state immutability when finalizing chunk processing', () => {
         const originalHousesCache = useMapStore.getState().housesCache
         const originalGrassChunks = useMapStore.getState().grassMatricesChunks
 
@@ -50,7 +57,7 @@ describe('useMapStore', () => {
         }
 
         act(() => {
-            useMapStore.getState().appendChunkData(newChunkData as any)
+            useMapStore.getState().finalizeChunkProcessing(newChunkData as any, [])
         })
 
         const state = useMapStore.getState()
@@ -73,7 +80,7 @@ describe('useMapStore', () => {
         }
 
         act(() => {
-            useMapStore.getState().appendChunkData(newChunkData as any)
+            useMapStore.getState().finalizeChunkProcessing(newChunkData as any, [])
             useMapStore.getState().setLastProcessedIndex(5)
         })
 

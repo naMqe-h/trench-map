@@ -26,6 +26,16 @@ export type HouseData = {
 }
 
 /**
+ * Represents the configuration for a house tier, including its dimensions and visual label.
+ */
+export interface HouseTier {
+    label: string
+    modelType: string
+    footprint: { x: number, z: number }
+    level: number
+}
+
+/**
  * Represents a village that has been placed on the map, including its position and radius.
  */
 export interface PlacedVillage {

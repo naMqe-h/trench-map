@@ -1,4 +1,4 @@
-import { HouseData, SerializedVector3, VegetationData, VillageData } from '@/types/scene'
+﻿import { HouseData, SerializedVector3, VegetationData, VillageData } from '@/types/scene'
 import { Village } from '@/types/token'
 import { create } from 'zustand'
 
@@ -38,8 +38,7 @@ interface MapState {
 }
 
 interface MapActions {
-    appendChunkData: (data: ChunkData) => void
-    addVillageGeometries: (geometries: VillageData[]) => void
+    finalizeChunkProcessing: (data: ChunkData, geometries: VillageData[]) => void
     setLastProcessedIndex: (index: number) => void
     setHoveredToken: (token: Village | null, houseType?: string | null) => void
     setSelectedToken: (token: Village | null, houseType?: string) => void
@@ -85,7 +84,7 @@ const initialState: MapState = {
 export const useMapStore = create<MapState & MapActions>((set, get) => ({
     ...initialState,
 
-    appendChunkData: (data) =>
+    finalizeChunkProcessing: (data, geometries) =>
         set((state) => ({
             housesCache: [...state.housesCache, ...data.houses],
             grassMatricesChunks: [...state.grassMatricesChunks, data.grassMatrices],
@@ -93,11 +92,9 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
             waterMatricesChunks: [...state.waterMatricesChunks, data.waterMatrices],
             vegetationSpotsCache: [...state.vegetationSpotsCache, ...data.vegetation],
             treeSpotsCache: [...state.treeSpotsCache, ...data.treeSpots],
-        })),
-
-    addVillageGeometries: (geometries) =>
-        set((state) => ({
             villageGeometries: [...state.villageGeometries, ...geometries],
+            generationStep: null,
+            isGenerating: false,
         })),
 
     setLastProcessedIndex: (index) => set({ lastProcessedIndex: index }),

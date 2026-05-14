@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react'
+﻿import { useCallback, useRef, useEffect } from 'react'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
@@ -30,7 +30,6 @@ export const useMapManager = (initialVillages: Village[]) => {
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
 
         workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
-            useMapStore.getState().setGenerationStep('building')
             const data = event.data
 
             const { processedVillages, newGrassMatrices, newDirtMatrices, newWaterMatrices, newVegetationSpots, treeSpots: newTreeSpots } = data
@@ -58,18 +57,14 @@ export const useMapManager = (initialVillages: Village[]) => {
                 }
             })
 
-            useMapStore.getState().appendChunkData({
+            useMapStore.getState().finalizeChunkProcessing({
                 houses: allNewHouses,
                 grassMatrices: newGrassMatrices,
                 dirtMatrices: newDirtMatrices,
                 waterMatrices: newWaterMatrices,
                 vegetation: newVegetationSpots,
                 treeSpots: newTreeSpots,
-            })
-
-            useMapStore.getState().addVillageGeometries(newVillageGeometries)
-            useMapStore.getState().setGenerationStep(null)
-            useMapStore.getState().setGenerating(false)
+            }, newVillageGeometries)
         }
 
         return () => {
@@ -120,4 +115,3 @@ export const useMapManager = (initialVillages: Village[]) => {
         addLiveToken
     }
 }
-

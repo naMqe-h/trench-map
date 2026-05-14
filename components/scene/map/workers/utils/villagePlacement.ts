@@ -55,7 +55,7 @@ export function processVillageBatch({
             const exactX = worldPos.x
             const exactZ = worldPos.z
             
-            const tier: any = Object.values(HOUSE_TIERS).find((t: any) => t.modelType === h.type)
+            const tier = Object.values(HOUSE_TIERS).find(t => t.modelType === h.type)
             const fx = tier ? tier.footprint.x : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
             const fz = tier ? tier.footprint.z : MAP_SETTINGS.DEFAULT_HOUSE_FOOTPRINT
             
