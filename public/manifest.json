@@ -1,10 +1,23 @@
 {
     "name": "Trenchmap",
     "short_name": "Trenchmap",
+    "description": "Interactive 3D map and Solana dApp utility.",
+    "id": "/?source=pwa",
     "start_url": "/",
+    "scope": "/",
     "display": "fullscreen",
+    "display_override": [
+        "fullscreen",
+        "standalone"
+    ],
     "background_color": "#202020",
     "theme_color": "#2563eb",
+    "categories": [
+        "utilities"
+    ],
+    "lang": "en",
+    "dir": "ltr",
+    "orientation": "any",
     "icons": [
         {
             "src": "/icons/icon-192x192.png",
@@ -17,6 +30,12 @@
             "sizes": "512x512",
             "type": "image/png",
             "purpose": "maskable"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
         }
     ],
     "screenshots": [
@@ -25,6 +44,12 @@
             "sizes": "512x512",
             "type": "image/png",
             "form_factor": "narrow"
+        },
+        {
+            "src": "/icons/icon-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "form_factor": "wide"
         }
     ]
 }
