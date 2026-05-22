@@ -27,12 +27,13 @@ const CANVAS_GL = { antialias: false, logarithmicDepthBuffer: true }
 const CANVAS_STYLE = { height: '100vh', width: '100vw' }
 
 export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
-    const { dpr, postProcessingEnabled, aoQuality, shadowQuality } = useSettingsStore(
+    const { dpr, postProcessingEnabled, aoQuality, shadowQuality, activePreset } = useSettingsStore(
         useShallow((state) => ({
             dpr: state.dpr,
             postProcessingEnabled: state.postProcessingEnabled,
             aoQuality: state.aoQuality,
             shadowQuality: state.shadowQuality,
+            activePreset: state.activePreset,
         }))
     )
 
@@ -51,6 +52,10 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
     const timeOfDay = useTimeOfDay()
 
     const canvasDpr = useMemo(() => [1, dpr] as [number, number], [dpr])
+    const canvasGl = useMemo(() => ({ 
+        ...CANVAS_GL, 
+        logarithmicDepthBuffer: activePreset !== 'mobile' 
+    }), [activePreset])
 
     const coordsRef = useRef<HTMLSpanElement>(null)
 
@@ -75,7 +80,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
             <Canvas
                 shadows={shadowQuality === 'on'}
                 dpr={canvasDpr}
-                gl={CANVAS_GL}
+                gl={canvasGl}
                 style={CANVAS_STYLE}
             >
                 <PerformanceTester />

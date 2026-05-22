@@ -13,7 +13,9 @@ type InstancedBlocksProps = {
 
 const InstancedBlocks = ({ matricesChunks, texture, wireframe }: InstancedBlocksProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
-    const [bufferSize, setBufferSize] = useState(200000)
+    const activePreset = useSettingsStore(state => state.activePreset)
+    const initialBufferSize = activePreset === 'mobile' ? 20000 : 200000
+    const [bufferSize, setBufferSize] = useState(initialBufferSize)
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
 
     const boxGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
@@ -25,10 +27,11 @@ const InstancedBlocks = ({ matricesChunks, texture, wireframe }: InstancedBlocks
     const count = totalLength / 16
 
     useEffect(() => {
+        const expansionSize = activePreset === 'mobile' ? 10000 : 150000
         if (count > bufferSize - 5000) {
-            setBufferSize(prev => prev + 150000)
+            setBufferSize(prev => prev + expansionSize)
         }
-    }, [count, bufferSize])
+    }, [count, bufferSize, activePreset])
 
     useEffect(() => {
         if (ref.current && totalLength <= ref.current.instanceMatrix.array.length) {

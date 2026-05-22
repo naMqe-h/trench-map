@@ -76,7 +76,10 @@ export const WorldCamera = ({
     const isDev = process.env.NODE_ENV === 'development'
     const defaultCameraControlsRef = useRef<any>(null)
     const activeControlsRef = controlsRef || defaultCameraControlsRef
-    const cameraDamping = useSettingsStore((state) => state.cameraDamping)
+    const { cameraDamping, activePreset } = useSettingsStore(useShallow((state) => ({
+        cameraDamping: state.cameraDamping,
+        activePreset: state.activePreset,
+    })))
     const freeCam = useDevStore((state) => state.freeCam)
 
     const effectiveFreeCam = isDev && freeCam
@@ -148,6 +151,7 @@ export const WorldCamera = ({
                 makeDefault 
                 position={[center.x + 10, 40, center.z + 60]} 
                 fov={45} 
+                near={activePreset === 'mobile' ? 2 : 0.1}
             />
             <CameraControls 
                 ref={activeControlsRef} 

@@ -11,7 +11,9 @@ type WaterInstancesProps = {
 
 export const WaterInstances = ({ matrices, texture, wireframe }: WaterInstancesProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
-    const [bufferSize, setBufferSize] = useState(100000)
+    const activePreset = useSettingsStore(state => state.activePreset)
+    const initialBufferSize = activePreset === 'mobile' ? 10000 : 100000
+    const [bufferSize, setBufferSize] = useState(initialBufferSize)
     const shadowQuality = useSettingsStore(state => state.shadowQuality)
 
     const boxGeometry = useMemo(() => new THREE.BoxGeometry(1, 1, 1), [])
@@ -31,10 +33,11 @@ export const WaterInstances = ({ matrices, texture, wireframe }: WaterInstancesP
     })
 
     useEffect(() => {
+        const expansionSize = activePreset === 'mobile' ? 10000 : 50000
         if (count > bufferSize - 5000) {
-            setBufferSize(prev => prev + 50000)
+            setBufferSize(prev => prev + expansionSize)
         }
-    }, [count, bufferSize])
+    }, [count, bufferSize, activePreset])
 
     useEffect(() => {
         if (ref.current && totalLength <= ref.current.instanceMatrix.array.length) {

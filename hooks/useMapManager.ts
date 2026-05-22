@@ -1,7 +1,8 @@
-﻿import { useCallback, useRef, useEffect } from 'react'
+import { useCallback, useRef, useEffect } from 'react'
 import { getVillageChunks } from '@/actions/getVillageChunks'
 import { MAP_SETTINGS } from '@/config/settings'
 import { useMapStore } from '@/store/useMapStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 import { Village } from '@/types/token'
 import { HouseData, MapWorkerPayload, MapWorkerRequest, ProcessedVillageData, VillageData } from '@/types/scene'
 import { useShallow } from 'zustand/react/shallow'
@@ -23,6 +24,8 @@ export const useMapManager = (initialVillages: Village[]) => {
         hasMore: state.hasMore,
         offset: state.offset,
     })))
+
+    const activePreset = useSettingsStore(state => state.activePreset)
 
     useEffect(() => {
         useMapStore.getState().initializeVillages(initialVillages)
@@ -83,12 +86,13 @@ export const useMapManager = (initialVillages: Village[]) => {
         const request: MapWorkerRequest = {
             type: 'PROCESS_CHUNK',
             newVillages,
-            startIndex: lastProcessedIndex
+            startIndex: lastProcessedIndex,
+            isMobile: activePreset === 'mobile'
         }
         workerRef.current?.postMessage(request)
         store.setLastProcessedIndex(villages.length)
 
-    }, [villages, lastProcessedIndex, store])
+    }, [villages, lastProcessedIndex, store, activePreset])
 
 
     const loadMoreVillages = useCallback(async () => {

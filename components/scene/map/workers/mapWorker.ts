@@ -24,7 +24,7 @@ const waterNoise2D = createNoise2D()
 self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
     switch (event.data.type) {
         case 'PROCESS_CHUNK': {
-            const { newVillages, startIndex } = event.data
+            const { newVillages, startIndex, isMobile } = event.data
 
             const dummy = new THREE.Object3D()
             
@@ -66,7 +66,8 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
                         occupiedByVillages, 
                         treeEvaluatedCoordsCache, 
                         housesSpatialGrid, 
-                        occupiedCoordsCache
+                        occupiedCoordsCache,
+                        isMobile
                     )
                     if (spot) treeSpots.push(spot)
                 }
@@ -98,15 +99,16 @@ self.addEventListener('message', (event: MessageEvent<MapWorkerRequest>) => {
 
                     if (type === 'dirt') {
                         dirtCoordsCache.add(key)
-                        dummy.position.set(x, -0.48, z)
+                        dummy.position.set(x, isMobile ? -0.45 : -0.48, z)
                     } else if (type === 'water') {
                         waterCoordsCache.add(key)
                         dummy.position.set(x, -0.5, z)
                     } else {
                         grassCoordsCache.add(key)
-                        dummy.position.set(x, isInsideVillage ? -0.49 : -0.5, z)
+                        const y = isInsideVillage ? (isMobile ? -0.4 : -0.49) : -0.5
+                        dummy.position.set(x, y, z)
 
-                        const veg = placeVegetation(x, z, noise2D, isOccupiedByObject, isOccupiedByHouse)
+                        const veg = placeVegetation(x, z, noise2D, isOccupiedByObject, isOccupiedByHouse, isMobile)
                         if (veg) newVegetationSpots.push(veg)
                     }
 

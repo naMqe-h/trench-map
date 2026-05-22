@@ -14,7 +14,8 @@ export function evaluateTreeSpot(
     occupiedByVillages: Set<string>,
     treeEvaluatedCoordsCache: Set<string>,
     housesSpatialGrid: Map<string, Array<{ x: number; z: number; fx: number; fz: number }>>,
-    occupiedCoordsCache: Set<string>
+    occupiedCoordsCache: Set<string>,
+    isMobile?: boolean
 ): TreeSpot | null {
     const key = `${x},${z}`
 
@@ -34,7 +35,7 @@ export function evaluateTreeSpot(
                 markOccupied(x, z, MAP_SETTINGS.TREE_FOOTPRINT, occupiedCoordsCache)
                 
                 return {
-                    position: [x, 0.5, z],
+                    position: [x, isMobile ? 0.6 : 0.5, z],
                     rotation: Math.random() * Math.PI * 2,
                     scale: 0.9 + Math.random() * 0.2
                 }
@@ -53,7 +54,8 @@ export function placeVegetation(
     z: number,
     noise2D: (x: number, y: number) => number,
     isOccupiedByObject: boolean,
-    isOccupiedByHouse: boolean
+    isOccupiedByHouse: boolean,
+    isMobile?: boolean
 ): VegetationData | null {
     if (isOccupiedByObject || isOccupiedByHouse) return null
 
@@ -67,7 +69,7 @@ export function placeVegetation(
         } else {
             type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)]
         }
-        return { position: [x, 0, z], type }
+        return { position: [x, isMobile ? 0.1 : 0, z], type }
     }
 
     return null

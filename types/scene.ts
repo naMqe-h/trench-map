@@ -112,6 +112,7 @@ export type ProcessChunkRequest = {
     type: 'PROCESS_CHUNK'
     newVillages: Village[]
     startIndex: number
+    isMobile?: boolean
 }
 
 /**
