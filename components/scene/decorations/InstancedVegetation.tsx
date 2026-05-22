@@ -4,16 +4,21 @@ import { useMemo, useRef, useLayoutEffect } from 'react'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { mergeBufferGeometries } from 'three-stdlib'
 import { VegetationData } from '@/types/scene'
+import { useSettingsStore } from '@/store/useSettingsStore'
 
 type InstancedVegetationProps = {
     vegetationData: VegetationData[]
 }
 
 export const InstancedVegetation = ({ vegetationData }: InstancedVegetationProps) => {
-    const crossGeometry = useMemo(() => mergeBufferGeometries([
-        new THREE.PlaneGeometry(1, 1).rotateY(Math.PI / 4),
-        new THREE.PlaneGeometry(1, 1).rotateY(-Math.PI / 4),
-    ]), [])
+    const crossGeometry = useMemo(() => {
+        const geo = mergeBufferGeometries([
+            new THREE.PlaneGeometry(1, 1).rotateY(Math.PI / 4),
+            new THREE.PlaneGeometry(1, 1).rotateY(-Math.PI / 4),
+        ])
+        if (geo) geo.computeBoundingSphere()
+        return geo
+    }, [])
 
     const textures = useTextureAtlas()
 
@@ -98,6 +103,7 @@ type InstancedSpriteMeshProps = {
 
 const InstancedSpriteMesh = ({ instances, geometry, material }: InstancedSpriteMeshProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
+    const activePreset = useSettingsStore(state => state.activePreset)
     
     useLayoutEffect(() => {
         if (!instances.length) return
@@ -122,7 +128,7 @@ const InstancedSpriteMesh = ({ instances, geometry, material }: InstancedSpriteM
         <instancedMesh
             ref={ref}
             args={[geometry, material, instances.length]}
-            frustumCulled={false}
+            frustumCulled={activePreset === 'mobile'}
         />
     )
 }

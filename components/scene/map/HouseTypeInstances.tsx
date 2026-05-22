@@ -1,7 +1,8 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useMemo, useLayoutEffect } from 'react'
 import { ThreeEvent } from '@react-three/fiber'
 import { useMapStore } from '@/store/useMapStore'
 import { useDevStore } from '@/store/useDevStore'
+import { useSettingsStore } from '@/store/useSettingsStore'
 import { VillageData, HouseData } from '@/types/scene'
 import { useGLTF, Instances, Instance } from '@react-three/drei'
 import * as THREE from 'three'
@@ -30,8 +31,24 @@ export const HouseTypeInstances = ({
     const [meshes, setMeshes] = useState<{ structure: THREE.Mesh | null, glass: THREE.Mesh | null }>({ structure: null, glass: null })
     const proxyRef = useRef<THREE.Mesh>(null)
     const instancesRef = useRef<THREE.InstancedMesh>(null)
+    const glassInstancesRef = useRef<THREE.InstancedMesh>(null)
     const isIntroPlaying = useMapStore((state) => state.isIntroPlaying)
     const wireframeMode = useDevStore((state) => state.wireframeMode)
+
+    const activePreset = useSettingsStore(state => state.activePreset)
+    const loadDistance = useSettingsStore(state => state.loadDistance)
+    const cameraPosition = useMapStore(state => state.cameraPosition)
+
+    const filteredHouses = useMemo(() => {
+        if (activePreset !== 'mobile') return houses
+        
+        const maxDistSq = (loadDistance * 16) ** 2
+        return houses.filter(({ house }) => {
+            const dx = house.position[0] - cameraPosition.x
+            const dz = house.position[2] - cameraPosition.z
+            return (dx * dx + dz * dz) < maxDistSq
+        })
+    }, [houses, activePreset, loadDistance, cameraPosition.x, cameraPosition.z])
 
     useEffect(() => {
         const structureGeometries: THREE.BufferGeometry[] = []
@@ -98,6 +115,25 @@ export const HouseTypeInstances = ({
         }
     }, [])
 
+    useLayoutEffect(() => {
+        if (activePreset === 'mobile' && instancesRef.current && filteredHouses.length > 0) {
+            const dummy = new THREE.Object3D()
+            filteredHouses.forEach(({ house }, i) => {
+                dummy.position.fromArray(house.position)
+                dummy.rotation.set(0, house.rotation || 0, 0)
+                dummy.updateMatrix()
+                instancesRef.current!.setMatrixAt(i, dummy.matrix)
+                if (glassInstancesRef.current) {
+                    glassInstancesRef.current.setMatrixAt(i, dummy.matrix)
+                }
+            })
+            instancesRef.current.instanceMatrix.needsUpdate = true
+            if (glassInstancesRef.current) {
+                glassInstancesRef.current.instanceMatrix.needsUpdate = true
+            }
+        }
+    }, [filteredHouses, activePreset, meshes.structure])
+
     if (!meshes.structure || houses.length === 0) return null
 
     const handlePointerMove = (village: VillageData, house: HouseData) => (e: ThreeEvent<PointerEvent>) => {
@@ -137,6 +173,61 @@ export const HouseTypeInstances = ({
         if (isIntroPlaying) return
         const sidebarType = houseType.startsWith('library') ? 'library' : 'town-hall'
         setSelectedToken(village, sidebarType)
+    }
+
+    if (activePreset === 'mobile') {
+        return (
+            <>
+                <instancedMesh
+                    ref={instancesRef}
+                    args={[meshes.structure.geometry, meshes.structure.material, filteredHouses.length]}
+                    castShadow={isShadowEnabled}
+                    receiveShadow={isShadowEnabled}
+                    onPointerMove={(e) => {
+                        if (e.instanceId !== undefined && filteredHouses[e.instanceId]) {
+                            const { house, village } = filteredHouses[e.instanceId]
+                            handlePointerMove(village, house)(e)
+                        }
+                    }}
+                    onPointerOut={handlePointerOut}
+                    onClick={(e) => {
+                        if (e.instanceId !== undefined && filteredHouses[e.instanceId]) {
+                            const { village } = filteredHouses[e.instanceId]
+                            handleClick(village)(e)
+                        }
+                    }}
+                />
+                {meshes.glass && (
+                    <instancedMesh
+                        ref={glassInstancesRef}
+                        args={[meshes.glass.geometry, meshes.glass.material, filteredHouses.length]}
+                        castShadow={isShadowEnabled}
+                        receiveShadow={isShadowEnabled}
+                        onClick={(e) => {
+                            if (e.instanceId !== undefined && filteredHouses[e.instanceId]) {
+                                const { village } = filteredHouses[e.instanceId]
+                                handleClick(village)(e)
+                            }
+                        }}
+                    />
+                )}
+                <mesh 
+                    ref={proxyRef} 
+                    visible={false} 
+                    matrixAutoUpdate={false} 
+                    geometry={meshes.structure.geometry}
+                >
+                    <meshStandardMaterial 
+                        emissive="#cccccc" 
+                        emissiveIntensity={0.15} 
+                        transparent 
+                        opacity={0.4} 
+                        depthWrite={false} 
+                        wireframe={wireframeMode}
+                    />
+                </mesh>
+            </>
+        )
     }
 
     return (
