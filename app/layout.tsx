@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { Pixelify_Sans } from "next/font/google"
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -23,6 +23,10 @@ const siteConfig = {
     ],
 }
 
+export const viewport: Viewport = {
+    themeColor: "#2563eb",
+}
+
 export const metadata: Metadata = {
     title: {
         default: siteConfig.name,
@@ -30,6 +34,12 @@ export const metadata: Metadata = {
     },
     description: siteConfig.description,
     keywords: siteConfig.keywords,
+    manifest: "/manifest.json",
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: "default",
+        title: siteConfig.name,
+    },
     openGraph: {
         title: siteConfig.name,
         description: siteConfig.description,
