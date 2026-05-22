@@ -12,7 +12,7 @@ type PresetSettings = Pick<
     'postProcessingEnabled' | 'dpr' | 'aoQuality' | 'shadowQuality' | 'loadDistance' | 'renderGrassAndFlowers'
 >
 
-const presets: Record<'high' | 'medium' | 'low', PresetSettings> = {
+const presets: Record<'high' | 'medium' | 'low' | 'mobile', PresetSettings> = {
     high: {
         postProcessingEnabled: true,
         dpr: 1.5,
@@ -37,9 +37,17 @@ const presets: Record<'high' | 'medium' | 'low', PresetSettings> = {
         loadDistance: 8,
         renderGrassAndFlowers: false,
     },
+    mobile: {
+        postProcessingEnabled: false,
+        dpr: 1.0,
+        aoQuality: 'off',
+        shadowQuality: 'off',
+        loadDistance: 6,
+        renderGrassAndFlowers: false,
+    },
 }
 
-type Preset = 'high' | 'medium' | 'low' | 'custom'
+type Preset = 'high' | 'medium' | 'low' | 'mobile' | 'custom'
 
 interface SettingsState {
     _hasHydrated: boolean
@@ -71,7 +79,7 @@ interface SettingsState {
     setShowMinimap: (show: boolean) => void
     setShowFpsCounter: (show: boolean) => void
     autoDetectSettings: () => void
-    applyPreset: (tier: 'high' | 'medium' | 'low') => void
+    applyPreset: (tier: 'high' | 'medium' | 'low' | 'mobile') => void
 }
 
 export const useSettingsStore = create<SettingsState>()(

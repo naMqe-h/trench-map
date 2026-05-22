@@ -25,7 +25,7 @@ const Select = ({ value, onChange, children }: { value: string | number, onChang
     </select>
 )
 
-type Preset = 'high' | 'medium' | 'low' | 'custom'
+type Preset = 'high' | 'medium' | 'low' | 'mobile' | 'custom'
 
 const PresetButton = ({ label, activePreset, onClick }: { label: Preset, activePreset: Preset, onClick: () => void }) => {
     const isActive = label === activePreset
@@ -33,7 +33,7 @@ const PresetButton = ({ label, activePreset, onClick }: { label: Preset, activeP
         <button
             onClick={onClick}
             disabled={label === 'custom'}
-            className={`cursor-pointer w-full text-center px-3 py-1.5 text-sm font-semibold rounded-md transition-colors
+            className={`cursor-pointer w-full text-center px-1 py-1.5 text-[10px] font-semibold rounded-md transition-colors
       ${isActive ? 'bg-blue-600 text-white' : 'bg-zinc-700 text-zinc-300 hover:bg-zinc-600'}
       ${label === 'custom' && 'cursor-not-allowed opacity-70'}`}
         >
@@ -111,11 +111,16 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                 <div className="p-4 divide-y divide-zinc-700">
                     <div className="pb-2">
                         <h3 className="text-xs font-bold uppercase text-zinc-500 mb-2">Performance Presets</h3>
-                        <div className="grid grid-cols-4 gap-2 py-3">
-                            <PresetButton label="low" activePreset={activePreset} onClick={() => applyPreset('low')} />
-                            <PresetButton label="medium" activePreset={activePreset} onClick={() => applyPreset('medium')} />
-                            <PresetButton label="high" activePreset={activePreset} onClick={() => applyPreset('high')} />
-                            <PresetButton label="custom" activePreset={activePreset} onClick={() => {}} />
+                        <div className="flex flex-col gap-1 py-3">
+                            <div className="grid grid-cols-2 gap-1">
+                                <PresetButton label="mobile" activePreset={activePreset} onClick={() => applyPreset('mobile')} />
+                                <PresetButton label="low" activePreset={activePreset} onClick={() => applyPreset('low')} />
+                            </div>
+                            <div className="grid grid-cols-3 gap-1">
+                                <PresetButton label="medium" activePreset={activePreset} onClick={() => applyPreset('medium')} />
+                                <PresetButton label="high" activePreset={activePreset} onClick={() => applyPreset('high')} />
+                                <PresetButton label="custom" activePreset={activePreset} onClick={() => {}} />
+                            </div>
                         </div>
                     </div>
 
@@ -144,6 +149,7 @@ export const SettingsModal = ({ isOpen, onClose }: SettingsModalProps) => {
                             >
                                 <option value={5.0}>Best Quality</option>
                                 <option value={1.5}>High Quality</option>
+                                <option value={1.0}>Native</option>
                                 <option value={0.8}>Balanced</option>
                                 <option value={0.4}>Performance</option>
                             </Select>

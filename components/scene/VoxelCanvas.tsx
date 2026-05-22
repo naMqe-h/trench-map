@@ -27,11 +27,12 @@ const CANVAS_GL = { antialias: false, logarithmicDepthBuffer: true }
 const CANVAS_STYLE = { height: '100vh', width: '100vw' }
 
 export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
-    const { dpr, postProcessingEnabled, aoQuality } = useSettingsStore(
+    const { dpr, postProcessingEnabled, aoQuality, shadowQuality } = useSettingsStore(
         useShallow((state) => ({
             dpr: state.dpr,
             postProcessingEnabled: state.postProcessingEnabled,
             aoQuality: state.aoQuality,
+            shadowQuality: state.shadowQuality,
         }))
     )
 
@@ -72,7 +73,7 @@ export const VoxelCanvas = ({ villages }: VoxelCanvasProps) => {
                 {!isReady && <LoadingScreen />}
             </AnimatePresence>
             <Canvas
-                shadows
+                shadows={shadowQuality === 'on'}
                 dpr={canvasDpr}
                 gl={CANVAS_GL}
                 style={CANVAS_STYLE}

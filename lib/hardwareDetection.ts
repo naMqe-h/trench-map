@@ -1,36 +1,39 @@
 
-export const getPerformanceTier = (): 'high' | 'medium' | 'low' => {
+export const getPerformanceTier = (): 'high' | 'medium' | 'low' | 'mobile' => {
     if (typeof window === 'undefined') {
-        return 'medium';
+        return 'medium'
     }
 
-    if (/Mobi|Android/i.test(navigator.userAgent)) {
-        return 'low';
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) 
+        || (window.innerWidth <= 768 && window.innerHeight <= 1024)
+
+    if (isMobile) {
+        return 'mobile'
     }
 
     try {
-        const canvas = document.createElement('canvas');
-        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        const canvas = document.createElement('canvas')
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
         if (!gl || !(gl instanceof WebGLRenderingContext)) {
-            return 'low';
+            return 'low'
         }
 
-        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+        const debugInfo = gl.getExtension('WEBGL_debug_renderer_info')
         if (debugInfo) {
-            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+            const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL)
             if (renderer) {
-                const lowerRenderer = renderer.toLowerCase();
+                const lowerRenderer = renderer.toLowerCase()
                 if (/\brtx\b|\bgeforce\b|\bgtx\b|\bradeon\b|amd|apple m|m1|m2|m3|m4/i.test(lowerRenderer)) {
-                    return 'high';
+                    return 'high'
                 }
                 if (/\bintel\b|\buhd\b|\biris\b/i.test(lowerRenderer)) {
-                    return 'medium';
+                    return 'medium'
                 }
             }
         }
     } catch {
-        return 'medium';
+        return 'medium'
     }
 
-    return 'medium';
-};
+    return 'medium'
+}

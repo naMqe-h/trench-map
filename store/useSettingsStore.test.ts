@@ -63,4 +63,19 @@ describe('useSettingsStore', () => {
         expect(state.aoQuality).toBe('off')
         expect(state.renderGrassAndFlowers).toBe(false)
     })
+
+    it('should apply mobile preset correctly', () => {
+        const { applyPreset } = useSettingsStore.getState()
+        
+        applyPreset('mobile')
+        
+        const state = useSettingsStore.getState()
+        expect(state.activePreset).toBe('mobile')
+        expect(state.shadowQuality).toBe('off')
+        expect(state.aoQuality).toBe('off')
+        expect(state.renderGrassAndFlowers).toBe(false)
+        expect(state.dpr).toBe(1.0)
+        expect(state.postProcessingEnabled).toBe(false)
+        expect(state.loadDistance).toBe(6)
+    })
 })
