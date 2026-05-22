@@ -1,14 +1,26 @@
 [
-    {
-        "relation": [
-            "delegate_permission/common.handle_all_urls"
-        ],
-        "target": {
-            "namespace": "android_app",
-            "package_name": "xyz.trenchmap.www",
-            "sha256_cert_fingerprints": [
-                "43:A1:91:B7:B8:EE:80:09:B0:F3:11:A1:3E:2C:CB:03:22:2F:53:A7:E2:24:C7:2C:73:39:8B:90:7E:EC:36:5C"
-            ]
-        }
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.trenchmap.www",
+      "sha256_cert_fingerprints": [
+        "43:A1:91:B7:B8:EE:80:09:B0:F3:11:A1:3E:2C:CB:03:22:2F:53:A7:E2:24:C7:2C:73:39:8B:90:7E:EC:36:5C"
+      ]
     }
+  },
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "xyz.trenchmap.app",
+      "sha256_cert_fingerprints": [
+        "43:A1:91:B7:B8:EE:80:09:B0:F3:11:A1:3E:2C:CB:03:22:2F:53:A7:E2:24:C7:2C:73:39:8B:90:7E:EC:36:5C"
+      ]
+    }
+  }
 ]
