@@ -28,8 +28,6 @@ export const useMapManager = (initialVillages: Village[]) => {
     const activePreset = useSettingsStore(state => state.activePreset)
 
     useEffect(() => {
-        useMapStore.getState().initializeVillages(initialVillages)
-
         workerRef.current = new Worker(new URL('@/components/scene/map/workers/mapWorker.ts', import.meta.url))
 
         workerRef.current.onmessage = (event: MessageEvent<MapWorkerPayload>) => {
@@ -77,6 +75,12 @@ export const useMapManager = (initialVillages: Village[]) => {
     }, [])
 
     useEffect(() => {
+        const isMobile = activePreset === 'mobile'
+        const villagesToInit = isMobile ? initialVillages.slice(0, 15) : initialVillages
+        useMapStore.getState().initializeVillages(villagesToInit, !isMobile)
+    }, [activePreset, initialVillages])
+
+    useEffect(() => {
         if (villages.length <= lastProcessedIndex) return
 
         store.setGenerating(true)
@@ -96,7 +100,7 @@ export const useMapManager = (initialVillages: Village[]) => {
 
 
     const loadMoreVillages = useCallback(async () => {
-        if (isLoading || !hasMore) return
+        if (isLoading || !hasMore || activePreset === 'mobile') return
 
         store.setLoading(true)
         try {
@@ -108,11 +112,12 @@ export const useMapManager = (initialVillages: Village[]) => {
         } finally {
             store.setLoading(false)
         }
-    }, [isLoading, hasMore, offset, store])
+    }, [isLoading, hasMore, offset, store, activePreset])
 
     const addLiveToken = useCallback((newVillage: Village, isNew: boolean = true) => {
+        if (activePreset === 'mobile' && useMapStore.getState().villages.length >= 5) return
         store.addLiveVillage(newVillage, isNew)
-    }, [store])
+    }, [store, activePreset])
 
     return {
         loadMoreVillages,

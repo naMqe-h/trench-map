@@ -52,6 +52,7 @@ const InstancedBlocks = ({ matricesChunks, texture, wireframe }: InstancedBlocks
             raycast={() => null}
             castShadow={shadowQuality !== 'off'}
             receiveShadow={shadowQuality !== 'off'}
+            frustumCulled={false}
         >
             <meshStandardMaterial map={texture} roughness={1} metalness={0} wireframe={wireframe} />
         </instancedMesh>

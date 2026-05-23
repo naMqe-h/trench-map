@@ -64,7 +64,7 @@ export function Clouds() {
     })
 
     return (
-        <instancedMesh ref={instancedMeshRef} args={[undefined, undefined, CLOUD_COUNT]}>
+        <instancedMesh ref={instancedMeshRef} args={[undefined, undefined, CLOUD_COUNT]} frustumCulled={false}>
             <boxGeometry />
             <meshBasicMaterial color="white" transparent opacity={0.6} />
         </instancedMesh>

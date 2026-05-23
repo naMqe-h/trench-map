@@ -41,6 +41,7 @@ export const InstancedTrees = ({ treeSpots }: InstancedTreesProps) => {
             args={[treeMesh.geometry, treeMesh.material, treeSpots.length]}
             castShadow
             receiveShadow
+            frustumCulled={false}
         />
     )
 }

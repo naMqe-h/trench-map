@@ -48,7 +48,7 @@ interface MapActions {
     setError: (error: string | null) => void
     addVillages: (newVillages: Village[], hasMore: boolean) => void
     addLiveVillage: (newVillage: Village, isNew: boolean) => void
-    initializeVillages: (villages: Village[]) => void
+    initializeVillages: (villages: Village[], hasMore?: boolean) => void
     resetMap: () => void
     setCameraState: (position: { x: number; z: number }, rotation: number) => void
     setCameraFlightRequest: (request: { village: Village; trigger: number; isNew: boolean } | null) => void
@@ -130,10 +130,11 @@ export const useMapStore = create<MapState & MapActions>((set, get) => ({
         }
     }),
     
-    initializeVillages: (villages) => set({
+    initializeVillages: (villages, hasMore = true) => set({
         ...initialState,
         villages: villages,
         offset: villages.length,
+        hasMore
     }),
 
     resetMap: () => set(initialState),

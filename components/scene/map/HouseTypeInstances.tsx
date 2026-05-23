@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo, useLayoutEffect } from 'react'
+import { useEffect, useState, useRef, useLayoutEffect } from 'react'
 import { ThreeEvent } from '@react-three/fiber'
 import { useMapStore } from '@/store/useMapStore'
 import { useDevStore } from '@/store/useDevStore'
@@ -36,19 +36,6 @@ export const HouseTypeInstances = ({
     const wireframeMode = useDevStore((state) => state.wireframeMode)
 
     const activePreset = useSettingsStore(state => state.activePreset)
-    const loadDistance = useSettingsStore(state => state.loadDistance)
-    const cameraPosition = useMapStore(state => state.cameraPosition)
-
-    const filteredHouses = useMemo(() => {
-        if (activePreset !== 'mobile') return houses
-        
-        const maxDistSq = (loadDistance * 16) ** 2
-        return houses.filter(({ house }) => {
-            const dx = house.position[0] - cameraPosition.x
-            const dz = house.position[2] - cameraPosition.z
-            return (dx * dx + dz * dz) < maxDistSq
-        })
-    }, [houses, activePreset, loadDistance, cameraPosition.x, cameraPosition.z])
 
     useEffect(() => {
         const structureGeometries: THREE.BufferGeometry[] = []
@@ -116,9 +103,9 @@ export const HouseTypeInstances = ({
     }, [])
 
     useLayoutEffect(() => {
-        if (activePreset === 'mobile' && instancesRef.current && filteredHouses.length > 0) {
+        if (activePreset === 'mobile' && instancesRef.current && houses.length > 0) {
             const dummy = new THREE.Object3D()
-            filteredHouses.forEach(({ house }, i) => {
+            houses.forEach(({ house }, i) => {
                 dummy.position.fromArray(house.position)
                 dummy.rotation.set(0, house.rotation || 0, 0)
                 dummy.updateMatrix()
@@ -132,7 +119,7 @@ export const HouseTypeInstances = ({
                 glassInstancesRef.current.instanceMatrix.needsUpdate = true
             }
         }
-    }, [filteredHouses, activePreset, meshes.structure])
+    }, [houses, activePreset, meshes.structure])
 
     if (!meshes.structure || houses.length === 0) return null
 
@@ -180,19 +167,20 @@ export const HouseTypeInstances = ({
             <>
                 <instancedMesh
                     ref={instancesRef}
-                    args={[meshes.structure.geometry, meshes.structure.material, filteredHouses.length]}
+                    args={[meshes.structure.geometry, meshes.structure.material, houses.length]}
                     castShadow={isShadowEnabled}
                     receiveShadow={isShadowEnabled}
+                    frustumCulled={false}
                     onPointerMove={(e) => {
-                        if (e.instanceId !== undefined && filteredHouses[e.instanceId]) {
-                            const { house, village } = filteredHouses[e.instanceId]
+                        if (e.instanceId !== undefined && houses[e.instanceId]) {
+                            const { house, village } = houses[e.instanceId]
                             handlePointerMove(village, house)(e)
                         }
                     }}
                     onPointerOut={handlePointerOut}
                     onClick={(e) => {
-                        if (e.instanceId !== undefined && filteredHouses[e.instanceId]) {
-                            const { village } = filteredHouses[e.instanceId]
+                        if (e.instanceId !== undefined && houses[e.instanceId]) {
+                            const { village } = houses[e.instanceId]
                             handleClick(village)(e)
                         }
                     }}
@@ -200,12 +188,13 @@ export const HouseTypeInstances = ({
                 {meshes.glass && (
                     <instancedMesh
                         ref={glassInstancesRef}
-                        args={[meshes.glass.geometry, meshes.glass.material, filteredHouses.length]}
+                        args={[meshes.glass.geometry, meshes.glass.material, houses.length]}
                         castShadow={isShadowEnabled}
                         receiveShadow={isShadowEnabled}
+                        frustumCulled={false}
                         onClick={(e) => {
-                            if (e.instanceId !== undefined && filteredHouses[e.instanceId]) {
-                                const { village } = filteredHouses[e.instanceId]
+                            if (e.instanceId !== undefined && houses[e.instanceId]) {
+                                const { village } = houses[e.instanceId]
                                 handleClick(village)(e)
                             }
                         }}

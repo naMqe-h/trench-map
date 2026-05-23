@@ -4,7 +4,6 @@ import { useMemo, useRef, useLayoutEffect } from 'react'
 import { useTextureAtlas } from '@/hooks/useTextureAtlas'
 import { mergeBufferGeometries } from 'three-stdlib'
 import { VegetationData } from '@/types/scene'
-import { useSettingsStore } from '@/store/useSettingsStore'
 
 type InstancedVegetationProps = {
     vegetationData: VegetationData[]
@@ -103,7 +102,6 @@ type InstancedSpriteMeshProps = {
 
 const InstancedSpriteMesh = ({ instances, geometry, material }: InstancedSpriteMeshProps) => {
     const ref = useRef<THREE.InstancedMesh>(null!)
-    const activePreset = useSettingsStore(state => state.activePreset)
     
     useLayoutEffect(() => {
         if (!instances.length) return
@@ -128,7 +126,7 @@ const InstancedSpriteMesh = ({ instances, geometry, material }: InstancedSpriteM
         <instancedMesh
             ref={ref}
             args={[geometry, material, instances.length]}
-            frustumCulled={activePreset === 'mobile'}
+            frustumCulled={false}
         />
     )
 }

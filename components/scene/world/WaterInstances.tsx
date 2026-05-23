@@ -58,6 +58,7 @@ export const WaterInstances = ({ matrices, texture, wireframe }: WaterInstancesP
             raycast={() => null}
             castShadow={shadowQuality !== 'off'}
             receiveShadow={shadowQuality !== 'off'}
+            frustumCulled={false}
         >
             <meshStandardMaterial 
                 map={texture} 
