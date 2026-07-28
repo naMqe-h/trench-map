@@ -30,7 +30,7 @@ export async function getVillageChunks(limit: number, offset: number): Promise<V
                 "Content-Type": "application/json",
             },
             next: {
-                revalidate: 300,
+                revalidate: 3600,
                 tags: ["villages"],
             },
         })

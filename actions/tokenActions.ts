@@ -9,7 +9,7 @@ export async function fetchTokenData(ca: string): Promise<DexTokenResponse | nul
 
     try {
         const response = await fetch(`${API_URL}/dex/tokens/${ca}`, {
-            next: { revalidate: 300 }
+            next: { revalidate: 3600 }
         })
 
         if (!response.ok) {
@@ -30,7 +30,7 @@ export async function fetchTokenHolders(ca: string): Promise<TokenHoldersRespons
 
     try {
         const response = await fetch(`${API_URL}/dex/tokens/${ca}/holders`, {
-            next: { revalidate: 300 }
+            next: { revalidate: 3600 }
         })
 
         if (!response.ok) {
